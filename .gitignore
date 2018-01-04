@@ -1,2 +1,5 @@
 # Raw data
 data/
+
+# Jupyter Notebook
+.ipynb_checkpoints
