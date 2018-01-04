@@ -1,1 +1,1 @@
-twitterscraper "from:realDonaldTrump since:2009-01-01 until:2017-12-31" -o scraped_tweets.json
+twitterscraper "from:realDonaldTrump since:2009-01-01 until:2018-01-01" -o scraped_tweets.json
