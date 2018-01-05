@@ -1,10 +1,6 @@
 import pandas as pd
 
 
-def main():
-    pass
-
-
 def load_json_list(list):
     '''
     takes a list of json files, loads them, and concatenates them
@@ -40,6 +36,3 @@ def sort_by_date(df, date_column):
     sorted_data = df.sort_values(date_column)
     data = sorted_data.set_index(date_column)
     return data
-
-
-if __name__ == '__main__':

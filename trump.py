@@ -1,8 +1,10 @@
 import pandas as pd
 from src.load_data import load_json_list, apply_date_mask, sort_by_date
+from src.vader_sentiment import get_vader_scores, apply_vader
 
 
 def main():
+    # Load and sort the data
     data_list = (['data/condensed_2009.json',
                   'data/condensed_2010.json',
                   'data/condensed_2011.json',
@@ -17,7 +19,10 @@ def main():
     masked_df = apply_date_mask(raw_data, 'created_at',
                                 '2015-06-01', '2017-03-26')
     df = sort_by_date(masked_df, 'created_at')
-    print (len(df))
+
+    # Create columns for vader sentiment
+    df = apply_vader(df, 'text')
+    print(df[0:10])
 
 
 if __name__ == '__main__':
