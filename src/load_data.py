@@ -1,24 +1,6 @@
 import pandas as pd
 
 
-def main():
-    data_list = (['data/condensed_2009.json',
-                  'data/condensed_2010.json',
-                  'data/condensed_2011.json',
-                  'data/condensed_2012.json',
-                  'data/condensed_2013.json',
-                  'data/condensed_2014.json',
-                  'data/condensed_2015.json',
-                  'data/condensed_2016.json',
-                  'data/condensed_2017.json'])
-
-    raw_data = load_json_list(data_list)
-    masked_df = apply_date_mask(raw_data, 'created_at',
-                                '2015-06-01', '2017-03-26')
-    df = sort_by_date(masked_df, 'created_at')
-    print (len(df))
-
-
 def load_json_list(list):
     '''
     takes a list of json files, loads them, and concatenates them
@@ -54,7 +36,3 @@ def sort_by_date(df, date_column):
     sorted_data = df.sort_values(date_column)
     data = sorted_data.set_index(date_column)
     return data
-
-
-if __name__ == '__main__':
-    main()

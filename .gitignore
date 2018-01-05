@@ -4,3 +4,6 @@ data/
 # Jupyter Notebooks
 *.ipynb_checkpoints
 *.ipynb
+
+# .pyc files
+*.pyc
