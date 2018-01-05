@@ -1,8 +1,8 @@
 # Trump Tweet Author Identification
 
-In early December, Trump’s personal Twitter account tweeted
+In early December, Trump’s personal Twitter account tweeted:
 
->“I had to fire General Flynn because he lied to the Vice President and the FBI. He has pled guilty to those lies. It is a shame because his actions during the transition were lawful. There was nothing to hide!”
+<blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr">I had to fire General Flynn because he lied to the Vice President and the FBI. He has pled guilty to those lies. It is a shame because his actions during the transition were lawful. There was nothing to hide!</p>&mdash; Donald J. Trump (@realDonaldTrump) <a href="https://twitter.com/realDonaldTrump/status/937007006526959618?ref_src=twsrc%5Etfw">December 2, 2017</a></blockquote>
 
 Several legal experts argued that this tweet provided evidence that Trump obstructed justice. Trump defended himself by claiming that his lawyer John Dowd wrote and posted the tweet. But did he really?
 
