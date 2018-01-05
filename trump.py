@@ -1,6 +1,7 @@
 import pandas as pd
 from src.load_data import load_json_list, apply_date_mask, sort_by_date
 from src.vader_sentiment import get_vader_scores, apply_vader
+from src.style import sentence_word_length, apply_avg_lengths
 
 
 def main():
@@ -20,8 +21,17 @@ def main():
                                 '2015-06-01', '2017-03-26')
     df = sort_by_date(masked_df, 'created_at')
 
+    #==========================================================================
+# Testing
+    df = df[0:10]
+    #==========================================================================
+
     # Create columns for vader sentiment
     df = apply_vader(df, 'text')
+
+    # Create columns for average sentence and word length of tweet
+    df = apply_avg_lengths(df, 'text')
+
     print(df[0:10])
 
 
