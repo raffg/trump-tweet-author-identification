@@ -86,7 +86,7 @@ def identify_quote(text):
     OUTPUT: int
     '''
 
-    if re.match('^".*"$', text) is None:
+    if re.match('^"@', text) is None:
         return 0
     else:
         return 1
