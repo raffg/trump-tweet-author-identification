@@ -7,3 +7,6 @@ data/
 
 # .pyc files
 *.pyc
+
+# twitterscraper query
+twitterscraper_query.txt
