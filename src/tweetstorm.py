@@ -16,5 +16,5 @@ def tweetstorm(df, tweet, source, timestamp, time_threshold):
     temp['time_diff'] = df.groupby(source)[timestamp].diff().dt.total_seconds()
     temp['time_diff_prev'] = temp['time_diff'].shift(-1)
     df['tweetstorm'] = temp.eval('time_diff < @time_threshold | \
-                                 time_diff2 < @time_threshold')
+                                 time_diff_prev < @time_threshold')
     return df

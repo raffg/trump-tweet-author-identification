@@ -88,7 +88,7 @@ def identify_quoted_retweet(text):
     OUTPUT: int
     '''
 
-    return (0 if re.match('^"@', text) is None else 1)
+    return (False if re.match('^"@', text) is None else True)
 
 
 def quoted_retweet(df, column):

@@ -3,6 +3,7 @@ from src.load_data import load_json_list, apply_date_mask, sort_by_date
 from src.vader_sentiment import apply_vader
 from src.style import apply_avg_lengths, tweet_length, punctuation_columns, \
                       quoted_retweet
+from src.tweetstorm import tweetstorm
 
 
 def main():
@@ -43,6 +44,9 @@ def main():
 
     # Create column identifying if the tweet is surrounding by quote marks
     df = quoted_retweet(df, 'text')
+
+    # Create column identifying if the tweet is part of a tweetstorm
+    df = tweetstorm(df, 'text', 'source', 'created_at', 600)
 
     print(df)
 
