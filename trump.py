@@ -1,7 +1,7 @@
 import pandas as pd
 from src.load_data import load_json_list, apply_date_mask, sort_by_date
 from src.vader_sentiment import get_vader_scores, apply_vader
-from src.style import sentence_word_length, apply_avg_lengths
+from src.style import apply_avg_lengths, mention_hashtag_url_columns
 
 
 def main():
@@ -22,7 +22,7 @@ def main():
     df = sort_by_date(masked_df, 'created_at')
 
     #==========================================================================
-# Testing
+    # Testing
     df = df[0:10]
     #==========================================================================
 
@@ -31,6 +31,9 @@ def main():
 
     # Create columns for average sentence and word length of tweet
     df = apply_avg_lengths(df, 'text')
+
+    # Create columns for counts of @mentions, #hashtags, and urls
+    df = mention_hashtag_url_columns(df, 'text')
 
     print(df[0:10])
 
