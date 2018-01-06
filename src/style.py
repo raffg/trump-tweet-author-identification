@@ -49,20 +49,18 @@ def count_character(text, character):
 
 def punctuation_columns(df, column, punctuation_dict):
     '''
-    takes a DataFrame and a column of text and creates new columns containing
-    the number of occurances of @mentions, #hashtags, urls, and punctuation
-    INPUT: DataFrame, string of column name
+    takes a DataFrame, a column of text, and a dictionary with keys = character
+    names and values = character, for example {'mentions':'@'}. Creates new
+    columns containing the number of occurances of @mentions, #hashtags, urls,
+    and specified punctuation
+    INPUT: DataFrame, string of column name, dictionary
     OUTPUT: original DataFrame with three new columns
     '''
 
-    punctuation = ['@', '#', '://', ',', ';', '!', '.', '?']
-    column_names = (['mentions', 'hashtags', 'urls', 'commas',
-                     'semicolons', 'exclamations', 'periods', 'questions'])
-
     for idx in range(len(punctuation_dict)):
-        column = pd.DataFrame(df['text'].apply(count_character,
-                              character=list(punctuation_dict.values())[idx]))
-        column.columns = [list(punctuation_dict.keys())[idx]]
-        df = pd.concat([df, column], axis=1)
+        col = pd.DataFrame(df[column].apply(count_character,
+                           character=list(punctuation_dict.values())[idx]))
+        col.columns = [list(punctuation_dict.keys())[idx]]
+        df = pd.concat([df, col], axis=1)
 
     return df
