@@ -103,3 +103,26 @@ def quoted_retweet(df, column):
                          index=df.index)
     quote.columns = ['is_quoted_retweet']
     return pd.concat([df, quote], axis=1)
+
+
+def all_caps(text):
+    '''
+    Takes a string of text and counts the number of ALL UPPERCASE words
+    INPUT: string
+    OUTPUT: int
+    '''
+
+    return (len(re.findall('\s([A-Z][A-Z]+)', text)))
+
+
+def apply_all_caps(df, column):
+    '''
+    Takes a DataFrame and a specified column of text and creates a new column
+    with the count of fully capitalized words in the text
+    INPUT: DataFrame, string
+    OUTPUT: the original DataFrame with one new column
+    '''
+
+    new_df = df.copy()
+    new_df['all_caps'] = new_df[column].apply(all_caps)
+    return new_df
