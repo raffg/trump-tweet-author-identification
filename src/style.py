@@ -85,13 +85,13 @@ def mention_hashtag_url_columns(df, column):
     OUTPUT: original DataFrame with three new columns
     '''
 
-    mentions = pd.DataFrame(testing['text'].apply(count_mentions))
+    mentions = pd.DataFrame(df['text'].apply(count_mentions))
     mentions.columns = ['mentions']
 
-    hashtags = pd.DataFrame(testing['text'].apply(count_hashtags))
+    hashtags = pd.DataFrame(df['text'].apply(count_hashtags))
     hashtags.columns = ['hashtags']
 
-    urls = pd.DataFrame(testing['text'].apply(count_urls))
+    urls = pd.DataFrame(df['text'].apply(count_urls))
     urls.columns = ['urls']
 
     return pd.concat([df, mentions, hashtags, urls], axis=1)
