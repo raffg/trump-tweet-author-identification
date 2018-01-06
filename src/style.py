@@ -78,18 +78,15 @@ def punctuation_columns(df, column, punctuation_dict):
     return df
 
 
-def identify_quote(text):
+def identify_quoted_retweet(text):
     '''
-    takes a string of text and returns 1 if the text is fully surrounded by
-    quote marks and a 0 if not
+    takes a string of text and returns 1 if the text begins with '"@' and a 0
+    if not
     INPUT: string
     OUTPUT: int
     '''
 
-    if re.match('^"@', text) is None:
-        return 0
-    else:
-        return 1
+    return (0 if re.match('^"@', text) is None else 1)
 
 
 def quoted_retweet(df, column):
@@ -100,7 +97,7 @@ def quoted_retweet(df, column):
     OUPUT: original DataFrame with one new column
     '''
 
-    quote = pd.DataFrame(df[column].apply(identify_quote),
+    quote = pd.DataFrame(df[column].apply(identify_quoted_retweet),
                          index=df.index)
     quote.columns = ['is_quoted_retweet']
     return pd.concat([df, quote], axis=1)
