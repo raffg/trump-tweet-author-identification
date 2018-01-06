@@ -47,51 +47,22 @@ def count_character(text, character):
     return text.count(character)
 
 
-def count_mentions(text):
-    '''
-    counts the number of @mentions in a string of text
-    INPUT: string
-    OUTPUT: int
-    '''
-
-    return count_character(text, '@')
-
-
-def count_hashtags(text):
-    '''
-    counts the number of #hashtags in a string of text
-    INPUT: string
-    OUTPUT: int
-    '''
-
-    return count_character(text, '#')
-
-
-def count_urls(text):
-    '''
-    counts the number of urls in a string of text
-    INPUT: string
-    OUTPUT: int
-    '''
-
-    return count_character(text, '://')
-
-
-def mention_hashtag_url_columns(df, column):
+def punctuation_columns(df, column, punctuation_dict):
     '''
     takes a DataFrame and a column of text and creates new columns containing
-    the number of occurances of @mentions, #hashtags, and urls by row
+    the number of occurances of @mentions, #hashtags, urls, and punctuation
     INPUT: DataFrame, string of column name
     OUTPUT: original DataFrame with three new columns
     '''
 
-    mentions = pd.DataFrame(df['text'].apply(count_mentions))
-    mentions.columns = ['mentions']
+    punctuation = ['@', '#', '://', ',', ';', '!', '.', '?']
+    column_names = (['mentions', 'hashtags', 'urls', 'commas',
+                     'semicolons', 'exclamations', 'periods', 'questions'])
 
-    hashtags = pd.DataFrame(df['text'].apply(count_hashtags))
-    hashtags.columns = ['hashtags']
+    for idx in range(len(punctuation_dict)):
+        column = pd.DataFrame(df['text'].apply(count_character,
+                              character=list(punctuation_dict.values())[idx]))
+        column.columns = [list(punctuation_dict.keys())[idx]]
+        df = pd.concat([df, column], axis=1)
 
-    urls = pd.DataFrame(df['text'].apply(count_urls))
-    urls.columns = ['urls']
-
-    return pd.concat([df, mentions, hashtags, urls], axis=1)
+    return df
