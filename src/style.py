@@ -29,8 +29,9 @@ def tweet_length(df, column):
     OUTPUT: the original DataFrame, with one new column
     '''
 
-    df['tweet_length'] = df[column].str.len()
-    return df
+    new_df = df.copy()
+    new_df['tweet_length'] = new_df[column].str.len()
+    return new_df
 
 
 def apply_avg_lengths(df, column):
@@ -69,13 +70,14 @@ def punctuation_columns(df, column, punctuation_dict):
     OUTPUT: original DataFrame with three new columns
     '''
 
+    new_df = df.copy()
     for idx in range(len(punctuation_dict)):
         col = pd.DataFrame(df[column].apply(count_character,
                            character=list(punctuation_dict.values())[idx]))
         col.columns = [list(punctuation_dict.keys())[idx]]
-        df = pd.concat([df, col], axis=1)
+        new_df = pd.concat([df, col], axis=1)
 
-    return df
+    return new_df
 
 
 def identify_quoted_retweet(text):

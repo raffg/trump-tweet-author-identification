@@ -33,6 +33,4 @@ def sort_by_date(df, date_column):
     OUTPUT: a DataFrame with a datetime index
     '''
 
-    sorted_data = df.sort_values(date_column)
-    data = sorted_data.set_index(date_column)
-    return data
+    return df.sort_values(date_column)
