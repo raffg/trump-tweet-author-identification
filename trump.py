@@ -4,6 +4,7 @@ from src.vader_sentiment import apply_vader
 from src.style import apply_avg_lengths, tweet_length, punctuation_columns, \
                       quoted_retweet
 from src.tweetstorm import tweetstorm
+from src.time_of_day import time_of_day
 
 
 def main():
@@ -47,6 +48,9 @@ def main():
 
     # Create column identifying if the tweet is part of a tweetstorm
     df = tweetstorm(df, 'text', 'source', 'created_at', 600)
+
+    # Create column identifying the hour of the day that the tweet was posted
+    df = time_of_day(df, 'created_at')
 
     print(df)
 
