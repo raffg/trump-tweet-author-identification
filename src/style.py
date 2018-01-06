@@ -1,4 +1,5 @@
 import re
+import pandas as pd
 
 
 def sentence_word_length(text):
@@ -33,3 +34,64 @@ def apply_avg_lengths(df, column):
                             index=avg_lengths.index)
     unpacked.columns = ['avg_sentence_length', 'avg_word_length']
     return pd.concat([df, unpacked], axis=1)
+
+
+def count_character(text, character):
+    '''
+    takes a text string and a character and outputs the number of occurances
+    of that character in the text
+    INPUT: text string, character string
+    OUTPUT: int
+    '''
+
+    return text.count(character)
+
+
+def count_mentions(text):
+    '''
+    counts the number of @mentions in a string of text
+    INPUT: string
+    OUTPUT: int
+    '''
+
+    return count_character(text, '@')
+
+
+def count_hashtags(text):
+    '''
+    counts the number of #hashtags in a string of text
+    INPUT: string
+    OUTPUT: int
+    '''
+
+    return count_character(text, '#')
+
+
+def count_urls(text):
+    '''
+    counts the number of urls in a string of text
+    INPUT: string
+    OUTPUT: int
+    '''
+
+    return count_character(text, '://')
+
+
+def mention_hashtag_url_columns(df, column):
+    '''
+    takes a DataFrame and a column of text and creates new columns containing
+    the number of occurances of @mentions, #hashtags, and urls by row
+    INPUT: DataFrame, string of column name
+    OUTPUT: original DataFrame with three new columns
+    '''
+
+    mentions = pd.DataFrame(testing['text'].apply(count_mentions))
+    mentions.columns = ['mentions']
+
+    hashtags = pd.DataFrame(testing['text'].apply(count_hashtags))
+    hashtags.columns = ['hashtags']
+
+    urls = pd.DataFrame(testing['text'].apply(count_urls))
+    urls.columns = ['urls']
+
+    return pd.concat([df, mentions, hashtags, urls], axis=1)
