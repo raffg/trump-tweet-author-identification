@@ -21,6 +21,18 @@ def sentence_word_length(text):
             sum(word_lengths) / float(len(word_lengths)))
 
 
+def tweet_length_column(df, column):
+    '''
+    takes a DataFrame and the name of a column of text and creates a new
+    column containing the count of characters of the text
+    INPUT: DataFrame, string
+    OUTPUT: the original DataFrame, with one new column
+    '''
+
+    df['tweet_length'] = df[column].str.len()
+    return df
+
+
 def apply_avg_lengths(df, column):
     '''
     takes a DataFrame with a specified column of text and adds two new columns

@@ -1,7 +1,8 @@
 import pandas as pd
 from src.load_data import load_json_list, apply_date_mask, sort_by_date
-from src.vader_sentiment import get_vader_scores, apply_vader
-from src.style import apply_avg_lengths, punctuation_columns
+from src.vader_sentiment import apply_vader
+from src.style import apply_avg_lengths, tweet_length_column, \
+                      punctuation_columns
 
 
 def main():
@@ -29,17 +30,18 @@ def main():
     # Create columns for vader sentiment
     df = apply_vader(df, 'text')
 
-    # Create columns for average sentence and word length of tweet
+    # Create columns for average tweet, sentence, and word length of tweet
+    df = tweet_length_column(df, 'text')
     df = apply_avg_lengths(df, 'text')
 
     # Create columns for counts of @mentions, #hashtags, urls, and punctuation
-    punctuation_dict = {'mentions':'@', 'hashtags':'#', 'urls':'://',
-                        'commas':',', 'semicolons':';', 'exclamations':'!',
-                        'periods':'.', 'questions':'?'}
+    punctuation_dict = {'mentions': '@', 'hashtags': '#', 'urls': '://',
+                        'commas': ',', 'semicolons': ';', 'exclamations': '!',
+                        'periods': '.', 'questions': '?'}
 
     df = punctuation_columns(df, 'text', punctuation_dict)
 
-    print(df[0:10])
+    print(df)
 
 
 if __name__ == '__main__':
