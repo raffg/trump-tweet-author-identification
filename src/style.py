@@ -21,7 +21,7 @@ def sentence_word_length(text):
             sum(word_lengths) / float(len(word_lengths)))
 
 
-def tweet_length_column(df, column):
+def tweet_length(df, column):
     '''
     takes a DataFrame and the name of a column of text and creates a new
     column containing the count of characters of the text
