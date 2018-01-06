@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 
 def clean_up_text(df, column):
     '''
-    takes a DataFrame and a column name containing text and cleans up unicode
+    Takes a DataFrame and a column name containing text and cleans up unicode
     characters, then outputs each text cell as an element in a list
     INPUT: DataFrame, string
     OUTPUT: list of strings

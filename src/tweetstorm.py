@@ -3,7 +3,7 @@ import pandas as pd
 
 def tweetstorm(df, tweet, source, timestamp, time_threshold):
     '''
-    takes a DataFrame with a specified column containing tweets, a specified
+    Takes a DataFrame with a specified column containing tweets, a specified
     column identifying the source of the tweet, a specified column indicating
     the timestamp of the tweet, and a threshold in seconds defining the
     maximimum time which can pass between tweets to define a tweetstorm

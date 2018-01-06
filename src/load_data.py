@@ -3,7 +3,7 @@ import pandas as pd
 
 def load_json_list(list):
     '''
-    takes a list of json files, loads them, and concatenates them
+    Takes a list of json files, loads them, and concatenates them
     INPUT: a list of json files
     OUTPUT: a single concatenated DataFrame
     '''

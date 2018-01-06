@@ -4,7 +4,7 @@ import pandas as pd
 
 def sentence_word_length(text):
     '''
-    finds the average length of sentences and words in a given text
+    Finds the average length of sentences and words in a given text
     INPUT: string
     OUTPUT: float(average sentence length), float(average word length)
     '''
@@ -21,22 +21,9 @@ def sentence_word_length(text):
             sum(word_lengths) / float(len(word_lengths)))
 
 
-def tweet_length(df, column):
-    '''
-    takes a DataFrame and the name of a column of text and creates a new
-    column containing the count of characters of the text
-    INPUT: DataFrame, string
-    OUTPUT: the original DataFrame, with one new column
-    '''
-
-    new_df = df.copy()
-    new_df['tweet_length'] = new_df[column].str.len()
-    return new_df
-
-
 def apply_avg_lengths(df, column):
     '''
-    takes a DataFrame with a specified column of text and adds two new columns
+    Takes a DataFrame with a specified column of text and adds two new columns
     to the DataFrame, corresponding to the average sentence and word lengths
     INPUT: DataFrame, string
     OUTPUT: the original DataFrame with two additional columns
@@ -49,9 +36,22 @@ def apply_avg_lengths(df, column):
     return pd.concat([df, unpacked], axis=1)
 
 
+def tweet_length(df, column):
+    '''
+    Takes a DataFrame and the name of a column of text and creates a new
+    column containing the count of characters of the text
+    INPUT: DataFrame, string
+    OUTPUT: the original DataFrame, with one new column
+    '''
+
+    new_df = df.copy()
+    new_df['tweet_length'] = new_df[column].str.len()
+    return new_df
+
+
 def count_character(text, character):
     '''
-    takes a text string and a character and outputs the number of occurances
+    Takes a text string and a character and outputs the number of occurances
     of that character in the text
     INPUT: text string, character string
     OUTPUT: int
@@ -62,7 +62,7 @@ def count_character(text, character):
 
 def punctuation_columns(df, column, punctuation_dict):
     '''
-    takes a DataFrame, a column of text, and a dictionary with keys = character
+    Takes a DataFrame, a column of text, and a dictionary with keys = character
     names and values = character, for example {'mentions':'@'}. Creates new
     columns containing the number of occurances of @mentions, #hashtags, urls,
     and specified punctuation
@@ -82,7 +82,7 @@ def punctuation_columns(df, column, punctuation_dict):
 
 def identify_quoted_retweet(text):
     '''
-    takes a string of text and returns 1 if the text begins with '"@' and a 0
+    Takes a string of text and returns 1 if the text begins with '"@' and a 0
     if not
     INPUT: string
     OUTPUT: int
@@ -93,7 +93,7 @@ def identify_quoted_retweet(text):
 
 def quoted_retweet(df, column):
     '''
-    takes a DataFrame and a column of text and creates a new colun with 1 if
+    Takes a DataFrame and a column of text and creates a new colun with 1 if
     the text is fully surrounded by quote marks and a 0 if not
     INPUT: DataFrame, String of column name
     OUPUT: original DataFrame with one new column
