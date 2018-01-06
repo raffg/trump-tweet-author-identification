@@ -1,7 +1,8 @@
 import pandas as pd
 from src.load_data import load_json_list, apply_date_mask, sort_by_date
 from src.vader_sentiment import apply_vader
-from src.style import apply_avg_lengths, tweet_length, punctuation_columns
+from src.style import apply_avg_lengths, tweet_length, punctuation_columns, \
+                      quoted_retweet
 
 
 def main():
@@ -36,9 +37,12 @@ def main():
     # Create columns for counts of @mentions, #hashtags, urls, and punctuation
     punctuation_dict = {'mentions': '@', 'hashtags': '#', 'urls': '://',
                         'commas': ',', 'semicolons': ';', 'exclamations': '!',
-                        'periods': '.', 'questions': '?'}
+                        'periods': '.', 'questions': '?', 'quote': '"'}
 
     df = punctuation_columns(df, 'text', punctuation_dict)
+
+    # Create column identifying if the tweet is surrounding by quote marks
+    df = quoted_retweet(df, 'text')
 
     print(df)
 
