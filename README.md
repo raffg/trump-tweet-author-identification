@@ -12,7 +12,7 @@ Prior to March 26, 2017, Trump was tweeting using a Samsung Galaxy device while 
 
 ### Potential Tweeters
 
-These individuals have been reported in the news as possible tweeters on Trump's Twitter account. The Start Date is the date their association with the Trump Campaign or Administration was announced, and the end date is the date when Trump began using an iPhone device himself, making explicit identification impossible.
+These individuals have been reported in the news as possible tweeters on Trump's Twitter account. The Start Date is the date their association with the Trump Campaign or Administration was announced, and the end date is when their positions were terminated.
 
 |Name|Start Date|End Date|Twitter Handle|
 |----|----------|--------|--------------|
@@ -21,6 +21,7 @@ These individuals have been reported in the news as possible tweeters on Trump's
 |Reince Priebus|2016-11-13|2017-07-27|@Reince|
 |Steve Bannon|2016-08-17|2017-08-18|@SteveKBannon|
 |Kellyanne Conway|2016-07-01|present|@KellyannePolls|
+|Anthony Scaramucci|2017-07-21|2017-07-31|@Scaramucci|
 |Dan Scavino|2015-06-01|present|@DanScavino|
 |John Dowd|2017-07-16|present|N/A|
 

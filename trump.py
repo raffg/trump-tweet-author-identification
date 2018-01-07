@@ -1,7 +1,7 @@
 import pandas as pd
+import preprocessor as p
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-import preprocessor as p
 from src.load_data import load_json_list, apply_date_mask, sort_by_date
 from src.vader_sentiment import apply_vader
 from src.style import apply_avg_lengths, tweet_length, punctuation_columns, \
