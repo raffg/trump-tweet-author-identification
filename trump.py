@@ -1,14 +1,28 @@
 import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+import preprocessor as p
 from src.load_data import load_json_list, apply_date_mask, sort_by_date
 from src.vader_sentiment import apply_vader
 from src.style import apply_avg_lengths, tweet_length, punctuation_columns, \
                       quoted_retweet, apply_all_caps
 from src.tweetstorm import tweetstorm
 from src.time_of_day import time_of_day
+from src.part_of_speech import pos_tagging, ner_tagging
 
 
 def main():
-    # Load and sort the data
+    df = data()
+    df = feature_engineering(df)
+    tfidf_matrix = tf_idf(df)
+
+    print(df)
+
+
+def data():
+    # =========================================================================
+    # Load the data
+    # =========================================================================
     data_list = (['data/condensed_2009.json',
                   'data/condensed_2010.json',
                   'data/condensed_2011.json',
@@ -24,10 +38,18 @@ def main():
                                 '2015-06-01', '2017-03-26')
     df = sort_by_date(masked_df, 'created_at')
 
-    #==========================================================================
+    # =========================================================================
     # Testing
     df = df[0:10]
-    #==========================================================================
+    # =========================================================================
+
+    return df
+
+
+def feature_engineering(df):
+    # =========================================================================
+    # Feature engineering
+    # =========================================================================
 
     # Create columns for vader sentiment
     df = apply_vader(df, 'text')
@@ -55,7 +77,28 @@ def main():
     # Create column identifying the hour of the day that the tweet was posted
     df = time_of_day(df, 'created_at')
 
-    print(df)
+    # Uniformize @mentions, #hashtags, and URLs
+    df['tweetokenize'] = df['text'].apply(p.tokenize)
+
+    # Part of speech tagging
+    df['pos'] = df['text'].apply(pos_tagging)
+
+    # Named Entity Recognition substitution
+    df['ner'] = df['text'].apply(ner_tagging)
+
+    return df
+
+
+def tf_idf(df):
+    # =========================================================================
+    # TF-IDF
+    # =========================================================================
+
+    tfidf = TfidfVectorizer(ngram_range=(1, 1), lowercase=False,
+                            token_pattern='\w+|\@\w+', norm='l2')
+    tfidf_matrix = tfidf.fit_transform(df['text'])
+
+    return tfidf_matrix
 
 
 if __name__ == '__main__':

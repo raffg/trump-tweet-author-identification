@@ -1,4 +1,5 @@
 from bs4 import BeautifulSoup
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 
 def clean_up_text(df, column):
