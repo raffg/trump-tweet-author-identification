@@ -10,3 +10,6 @@ data/
 
 # twitterscraper query
 twitterscraper_query.txt
+
+# Stanford Named Entity Recognition (NER) library
+stanford-ner/
