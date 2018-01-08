@@ -82,7 +82,7 @@ def feature_engineering(df):
     df['pos'] = df['text'].apply(pos_tagging)
 
     # Named Entity Recognition substitution
-    df['ner'] = df['tweetokenize'].apply(ner_tagging)
+    df['ner'] = df['text'].apply(ner_tagging)
 
     return df
 

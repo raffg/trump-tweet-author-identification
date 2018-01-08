@@ -1,14 +1,16 @@
-# Requires Python 2.7
-
 from tweetokenize import Tokenizer
 
 
-gettokens = Tokenizer(usernames='<USER>', urls='<URL>', allcapskeep=True,
-                      hashtags='<HASHTAG>', times=',<TIME>',
-                      numbers='<NUMBER>')
+def tweet_tokens(tweet):
+    '''
+    Takes a tweet and replaces mentions, hashtags, urls, times, and numbers
+    with a generic label
+    INPUT: string
+    OUTPUT: string
+    '''
 
-tokens = gettokens.tokenize("@yankzpat: HEY! I hope to meet @realDonaldTrump on \
-                   Thursday in Mason City, IA and get an autograph and a \
-                   picture! Can't wait!! #Trump2016 http://t.co/v0n9ZF1ttS")
-
-print (tokens)
+    gettokens = Tokenizer(usernames='<USER>', urls='<URL>',
+                          hashtags='<HASHTAG>', times=',<TIME>',
+                          numbers='<NUMBER>', allcapskeep=True,)
+    tokens = gettokens.tokenize(tweet)
+    return tokens

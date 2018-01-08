@@ -21,7 +21,7 @@ def pos_tagging(text):
 def ner_tagging(text):
     '''
     Takes a string of words and uses the Stanford NER Tagger to replace names,
-    places, and organizations with a standard thunderstorm
+    places, and organizations with a standard token
     INPUT: string
     OUTPUT: string
     '''

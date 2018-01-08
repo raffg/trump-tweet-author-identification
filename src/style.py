@@ -1,6 +1,7 @@
 import re
 import pandas as pd
 import preprocessor as p
+from src import tweetokenizer as t
 
 
 def sentence_word_length(text):
@@ -89,13 +90,13 @@ def mention_hashtag_url(df, column):
     '''
 
     new_df = df.copy()
-    new_df['tweetokenize'] = new_df['text'].apply(p.tokenize)
+    new_df['tweetokenize'] = new_df['text'].apply(t.tweet_tokens)
     new_df['mentions'] = new_df['tweetokenize'].apply(
-                         lambda x: x.count('$MENTION$'))
+                         lambda x: x.count('<USER>'))
     new_df['hashtags'] = new_df['tweetokenize'].apply(
-                         lambda x: x.count('$HASHTAG$'))
+                         lambda x: x.count('<HASHTAG>'))
     new_df['urls'] = new_df['tweetokenize'].apply(
-                         lambda x: x.count('$URL$'))
+                         lambda x: x.count('<URL>'))
     return new_df
 
 
