@@ -1,11 +1,10 @@
 import pandas as pd
-import preprocessor as p
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from src.load_data import load_json_list, apply_date_mask, sort_by_date
 from src.vader_sentiment import apply_vader
 from src.style import apply_avg_lengths, tweet_length, punctuation_columns, \
-                      quoted_retweet, apply_all_caps
+                      quoted_retweet, apply_all_caps, mention_hashtag_url
 from src.tweetstorm import tweetstorm
 from src.time_of_day import time_of_day
 from src.part_of_speech import pos_tagging, ner_tagging
@@ -58,12 +57,14 @@ def feature_engineering(df):
     df = tweet_length(df, 'text')
     df = apply_avg_lengths(df, 'text')
 
-    # Create columns for counts of @mentions, #hashtags, urls, and punctuation
-    punctuation_dict = {'mentions': '@', 'hashtags': '#', 'urls': '://',
-                        'commas': ',', 'semicolons': ';', 'exclamations': '!',
+    # Create columns for counts of punctuation
+    punctuation_dict = {'commas': ',', 'semicolons': ';', 'exclamations': '!',
                         'periods': '.', 'questions': '?', 'quote': '"'}
 
     df = punctuation_columns(df, 'text', punctuation_dict)
+
+    # Create columns for counts of @mentions, #hashtags, and urls
+    df = mention_hashtag_url(df, 'text')
 
     # Create column identifying if the tweet is surrounding by quote marks
     df = quoted_retweet(df, 'text')
@@ -77,14 +78,11 @@ def feature_engineering(df):
     # Create column identifying the hour of the day that the tweet was posted
     df = time_of_day(df, 'created_at')
 
-    # Uniformize @mentions, #hashtags, and URLs
-    df['tweetokenize'] = df['text'].apply(p.tokenize)
-
     # Part of speech tagging
     df['pos'] = df['text'].apply(pos_tagging)
 
     # Named Entity Recognition substitution
-    df['ner'] = df['text'].apply(ner_tagging)
+    df['ner'] = df['tweetokenize'].apply(ner_tagging)
 
     return df
 

@@ -1,5 +1,6 @@
 import re
 import pandas as pd
+import preprocessor as p
 
 
 def sentence_word_length(text):
@@ -63,11 +64,10 @@ def count_character(text, character):
 def punctuation_columns(df, column, punctuation_dict):
     '''
     Takes a DataFrame, a column of text, and a dictionary with keys = character
-    names and values = character, for example {'mentions':'@'}. Creates new
-    columns containing the number of occurances of @mentions, #hashtags, urls,
-    and specified punctuation
+    names and values = character, for example {'comma':','}. Creates new
+    columns containing the number of occurances specified punctuation
     INPUT: DataFrame, string of column name, dictionary
-    OUTPUT: original DataFrame with three new columns
+    OUTPUT: original DataFrame with new columns
     '''
 
     new_df = df.copy()
@@ -77,6 +77,25 @@ def punctuation_columns(df, column, punctuation_dict):
         col.columns = [list(punctuation_dict.keys())[idx]]
         new_df = pd.concat([df, col], axis=1)
 
+    return new_df
+
+
+def mention_hashtag_url(df, column):
+    '''
+    Takes a DataFrame and a specified column of tweets and creates new columns
+    containing the count of @mentions, #hashtags, and URLs in the tweet
+    INPUT: DataFrame, string
+    OUTPUT: the original DataFrame with four new columns
+    '''
+
+    new_df = df.copy()
+    new_df['tweetokenize'] = new_df['text'].apply(p.tokenize)
+    new_df['mentions'] = new_df['tweetokenize'].apply(
+                         lambda x: x.count('$MENTION$'))
+    new_df['hashtags'] = new_df['tweetokenize'].apply(
+                         lambda x: x.count('$HASHTAG$'))
+    new_df['urls'] = new_df['tweetokenize'].apply(
+                         lambda x: x.count('$URL$'))
     return new_df
 
 
