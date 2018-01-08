@@ -1,7 +1,9 @@
 import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-from src.load_data import load_json_list, apply_date_mask, sort_by_date
+from src.load_data import load_json_list, apply_date_mask
 from src.vader_sentiment import apply_vader
 from src.style import apply_avg_lengths, tweet_length, punctuation_columns, \
                       quoted_retweet, apply_all_caps, mention_hashtag_url
@@ -33,9 +35,21 @@ def data():
                   'data/condensed_2017.json'])
 
     raw_data = load_json_list(data_list)
+
+    # Look only at tweets between June 1, 2015 and March 26, 2017
     masked_df = apply_date_mask(raw_data, 'created_at',
                                 '2015-06-01', '2017-03-26')
-    df = sort_by_date(masked_df, 'created_at')
+    df = masked_df.sort_values('created_at').reset_index(drop=True)
+
+    # Look only at iPhone and Android tweets
+    df = df.loc[(df['source'] == 'Twitter for iPhone') |
+                (df['source'] == 'Twitter for Android')]
+
+    # Separate data and labels
+    X = df.drop(['source'], axis=1)
+    y = pd.DataFrame(np.where(df['source'] == 'Twitter for iPhone', 1, 0))
+
+    #train =
 
     # =========================================================================
     # Testing

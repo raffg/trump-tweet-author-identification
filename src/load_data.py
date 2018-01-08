@@ -24,13 +24,3 @@ def apply_date_mask(df, date_column, start_date, end_date):
 
     mask = (df[date_column] > start_date) & (df[date_column] <= end_date)
     return df.loc[mask]
-
-
-def sort_by_date(df, date_column):
-    '''
-    takes a DataFrame with a column in datetime format and sorts by date_column
-    INPUT: a DataFrame and the name of a column in datetime format
-    OUTPUT: a DataFrame with a datetime index
-    '''
-
-    return df.sort_values(date_column)
