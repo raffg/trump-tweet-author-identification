@@ -45,8 +45,12 @@ def data():
     df = df.loc[(df['source'] == 'Twitter for iPhone') |
                 (df['source'] == 'Twitter for Android')]
 
+    # Dummify is_reply column
+    df['in_reply_to_user_id_str'] = df['in_reply_to_user_id_str'].fillna(0)
+    df['is_reply'] = np.where(df['in_reply_to_user_id_str'] == 0, False, True)
+
     # Separate data and labels
-    X = df.drop(['source'], axis=1)
+    X = df.drop(['source', 'id_str', 'in_reply_to_user_id_str'], axis=1)
     y = pd.DataFrame(np.where(df['source'] == 'Twitter for iPhone', 1, 0))
 
     #train =
