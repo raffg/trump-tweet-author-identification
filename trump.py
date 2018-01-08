@@ -13,11 +13,11 @@ from src.part_of_speech import pos_tagging, ner_tagging
 
 
 def main():
-    df = data()
-    df = feature_engineering(df)
-    tfidf_matrix = tf_idf(df)
+    X_train, X_test, y_train, y_test = data()
+    X_train = feature_engineering(X_train)
+    tfidf_matrix = tf_idf(X_train)
 
-    print(df)
+    print(X_train)
 
 
 def data():
@@ -42,25 +42,25 @@ def data():
     df = masked_df.sort_values('created_at').reset_index(drop=True)
 
     # Look only at iPhone and Android tweets
-    df = df.loc[(df['source'] == 'Twitter for iPhone') |
-                (df['source'] == 'Twitter for Android')]
+#    df = df.loc[(df['source'] == 'Twitter for iPhone') |
+#                (df['source'] == 'Twitter for Android')]
 
     # Dummify is_reply column
     df['in_reply_to_user_id_str'] = df['in_reply_to_user_id_str'].fillna(0)
     df['is_reply'] = np.where(df['in_reply_to_user_id_str'] == 0, False, True)
-
-    # Separate data and labels
-    X = df.drop(['source', 'id_str', 'in_reply_to_user_id_str'], axis=1)
-    y = pd.DataFrame(np.where(df['source'] == 'Twitter for iPhone', 1, 0))
-
-    #train =
 
     # =========================================================================
     # Testing
     df = df[0:10]
     # =========================================================================
 
-    return df
+    # Separate data and labels
+    X = df.drop(['id_str', 'in_reply_to_user_id_str'], axis=1)
+    y = pd.DataFrame(np.where(df['source'] == 'Twitter for Android', 1, 0))
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y)
+
+    return X_train, X_test, y_train, y_test
 
 
 def feature_engineering(df):
