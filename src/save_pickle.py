@@ -63,8 +63,6 @@ def main():
     X_val_pos = tf_idf_matrix(X_val, 'pos', tfidf_pos, cols)
     X_test_pos = tf_idf_matrix(X_test, 'pos', tfidf_pos, cols)
 
-    print(X_train['pos'])
-
     # Save pickle file
     output = open('data.pkl', 'wb')
     print()
