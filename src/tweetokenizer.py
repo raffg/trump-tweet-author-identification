@@ -13,7 +13,9 @@ def tweet_tokens(tweet):
                           hashtags='<HASHTAG>', times=',<TIME>',
                           numbers='<NUMBER>', allcapskeep=True,)
     tokens = gettokens.tokenize(tweet)
-    return tokens
+    tweet = ' '.join(tokens)
+
+    return tweet
 
 
 def tweet_tokenize(df, column):
