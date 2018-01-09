@@ -17,56 +17,42 @@ def main():
     X_train, X_test, y_train, y_test = data()
     X_train, X_val, y_train, y_val = train_test_split(X_train, y_train)
 
-    # Track indices of feature columns
-    feat_train = {}
-    feat_val = {}
-    feat_test = {}
-    feat_train['raw'] = len(X_train.columns)
-    feat_val['raw'] = len(X_val.columns)
-    feat_test['raw'] = len(X_test.columns)
-
     # Apply feature engineering to all X sets
-    X_train = feature_engineering(X_train)
-    X_val = feature_engineering(X_val)
-    X_test = feature_engineering(X_test)
-
-    feat_train['engineered'] = len(X_train.columns)
-    feat_val['engineered'] = len(X_val.columns)
-    feat_test['engineered'] = len(X_test.columns)
+    X_train_feat = feature_engineering(X_train)
+    X_val_feat = feature_engineering(X_val)
+    X_test_feat = feature_engineering(X_test)
 
     # Create TF-IDF for text column
     tfidf_text = TfidfVectorizer(lowercase=False, token_pattern='\w+|\@\w+',
                                  norm='l2')
-    X_train = tf_idf_matrix(X_train, 'text', tfidf_text)
-    X_val = tf_idf_matrix(X_val, 'text', tfidf_text)
-    X_test = tf_idf_matrix(X_test, 'text', tfidf_text)
-
-    feat_train['tfidf_text'] = len(X_train.columns)
-    feat_val['tfidf_text'] = len(X_val.columns)
-    feat_test['tfidf_text'] = len(X_test.columns)
+    X_train_tfidf = tf_idf_matrix(X_train, 'text', tfidf_text)
+    X_val_tfidf = tf_idf_matrix(X_val, 'text', tfidf_text)
+    X_test_tfidf = tf_idf_matrix(X_test, 'text', tfidf_text)
 
     # Create TF-IDF for pos column
     tfidf_pos = TfidfVectorizer(ngram_range=(2, 4), lowercase=False,
                                 norm='l2')
-    X_train = tf_idf_matrix(X_train, 'text', tfidf_pos)
-    X_val = tf_idf_matrix(X_val, 'text', tfidf_pos)
-    X_test = tf_idf_matrix(X_test, 'text', tfidf_pos)
-
-    feat_train['tfidf_pos'] = len(X_train.columns)
-    feat_val['tfidf_pos'] = len(X_val.columns)
-    feat_test['tfidf_pos'] = len(X_test.columns)
+    X_train_pos = tf_idf_matrix(X_train, 'text', tfidf_pos)
+    X_val_pos = tf_idf_matrix(X_val, 'text', tfidf_pos)
+    X_test_pos = tf_idf_matrix(X_test, 'text', tfidf_pos)
 
     # Save pickle file
     output = open('data.pkl', 'wb')
     pickle.dump(X_train, output)
     pickle.dump(X_val, output)
     pickle.dump(X_test, output)
+
+    pickle.dump(X_train_tfidf, output)
+    pickle.dump(X_val_tfidf, output)
+    pickle.dump(X_test_tfidf, output)
+
+    pickle.dump(X_train_pos, output)
+    pickle.dump(X_val_pos, output)
+    pickle.dump(X_test_pos, output)
+
     pickle.dump(y_train, output)
     pickle.dump(y_val, output)
     pickle.dump(y_test, output)
-    pickle.dump(feat_train, output)
-    pickle.dump(feat_val, output)
-    pickle.dump(feat_test, output)
     output.close()
 
 
@@ -167,8 +153,8 @@ def tf_idf_matrix(df, column, tfidfvectorizer):
     df_tfidf = tfidf.fit_transform(df[column])
     cols = tfidf.get_feature_names()
     df_tfidf = pd.DataFrame(df_tfidf.todense(), columns=[cols], index=df.index)
-    new_df = pd.concat([df, df_tfidf], axis=1)
-    return new_df
+    # new_df = pd.concat([df, df_tfidf], axis=1)
+    return df_tfidf
 
 
 if __name__ == '__main__':
