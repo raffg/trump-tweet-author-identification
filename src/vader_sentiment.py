@@ -1,6 +1,7 @@
 import pandas as pd
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 from sklearn.preprocessing import normalize
+from sklearn import preprocessing
 
 
 def get_vader_scores(text):
@@ -26,5 +27,5 @@ def apply_vader(df, column):
     sentiment = pd.DataFrame(df[column].apply(get_vader_scores))
     unpacked = pd.DataFrame([d for idx, d in sentiment['text'].iteritems()],
                             index=sentiment.index)
-    unpacked['compound'] = unpacked['compound'].apply(normalize)
+    unpacked['compound'] += 1
     return pd.concat([df, unpacked], axis=1)

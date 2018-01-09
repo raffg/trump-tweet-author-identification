@@ -30,14 +30,16 @@ def main():
     print('Feature engineering on Test data')
     X_test = feature_engineering(X_test)
 
-    # # Create ner column for Name Entity Recognition
-    # print()
-    # print('Performing NER on Train Data')
-    # X_train = named_entity_recognition(X_train)
-    # print('Performing NER on Validation Data')
-    # X_val = named_entity_recognition(X_val)
-    # print('Performing NER on Test Data')
-    # X_test = named_entity_recognition(X_test)
+    '''
+    # Create ner column for Name Entity Recognition
+    print()
+    print('Performing NER on Train Data')
+    X_train = named_entity_recognition(X_train)
+    print('Performing NER on Validation Data')
+    X_val = named_entity_recognition(X_val)
+    print('Performing NER on Test Data')
+    X_test = named_entity_recognition(X_test)
+    '''
 
     # Create TF-IDF for text column
     print()
