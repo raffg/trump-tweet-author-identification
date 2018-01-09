@@ -1,4 +1,3 @@
-from nltk.tokenize import PunktSentenceTokenizer
 from nltk import word_tokenize, pos_tag
 from nltk.tag import StanfordNERTagger
 from nltk.tokenize import word_tokenize

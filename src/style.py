@@ -90,7 +90,7 @@ def mention_hashtag_url(df, column):
     OUTPUT: the original DataFrame with four new columns
     '''
 
-    new_df = t.tweetokenize(df, 'text')
+    new_df = t.tweet_tokenize(df, 'text')
     new_df['mentions'] = new_df['tweetokenize'].apply(
                          lambda x: x.count('<USER>'))
     new_df['hashtags'] = new_df['tweetokenize'].apply(

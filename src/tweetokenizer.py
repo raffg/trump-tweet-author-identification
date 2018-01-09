@@ -25,5 +25,5 @@ def tweet_tokenize(df, column):
     '''
 
     new_df = df.copy()
-    new_df['tweetokenize'] = new_df['text'].apply(t.tweet_tokens)
+    new_df['tweetokenize'] = new_df['text'].apply(tweet_tokens)
     return new_df

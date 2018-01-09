@@ -23,16 +23,31 @@ def main():
     #tfidf_text_train = tf_idf_text(X_train)
     #tfidf_text_val = tf_idf_text(X_val)
     naive_bayes_accuracy = naive_bayes(np.array(X_train['text']),
-                                       np.array(X_val['text'].ravel()),
+                                       np.array(X_val['text']),
                                        np.array(y_train),
                                        np.array(y_val).ravel())
-    print(naive_bayes_accuracy)
+    print('text accuracy: ', naive_bayes_accuracy)
 
-    naive_bayes_accuracy_pos = naive_bayes(np.array(X_train['pos']),
-                                           np.array(X_val['pos'].ravel()),
-                                           np.array(y_train),
-                                           np.array(y_val).ravel())
-    print(naive_bayes_accuracy_pos)
+    naive_bayes_pos_n_grams = naive_bayes(np.array(X_train['pos']),
+                                          np.array(X_val['pos']),
+                                          np.array(y_train),
+                                          np.array(y_val).ravel())
+    print('pos accuracy: ', naive_bayes_pos_n_grams)
+
+    naive_bayes_all_features_text = naive_bayes(np.array(X_train['pos']),
+                                                np.array(X_val['pos']),
+                                                np.array(y_train),
+                                                np.array(y_val).ravel())
+    print ('all features with text tf-idf accuracy: ', naive_bayes_all_features_text)
+
+
+    naive_bayes_all_features_pos = naive_bayes(np.array(X_train['pos']),
+                                                np.array(X_val['pos']),
+                                                np.array(y_train),
+                                                np.array(y_val).ravel())
+    print ('all features with text & pos tf-idf accuracy: ', naive_bayes_all_features_pos)
+
+
 
 
 def data():
@@ -66,7 +81,7 @@ def data():
 
     # =========================================================================
     # Testing
-    df = df[0:30]
+    #df = df[0:30]
     # =========================================================================
 
     # Separate data and labels
@@ -139,36 +154,66 @@ def tf_idf_pos(df):
 
 def naive_bayes(X_train, X_val, y_train, y_val):
     # TF-IDF on raw text column
-    text_clf = Pipeline([('vect', CountVectorizer()),
-                         ('tfidf', TfidfTransformer()),
-                         ('clf', MultinomialNB()),
-                         ])
-    text_clf = text_clf.fit(X_train, y_train)
-    predicted = text_clf.predict(X_val)
-    accuracy = np.mean(predicted == y_val)
-
     text_clf = Pipeline([('vect', CountVectorizer(ngram_range=(1, 1),
                                                   lowercase=False,
                                                   token_pattern='\w+|\@\w+')),
                          ('tfidf', TfidfTransformer(norm='l2')),
                          ('clf', MultinomialNB()),
                          ])
-    text_clf = text_clf.fit(X_train, y_train)
+    text_clf = text_clf.fit(X_train, y_train.ravel())
     predicted = text_clf.predict(X_val)
     accuracy = np.mean(predicted == y_val)
 
-    '''
-    tfidf = TfidfVectorizer(ngram_range=(1, 1), lowercase=False,
-                                         token_pattern='\w+|\@\w+', norm='l2')
-    tfidf_train = tfidf.fit_transform(X_train['text'])
-    tfidf_y_train = tfidf.fit_transform(y_train)
-    tfidf_val = tfidf.fit_transform(X_val['text'])
+    return accuracy
 
-    # run a simple Naive-Bayes and outut the accuracy
-    clf = MultinomialNB().fit(tfidf_train, tfidf_y_train)
-    predicted = clf.predict(tfidf_val)
+
+def naive_bayes_n_grams(X_train, X_val, y_train, y_val):
+    # TF-IDF on raw text column
+    text_clf = Pipeline([('vect', CountVectorizer(ngram_range=(2, 3),
+                                                  lowercase=False,
+                                                  token_pattern='\w+|\@\w+')),
+                         ('tfidf', TfidfTransformer(norm='l2')),
+                         ('clf', MultinomialNB()),
+                         ])
+    text_clf = text_clf.fit(X_train, y_train.ravel())
+    predicted = text_clf.predict(X_val)
     accuracy = np.mean(predicted == y_val)
-    '''
+
+    return accuracy
+
+
+def naive_bayes_all_features_text(X_train, X_val, y_train, y_val):
+    # Naive Bayes on all features
+    count_vect = CountVectorizer(ngram_range=(1, 1),
+                                 lowercase=False,
+                                 token_pattern='\w+|\@\w+')
+    tfidf_transformer = TfidfTransformer()
+    X_train_counts = count_vect.fit_transform(X_train['text'])
+    X_train_tfidf = tfidf_transformer.fit_transform(X_train_counts)
+    X_train = np.concatenate((X_train, X_train_tfidf), axis=1)
+    clf = MultinomialNB().fit(X_train, y_train)
+    predicted = clf.predict(X_val)
+    accuracy = np.mean(predicted == y_val)
+    return accuracy
+
+
+def naive_bayes_all_features_pos(X_train, X_val, y_train, y_val):
+    # Naive Bayes on all features
+    count_vect = CountVectorizer(lowercase=False,
+                                 token_pattern='\w+|\@\w+')
+    tfidf_transformer = TfidfTransformer()
+    X_train_counts = count_vect.fit_transform(X_train['text'])
+    X_train_tfidf = tfidf_transformer.fit_transform(X_train_counts)
+    X_train = np.concatenate((X_train, X_train_tfidf), axis=1)
+
+    count_vect = CountVectorizer(ngram_range=(2, 3),
+                                 lowercase=False)
+    X_train_counts = count_vect.fit_transform(X_train['pos'])
+    X_train_tfidf = tfidf_transformer.fit_transform(X_train_counts)
+    X_train = np.concatenate((X_train, X_train_tfidf), axis=1)
+    clf = MultinomialNB().fit(X_train, y_train)
+    predicted = clf.predict(X_val)
+    accuracy = np.mean(predicted == y_val)
     return accuracy
 
 
