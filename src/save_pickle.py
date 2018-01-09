@@ -56,12 +56,14 @@ def main():
     tfidf_pos = TfidfVectorizer(ngram_range=(2, 3),
                                 lowercase=False,
                                 norm='l2',
-                                min_df=0.01).fit(X_train['tweetokenize'])
+                                min_df=0.01).fit(X_train['pos'])
     cols = tfidf_pos.get_feature_names()
 
-    X_train_pos = tf_idf_matrix(X_train, 'tweetokenize', tfidf_pos, cols)
-    X_val_pos = tf_idf_matrix(X_val, 'tweetokenize', tfidf_pos, cols)
-    X_test_pos = tf_idf_matrix(X_test, 'tweetokenize', tfidf_pos, cols)
+    X_train_pos = tf_idf_matrix(X_train, 'pos', tfidf_pos, cols)
+    X_val_pos = tf_idf_matrix(X_val, 'pos', tfidf_pos, cols)
+    X_test_pos = tf_idf_matrix(X_test, 'pos', tfidf_pos, cols)
+
+    print(X_train['pos'])
 
     # Save pickle file
     output = open('data.pkl', 'wb')

@@ -29,9 +29,6 @@ def load_pickle():
 
     pkl_file.close()
 
-    print(X_train)
-    print(y_train)
-
     return (X_train, X_val, X_test,
             X_train_tfidf, X_val_tfidf, X_test_tfidf,
             X_train_pos, X_val_pos, X_test_pos,
