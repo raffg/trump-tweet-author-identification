@@ -83,14 +83,14 @@ def punctuation_columns(df, column, punctuation_dict):
 
 def mention_hashtag_url(df, column):
     '''
-    Takes a DataFrame and a specified column of tweets and creates new columns
-    containing the count of @mentions, #hashtags, and URLs in the tweet
+    Takes a DataFrame and a specified column of tweetokenized tweets and
+    creates new columns containing the count of @mentions, #hashtags, and URLs
+    in the tweet
     INPUT: DataFrame, string
     OUTPUT: the original DataFrame with four new columns
     '''
 
-    new_df = df.copy()
-    new_df['tweetokenize'] = new_df['text'].apply(t.tweet_tokens)
+    new_df = t.tweetokenize(df, 'text')
     new_df['mentions'] = new_df['tweetokenize'].apply(
                          lambda x: x.count('<USER>'))
     new_df['hashtags'] = new_df['tweetokenize'].apply(

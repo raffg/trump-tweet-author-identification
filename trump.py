@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
-from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from src.load_data import load_json_list, apply_date_mask
 from src.vader_sentiment import apply_vader
@@ -13,21 +12,27 @@ from src.part_of_speech import pos_tagging, ner_tagging
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.pipeline import Pipeline
 
 
 def main():
     X_train, X_test, y_train, y_test = data()
+    X_train = feature_engineering(X_train)
     X_train, X_val, y_train, y_val = train_test_split(X_train, y_train)
-    #X_train = feature_engineering(X_train)
     #tfidf_text_train = tf_idf_text(X_train)
     #tfidf_text_val = tf_idf_text(X_val)
     naive_bayes_accuracy = naive_bayes(np.array(X_train['text']),
-                                       np.array(X_val['text']),
+                                       np.array(X_val['text'].ravel()),
                                        np.array(y_train),
-                                       np.array(y_val))
-
+                                       np.array(y_val).ravel())
     print(naive_bayes_accuracy)
+
+    naive_bayes_accuracy_pos = naive_bayes(np.array(X_train['pos']),
+                                           np.array(X_val['pos'].ravel()),
+                                           np.array(y_train),
+                                           np.array(y_val).ravel())
+    print(naive_bayes_accuracy_pos)
 
 
 def data():
@@ -61,7 +66,7 @@ def data():
 
     # =========================================================================
     # Testing
-    #df = df[0:30]
+    df = df[0:30]
     # =========================================================================
 
     # Separate data and labels
