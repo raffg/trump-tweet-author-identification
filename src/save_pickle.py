@@ -9,6 +9,7 @@ from src.style import apply_avg_lengths, tweet_length, punctuation_columns, \
 from src.tweetstorm import tweetstorm
 from src.time_of_day import time_of_day
 from src.part_of_speech import pos_tagging, ner_tagging
+from src.tweetokenizer import tweet_tokenize
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 
@@ -21,13 +22,13 @@ def main():
     # Apply feature engineering to all X sets
     print()
     print('Feature engineering on Train data')
-    X_train_feat = feature_engineering(X_train)
+    X_train = feature_engineering(X_train)
     print()
     print('Feature engineering on Validation data')
-    X_val_feat = feature_engineering(X_val)
+    X_val = feature_engineering(X_val)
     print()
     print('Feature engineering on Test data')
-    X_test_feat = feature_engineering(X_test)
+    X_test = feature_engineering(X_test)
 
     # # Create ner column for Name Entity Recognition
     # print()
@@ -42,37 +43,58 @@ def main():
     print()
     print('TF-IDF on text column')
     tfidf_text = TfidfVectorizer(lowercase=False, token_pattern='\w+|\@\w+',
-                                 norm='l2')
-    X_train_tfidf = tf_idf_matrix(X_train, 'text', tfidf_text)
-    X_val_tfidf = tf_idf_matrix(X_val, 'text', tfidf_text)
-    X_test_tfidf = tf_idf_matrix(X_test, 'text', tfidf_text)
+                                 norm='l2', min_df=0.01).fit(X_train['text'])
+    cols = tfidf_text.get_feature_names()
+
+    X_train_tfidf = tf_idf_matrix(X_train, 'text', tfidf_text, cols)
+    X_val_tfidf = tf_idf_matrix(X_val, 'text', tfidf_text, cols)
+    X_test_tfidf = tf_idf_matrix(X_test, 'text', tfidf_text, cols)
 
     # Create TF-IDF for pos column
     print()
     print('TF-IDF on pos column')
-    tfidf_pos = TfidfVectorizer(ngram_range=(2, 4), lowercase=False,
-                                norm='l2')
-    X_train_pos = tf_idf_matrix(X_train, 'text', tfidf_pos)
-    X_val_pos = tf_idf_matrix(X_val, 'text', tfidf_pos)
-    X_test_pos = tf_idf_matrix(X_test, 'text', tfidf_pos)
+    tfidf_pos = TfidfVectorizer(ngram_range=(2, 3),
+                                lowercase=False,
+                                norm='l2',
+                                min_df=0.01).fit(X_train['tweetokenize'])
+    cols = tfidf_pos.get_feature_names()
+
+    X_train_pos = tf_idf_matrix(X_train, 'tweetokenize', tfidf_pos, cols)
+    X_val_pos = tf_idf_matrix(X_val, 'tweetokenize', tfidf_pos, cols)
+    X_test_pos = tf_idf_matrix(X_test, 'tweetokenize', tfidf_pos, cols)
 
     # Save pickle file
     output = open('data.pkl', 'wb')
-    pickle.dump(X_train, output)
-    pickle.dump(X_val, output)
-    pickle.dump(X_test, output)
+    print()
 
-    pickle.dump(X_train_tfidf, output)
-    pickle.dump(X_val_tfidf, output)
-    pickle.dump(X_test_tfidf, output)
+    print('Pickle dump X_train')
+    pickle.dump(X_train, output, protocol=4)
+    print('Pickle dump X_val')
+    pickle.dump(X_val, output, protocol=4)
+    print('Pickle dump X_test')
+    pickle.dump(X_test, output, protocol=4)
 
-    pickle.dump(X_train_pos, output)
-    pickle.dump(X_val_pos, output)
-    pickle.dump(X_test_pos, output)
+    print('Pickle dump X_train_tfidf')
+    pickle.dump(X_train_tfidf, output, protocol=4)
+    print('Pickle dump X_val_tfidf')
+    pickle.dump(X_val_tfidf, output, protocol=4)
+    print('Pickle dump X_test_tfidf')
+    pickle.dump(X_test_tfidf, output, protocol=4)
 
-    pickle.dump(y_train, output)
-    pickle.dump(y_val, output)
-    pickle.dump(y_test, output)
+    print('Pickle dump X_train_pos')
+    pickle.dump(X_train_pos, output, protocol=4)
+    print('Pickle dump X_val_pos')
+    pickle.dump(X_val_pos, output, protocol=4)
+    print('Pickle dump X_test_pos')
+    pickle.dump(X_test_pos, output, protocol=4)
+
+    print('Pickle dump y_train')
+    pickle.dump(y_train, output, protocol=4)
+    print('Pickle dump y_val')
+    pickle.dump(y_val, output, protocol=4)
+    print('Pickle dump y_test')
+    pickle.dump(y_test, output, protocol=4)
+
     output.close()
 
 
@@ -101,7 +123,7 @@ def data():
 
     # =========================================================================
     # Testing
-    df = df[0:15]
+    # df = df[0:15]
     # =========================================================================
 
     # Look only at iPhone and Android tweets
@@ -129,68 +151,70 @@ def feature_engineering(df):
     # =========================================================================
 
     # Create columns for vader sentiment
-    print('calculating vader sentiment')
+    print('   calculating vader sentiment')
     df = apply_vader(df, 'text')
 
     # Create columns for average tweet, sentence, and word length of tweet
-    print('calculating average tweet, sentence, and word length')
+    print('   calculating average tweet, sentence, and word length')
     df = tweet_length(df, 'text')
     df = apply_avg_lengths(df, 'text')
 
     # Create columns for counts of punctuation
-    print('calculating punctuation counts')
+    print('   calculating punctuation counts')
     punctuation_dict = {'commas': ',', 'semicolons': ';', 'exclamations': '!',
                         'periods': '.', 'questions': '?', 'quote': '"'}
 
     df = punctuation_columns(df, 'text', punctuation_dict)
 
     # Create columns for counts of @mentions, #hashtags, and urls
-    print('calculating mentions, hashtags, and url counts')
+    print('   calculating mentions, hashtags, and url counts')
     df = mention_hashtag_url(df, 'text')
 
     # Create column identifying if the tweet is surrounding by quote marks
-    print('calculating quoted retweet')
+    print('   calculating quoted retweet')
     df = quoted_retweet(df, 'text')
 
     # Create column indicating the count of fully capitalized words in a tweet
-    print('calculating fully capitalized word counts')
+    print('   calculating fully capitalized word counts')
     df = apply_all_caps(df, 'text')
 
     # Create column identifying if the tweet is part of a tweetstorm
-    print('calculating tweetstorm')
+    print('   calculating tweetstorm')
     df = tweetstorm(df, 'text', 'source', 'created_at', 600)
 
     # Create column identifying the hour of the day that the tweet was posted
-    print('calculating time of day')
+    print('   calculating time of day')
     df = time_of_day(df, 'created_at')
 
+    # Create column of tweetokenized tweets
+    print('   calculating Tweetokenized tweets')
+    df = tweet_tokenize(df, 'text')
+
     # Part of speech tagging
-    print('calculating part of speech')
-    df['pos'] = df['text'].apply(pos_tagging)
+    print('   calculating part of speech')
+    df['pos'] = df['tweetokenize'].apply(pos_tagging)
 
     return df
 
 
 def named_entity_recognition(df):
     # Named Entity Recognition substitution
-    print('calculating named entity recognition')
+    print('   calculating named entity recognition')
     df['ner'] = df['text'].apply(ner_tagging)
     return df
 
 
-def tf_idf_matrix(df, column, tfidfvectorizer):
+def tf_idf_matrix(df, column, vectorizer, cols):
     '''
-    Takes a DataFrame, a column of text, and a tfidfVectorizer. Creates tf-idf
-    matrix and concatenates the matrices to the DataFrame
-    INPUT: a DataFrame, string, tfidfVecorizer
+    Takes a DataFrame, a column, a tfidfVectorizer, and a list of column names.
+    Creates tf-idf matrix as a DataFrame
+    INPUT: a DataFrame, string, list
     OUTPUT: a DataFrame
     '''
 
-    print('calculating TF-IDF matrix')
-    tfidf = tfidfvectorizer
-    df_tfidf = tfidf.fit_transform(df[column])
-    cols = tfidf.get_feature_names()
-    df_tfidf = pd.DataFrame(df_tfidf.todense(), columns=[cols], index=df.index)
+    print('   calculating TF-IDF matrix')
+    matrix = vectorizer.transform(df[column])
+    df_tfidf = pd.DataFrame(matrix.todense(), columns=[cols], index=df.index)
     # new_df = pd.concat([df, df_tfidf], axis=1)
     return df_tfidf
 
