@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from src.load_pickle import load_pickle
 from sklearn.model_selection import train_test_split
 from sklearn.metrics.pairwise import cosine_similarity
 from src.load_data import load_json_list, apply_date_mask
@@ -17,17 +18,22 @@ from sklearn.pipeline import Pipeline
 
 
 def main():
+    '''
     X_train, X_test, y_train, y_test = data()
     X_train = feature_engineering(X_train)
     X_train, X_val, y_train, y_val = train_test_split(X_train, y_train)
-    #tfidf_text_train = tf_idf_text(X_train)
-    #tfidf_text_val = tf_idf_text(X_val)
-    naive_bayes_accuracy = naive_bayes(np.array(X_train['text']),
-                                       np.array(X_val['text']),
+    tfidf_text_train = tf_idf_text(X_train)
+    tfidf_text_val = tf_idf_text(X_val)
+    '''
+    X_train, X_val, X_test, y_train, y_val, y_test, feat_train, feat_val, feat_test = load_pickle()
+    import pdb
+    pdb.set_trace()
+    naive_bayes_accuracy = naive_bayes(np.array(X_train.iloc[:,feat_train['engineered']:feat_train['tfidf_text']]),
+                                       np.array(X_val.iloc[:,feat_val['engineered']:feat_val['tfidf_text']]),
                                        np.array(y_train),
-                                       np.array(y_val).ravel())
+                                       np.array(y_val))
     print('text accuracy: ', naive_bayes_accuracy)
-
+'''
     naive_bayes_pos_n_grams = naive_bayes(np.array(X_train['pos']),
                                           np.array(X_val['pos']),
                                           np.array(y_train),
@@ -46,7 +52,7 @@ def main():
                                                 np.array(y_train),
                                                 np.array(y_val).ravel())
     print ('all features with text & pos tf-idf accuracy: ', naive_bayes_all_features_pos)
-
+'''
 
 
 
@@ -135,35 +141,11 @@ def feature_engineering(df):
     return df
 
 
-def tf_idf_text(df):
-    # TF-IDF on raw text column
-    tfidf = TfidfVectorizer(ngram_range=(1, 1), lowercase=False,
-                            token_pattern='\w+|\@\w+', norm='l2')
-    tfidf_text = tfidf.fit_transform(df['text'])
-    return tfidf_text
-
-
-def tf_idf_pos(df):
-    # TF-IDF on parts-of-speech tags
-    tfidf = TfidfVectorizer(ngram_range=(2, 4), lowercase=False,
-                            norm='l2')
-    tfidf_pos = tfidf.fit_transform(df['pos'])
-
-    return tfidf_pos
-
-
 def naive_bayes(X_train, X_val, y_train, y_val):
     # TF-IDF on raw text column
-    text_clf = Pipeline([('vect', CountVectorizer(ngram_range=(1, 1),
-                                                  lowercase=False,
-                                                  token_pattern='\w+|\@\w+')),
-                         ('tfidf', TfidfTransformer(norm='l2')),
-                         ('clf', MultinomialNB()),
-                         ])
-    text_clf = text_clf.fit(X_train, y_train.ravel())
-    predicted = text_clf.predict(X_val)
+    clf = MultinomialNB().fit(X_train, y_train)
+    predicted = clf.predict(X_val)
     accuracy = np.mean(predicted == y_val)
-
     return accuracy
 
 
