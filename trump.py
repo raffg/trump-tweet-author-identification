@@ -10,14 +10,24 @@ from src.style import apply_avg_lengths, tweet_length, punctuation_columns, \
 from src.tweetstorm import tweetstorm
 from src.time_of_day import time_of_day
 from src.part_of_speech import pos_tagging, ner_tagging
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import TfidfTransformer
+from sklearn.pipeline import Pipeline
 
 
 def main():
     X_train, X_test, y_train, y_test = data()
-    X_train = feature_engineering(X_train)
-    tfidf_matrix = tf_idf(X_train)
+    X_train, X_val, y_train, y_val = train_test_split(X_train, y_train)
+    #X_train = feature_engineering(X_train)
+    #tfidf_text_train = tf_idf_text(X_train)
+    #tfidf_text_val = tf_idf_text(X_val)
+    naive_bayes_accuracy = naive_bayes(np.array(X_train['text']),
+                                       np.array(X_val['text']),
+                                       np.array(y_train),
+                                       np.array(y_val))
 
-    print(X_train)
+    print(naive_bayes_accuracy)
 
 
 def data():
@@ -51,7 +61,7 @@ def data():
 
     # =========================================================================
     # Testing
-    df = df[0:10]
+    #df = df[0:30]
     # =========================================================================
 
     # Separate data and labels
@@ -105,16 +115,56 @@ def feature_engineering(df):
     return df
 
 
-def tf_idf(df):
-    # =========================================================================
-    # TF-IDF
-    # =========================================================================
-
+def tf_idf_text(df):
+    # TF-IDF on raw text column
     tfidf = TfidfVectorizer(ngram_range=(1, 1), lowercase=False,
                             token_pattern='\w+|\@\w+', norm='l2')
-    tfidf_matrix = tfidf.fit_transform(df['text'])
+    tfidf_text = tfidf.fit_transform(df['text'])
+    return tfidf_text
 
-    return tfidf_matrix
+
+def tf_idf_pos(df):
+    # TF-IDF on parts-of-speech tags
+    tfidf = TfidfVectorizer(ngram_range=(2, 4), lowercase=False,
+                            norm='l2')
+    tfidf_pos = tfidf.fit_transform(df['pos'])
+
+    return tfidf_pos
+
+
+def naive_bayes(X_train, X_val, y_train, y_val):
+    # TF-IDF on raw text column
+    text_clf = Pipeline([('vect', CountVectorizer()),
+                         ('tfidf', TfidfTransformer()),
+                         ('clf', MultinomialNB()),
+                         ])
+    text_clf = text_clf.fit(X_train, y_train)
+    predicted = text_clf.predict(X_val)
+    accuracy = np.mean(predicted == y_val)
+
+    text_clf = Pipeline([('vect', CountVectorizer(ngram_range=(1, 1),
+                                                  lowercase=False,
+                                                  token_pattern='\w+|\@\w+')),
+                         ('tfidf', TfidfTransformer(norm='l2')),
+                         ('clf', MultinomialNB()),
+                         ])
+    text_clf = text_clf.fit(X_train, y_train)
+    predicted = text_clf.predict(X_val)
+    accuracy = np.mean(predicted == y_val)
+
+    '''
+    tfidf = TfidfVectorizer(ngram_range=(1, 1), lowercase=False,
+                                         token_pattern='\w+|\@\w+', norm='l2')
+    tfidf_train = tfidf.fit_transform(X_train['text'])
+    tfidf_y_train = tfidf.fit_transform(y_train)
+    tfidf_val = tfidf.fit_transform(X_val['text'])
+
+    # run a simple Naive-Bayes and outut the accuracy
+    clf = MultinomialNB().fit(tfidf_train, tfidf_y_train)
+    predicted = clf.predict(tfidf_val)
+    accuracy = np.mean(predicted == y_val)
+    '''
+    return accuracy
 
 
 if __name__ == '__main__':
