@@ -6,7 +6,7 @@ from sklearn.preprocessing import normalize
 def get_vader_scores(text):
     '''
     Takes a string of text and outputs four values for Vader's negative,
-    neutral, positive, and compound sentiment scores
+    neutral, positive, and compound (normalized) sentiment scores
     INPUT: a string
     OUTPUT: a dictionary of four sentiment scores
     '''
