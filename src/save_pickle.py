@@ -15,7 +15,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 
 def main():
     # Create Train, Validation, and Test sets
-    X, y = data()
+    X, y = data('2015-06-01', '2017-03-26')
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2,
                                                         random_state=1)
     X_train, X_val, y_train, y_val = train_test_split(X_train, y_train,
@@ -103,7 +103,7 @@ def main():
     output.close()
 
 
-def data():
+def data(start_date, end_date):
     # =========================================================================
     # Load the data
     # =========================================================================
@@ -123,7 +123,7 @@ def data():
     # Look only at tweets between June 1, 2015 and March 26, 2017
     print('Masking data')
     masked_df = apply_date_mask(raw_data, 'created_at',
-                                '2015-06-01', '2017-03-26')
+                                start_date, end_date)
     df = masked_df.sort_values('created_at').reset_index(drop=True)
 
     # =========================================================================

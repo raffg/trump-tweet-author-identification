@@ -8,8 +8,8 @@ def main():
      y_train, y_val, y_test) = load_pickle()
 
 
-def load_pickle():
-    pkl_file = open('data.pkl', 'rb')
+def load_pickle(file):
+    pkl_file = open(file, 'rb')
 
     X_train = pickle.load(pkl_file)
     X_val = pickle.load(pkl_file)
