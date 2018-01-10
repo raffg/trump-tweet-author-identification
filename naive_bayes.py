@@ -19,7 +19,8 @@ def run_model_naive_bayes(file):
             'avg_sentence_length', 'avg_word_length', 'commas',
             'semicolons', 'exclamations', 'periods', 'questions', 'quotes',
             'mentions', 'hashtags', 'urls', 'is_quoted_retweet', 'all_caps',
-            'tweetstorm', 'hour']
+            'tweetstorm', 'hour', 'period_1', 'period_2', 'period_3',
+            'period_4']
 
     naive_bayes_all_features = naive_bayes(np.array(X_train[feat]),
                                            np.array(X_val[feat]),

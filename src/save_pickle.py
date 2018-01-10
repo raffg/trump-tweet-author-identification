@@ -233,7 +233,7 @@ def feature_engineering(df):
     df = time_of_day(df, 'created_at')
 
     # Create column identifying the period of the day, in 6-hour increments
-    print('   calculating the period of day')
+    print('   calculating period of day')
     df = period_of_day(df, 'created_at')
 
     # Create column of tweetokenized tweets
