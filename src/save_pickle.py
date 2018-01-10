@@ -9,7 +9,7 @@ from src.style import apply_avg_lengths, tweet_length, punctuation_columns, \
 from src.tweetstorm import tweetstorm
 from src.time_of_day import time_of_day
 from src.part_of_speech import pos_tagging, ner_tagging
-from src.tweetokenizer import tweet_tokenize
+from src.tweetokenizer import tweet_tokenize, tweet_tokens
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 
@@ -33,7 +33,6 @@ def main():
     print('Feature engineering on Test data')
     X_test = feature_engineering(X_test)
 
-    '''
     # Create ner column for Name Entity Recognition
     print()
     print('Performing NER on Train Data')
@@ -64,7 +63,7 @@ def main():
                                               norm='l2',
                                               min_df=0.01).fit(
                                               X_train['ner_tweetokenized'])
-    cols = tfidf_ner.get_feature_names()
+    cols = tfidf_ner_tweetokenized.get_feature_names()
 
     X_train_pos = tf_idf_matrix(X_train, 'ner_tweetokenized',
                                 tfidf_ner_tweetokenized, cols)
@@ -72,7 +71,6 @@ def main():
                               tfidf_ner_tweetokenized, cols)
     X_test_pos = tf_idf_matrix(X_test, 'ner_tweetokenized',
                                tfidf_ner_tweetokenized, cols)
-    '''
 
     # Create TF-IDF for text column
     print()
@@ -100,7 +98,7 @@ def main():
     X_test_pos = tf_idf_matrix(X_test, 'pos', tfidf_pos, cols)
 
     # Save pickle file
-    output = open('data.pkl', 'wb')
+    output = open('data_ner.pkl', 'wb')
     print()
 
     print('Pickle dump X_train')
@@ -159,7 +157,7 @@ def data(start_date, end_date):
 
     # =========================================================================
     # Testing
-    # df = df[0:15]
+    df = df[0:15]
     # =========================================================================
 
     # Look only at iPhone and Android tweets
