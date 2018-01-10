@@ -5,7 +5,7 @@ from sklearn.linear_model import SGDClassifier
 
 
 def main():
-    run_model_svm(data.pkl)
+    run_model_svm('data.pkl')
 
 
 def run_model_svm(file):
@@ -46,15 +46,6 @@ def run_model_svm(file):
                                 np.array(y_val).ravel())
     print('all features with text tf-idf accuracy: ',
           svm_all_features_text)
-
-    feat_pos_train = pd.concat([X_train[feat], X_train_pos], axis=1)
-    feat_pos_val = pd.concat([X_val[feat], X_val_pos], axis=1)
-    svm_all_features_pos = svm(np.array(feat_pos_train),
-                               np.array(feat_pos_val),
-                               np.array(y_train).ravel(),
-                               np.array(y_val).ravel())
-    print('all features with pos tf-idf accuracy: ',
-          svm_all_features_pos)
 
     feat_pos_train = pd.concat([X_train[feat], X_train_pos], axis=1)
     feat_pos_val = pd.concat([X_val[feat], X_val_pos], axis=1)

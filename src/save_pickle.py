@@ -33,6 +33,7 @@ def main():
     print('Feature engineering on Test data')
     X_test = feature_engineering(X_test)
 
+    '''
     # Create ner column for Name Entity Recognition
     print()
     print('Performing NER on Train Data')
@@ -51,9 +52,9 @@ def main():
                                 min_df=0.01).fit(X_train['ner'])
     cols = tfidf_ner.get_feature_names()
 
-    X_train_pos = tf_idf_matrix(X_train, 'ner', tfidf_ner, cols)
-    X_val_pos = tf_idf_matrix(X_val, 'ner', tfidf_ner, cols)
-    X_test_pos = tf_idf_matrix(X_test, 'ner', tfidf_ner, cols)
+    X_train_ner = tf_idf_matrix(X_train, 'ner', tfidf_ner, cols)
+    X_val_ner = tf_idf_matrix(X_val, 'ner', tfidf_ner, cols)
+    X_test_ner = tf_idf_matrix(X_test, 'ner', tfidf_ner, cols)
 
     # Create TF-IDF for NER_Tweetokenized column
     print()
@@ -65,12 +66,13 @@ def main():
                                               X_train['ner_tweetokenized'])
     cols = tfidf_ner_tweetokenized.get_feature_names()
 
-    X_train_pos = tf_idf_matrix(X_train, 'ner_tweetokenized',
-                                tfidf_ner_tweetokenized, cols)
-    X_val_pos = tf_idf_matrix(X_val, 'ner_tweetokenized',
-                              tfidf_ner_tweetokenized, cols)
-    X_test_pos = tf_idf_matrix(X_test, 'ner_tweetokenized',
-                               tfidf_ner_tweetokenized, cols)
+    X_train_ner_tweetokenized = tf_idf_matrix(X_train, 'ner_tweetokenized',
+                                              tfidf_ner_tweetokenized, cols)
+    X_val_ner_tweetokenized = tf_idf_matrix(X_val, 'ner_tweetokenized',
+                                            tfidf_ner_tweetokenized, cols)
+    X_test_ner_tweetokenized = tf_idf_matrix(X_test, 'ner_tweetokenized',
+                                             tfidf_ner_tweetokenized, cols)
+    '''
 
     # Create TF-IDF for text column
     print()
@@ -98,7 +100,7 @@ def main():
     X_test_pos = tf_idf_matrix(X_test, 'pos', tfidf_pos, cols)
 
     # Save pickle file
-    output = open('data_ner.pkl', 'wb')
+    output = open('data.pkl', 'wb')
     print()
 
     print('Pickle dump X_train')
@@ -121,6 +123,22 @@ def main():
     pickle.dump(X_val_pos, output, protocol=4)
     print('Pickle dump X_test_pos')
     pickle.dump(X_test_pos, output, protocol=4)
+
+    '''
+    print('Pickle dump X_train_ner')
+    pickle.dump(X_train_ner, output, protocol=4)
+    print('Pickle dump X_val_ner')
+    pickle.dump(X_val_ner, output, protocol=4)
+    print('Pickle dump X_test_ner')
+    pickle.dump(X_test_ner, output, protocol=4)
+
+    print('Pickle dump X_train_ner_tweetokenized')
+    pickle.dump(X_train_ner_tweetokenized, output, protocol=4)
+    print('Pickle dump X_val_ner_tweetokenized')
+    pickle.dump(X_val_ner_tweetokenized, output, protocol=4)
+    print('Pickle dump X_test_ner_tweetokenized')
+    pickle.dump(X_test_ner_tweetokenized, output, protocol=4)
+    '''
 
     print('Pickle dump y_train')
     pickle.dump(y_train, output, protocol=4)

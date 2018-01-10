@@ -5,7 +5,7 @@ from sklearn.naive_bayes import MultinomialNB
 
 
 def main():
-    run_model(data.pkl)
+    run_model_naive_bayes('data.pkl')
 
 
 def run_model_naive_bayes(file):
@@ -46,15 +46,6 @@ def run_model_naive_bayes(file):
                                                 np.array(y_val).ravel())
     print('all features with text tf-idf accuracy: ',
           naive_bayes_all_features_text)
-
-    feat_pos_train = pd.concat([X_train[feat], X_train_pos], axis=1)
-    feat_pos_val = pd.concat([X_val[feat], X_val_pos], axis=1)
-    naive_bayes_all_features_pos = naive_bayes(np.array(feat_pos_train),
-                                               np.array(feat_pos_val),
-                                               np.array(y_train).ravel(),
-                                               np.array(y_val).ravel())
-    print('all features with pos tf-idf accuracy: ',
-          naive_bayes_all_features_pos)
 
     feat_pos_train = pd.concat([X_train[feat], X_train_pos], axis=1)
     feat_pos_val = pd.concat([X_val[feat], X_val_pos], axis=1)
