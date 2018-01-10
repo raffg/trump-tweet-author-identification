@@ -76,7 +76,7 @@ def punctuation_columns(df, column, punctuation_dict):
         col = pd.DataFrame(df[column].apply(count_character,
                            character=list(punctuation_dict.values())[idx]))
         col.columns = [list(punctuation_dict.keys())[idx]]
-        new_df = pd.concat([df, col], axis=1)
+        new_df = pd.concat([new_df, col], axis=1)
 
     return new_df
 
