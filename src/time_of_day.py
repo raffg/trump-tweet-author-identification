@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 
 def time_of_day(df, timestamp):
