@@ -15,9 +15,12 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 
 def main():
     # Create Train, Validation, and Test sets
-    X_train, X_test, y_train, y_test = data()
+    X, y = data()
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2,
+                                                        random_state=1)
     X_train, X_val, y_train, y_val = train_test_split(X_train, y_train,
-                                                      test_size=0.2)
+                                                      test_size=0.2,
+                                                      random_state=1)
 
     # Apply feature engineering to all X sets
     print()
@@ -134,7 +137,7 @@ def data():
 
     # Dummify is_reply column
     print('Dummifying is_reply column')
-    df['in_reply_to_user_id_str'] = df['in_reply_to_user_id_str'].fillna(0)
+    df['in_reply_to_user_id_str'].fillna(0, inplace=True)
     df['is_reply'] = np.where(df['in_reply_to_user_id_str'] == 0, False, True)
 
     # Separate data and labels
@@ -142,9 +145,7 @@ def data():
     X = df.drop(['id_str', 'in_reply_to_user_id_str'], axis=1)
     y = pd.DataFrame(np.where(df['source'] == 'Twitter for Android', 1, 0))
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
-
-    return X_train, X_test, y_train, y_test
+    return X, y
 
 
 def feature_engineering(df):
@@ -189,7 +190,7 @@ def feature_engineering(df):
     df = time_of_day(df, 'created_at')
 
     # Create column of tweetokenized tweets
-    print('   calculating Tweetokenized tweets')
+    print('   calculating tweetokenized tweets')
     df = tweet_tokenize(df, 'text')
 
     # Part of speech tagging
