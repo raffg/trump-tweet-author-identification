@@ -28,4 +28,6 @@ def apply_vader(df, column):
     unpacked = pd.DataFrame([d for idx, d in sentiment['text'].iteritems()],
                             index=sentiment.index)
     unpacked['compound'] += 1
+    columns = {'neu': 'neutral', 'pos': 'positive', 'neg': 'negative'}
+    unpacked.rename(columns=columns, inplace=True)
     return pd.concat([df, unpacked], axis=1)

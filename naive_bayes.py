@@ -11,9 +11,9 @@ def main():
      y_train, y_val, y_test) = load_pickle()
 
     feat = ['favorite_count', 'is_retweet', 'retweet_count', 'is_reply',
-            'compound', 'neg', 'neu', 'tweet_length', 'avg_sentence_length',
-            'avg_word_length', 'quote', 'mentions', 'hashtags', 'urls',
-            'is_quoted_retweet', 'all_caps']
+            'compound', 'negative', 'neutral', 'positive', 'tweet_length',
+            'avg_sentence_length', 'avg_word_length', 'quote', 'mentions',
+            'hashtags', 'urls', 'is_quoted_retweet', 'all_caps']
 
     naive_bayes_all_features = naive_bayes(np.array(X_train[feat]),
                                            np.array(X_val[feat]),
@@ -52,22 +52,31 @@ def main():
     print('all features with pos tf-idf accuracy: ',
           naive_bayes_all_features_pos)
 
-    all_feat_train = pd.concat([feat_text_train, X_train_pos], axis=1)
-    all_feat_val = pd.concat([feat_text_val, X_val_pos], axis=1)
-    naive_bayes_all_features = naive_bayes(np.array(all_feat_train),
-                                           np.array(all_feat_val),
-                                           np.array(y_train).ravel(),
-                                           np.array(y_val).ravel())
-    print('all features with text & pos tf-idf accuracy: ',
-          naive_bayes_all_features)
+    feat_pos_train = pd.concat([X_train[feat], X_train_pos], axis=1)
+    feat_pos_val = pd.concat([X_val[feat], X_val_pos], axis=1)
+    naive_bayes_all_features_pos = naive_bayes(np.array(feat_pos_train),
+                                               np.array(feat_pos_val),
+                                               np.array(y_train).ravel(),
+                                               np.array(y_val).ravel())
+    print('all features with pos tf-idf accuracy: ',
+          naive_bayes_all_features_pos)
+
+    vader = naive_bayes(np.array(X_train[['compound', 'negative',
+                                          'neutral', 'positive']]),
+                        np.array(X_val[['compound', 'negative',
+                                        'neutral', 'positive']]),
+                        np.array(y_train).ravel(),
+                        np.array(y_val).ravel())
+    print('vader features accuracy: ', vader)
 
 
 def naive_bayes(X_train, X_val, y_train, y_val):
     # Basic Naive Bayes
     clf = MultinomialNB().fit(X_train, y_train)
     predicted = clf.predict(X_val)
-    accuracy = np.mean(predicted == y_val)
-    return accuracy
+    accuracy_train = np.mean(clf.predict(X_train) == y_train)
+    accuracy_test = np.mean(predicted == y_val)
+    return accuracy_train, accuracy_test
 
 
 if __name__ == '__main__':
