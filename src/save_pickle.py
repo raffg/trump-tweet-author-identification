@@ -42,12 +42,43 @@ def main():
     X_val = named_entity_recognition(X_val)
     print('Performing NER on Test Data')
     X_test = named_entity_recognition(X_test)
+
+    # Create TF-IDF for NER column
+    print()
+    print('TF-IDF on ner column')
+    tfidf_ner = TfidfVectorizer(ngram_range=(1, 2),
+                                lowercase=False,
+                                norm='l2',
+                                min_df=0.01).fit(X_train['ner'])
+    cols = tfidf_ner.get_feature_names()
+
+    X_train_pos = tf_idf_matrix(X_train, 'ner', tfidf_ner, cols)
+    X_val_pos = tf_idf_matrix(X_val, 'ner', tfidf_ner, cols)
+    X_test_pos = tf_idf_matrix(X_test, 'ner', tfidf_ner, cols)
+
+    # Create TF-IDF for NER_Tweetokenized column
+    print()
+    print('TF-IDF on ner_tweetokenized column')
+    tfidf_ner_tweetokenized = TfidfVectorizer(ngram_range=(1, 2),
+                                              lowercase=False,
+                                              norm='l2',
+                                              min_df=0.01).fit(
+                                              X_train['ner_tweetokenized'])
+    cols = tfidf_ner.get_feature_names()
+
+    X_train_pos = tf_idf_matrix(X_train, 'ner_tweetokenized',
+                                tfidf_ner_tweetokenized, cols)
+    X_val_pos = tf_idf_matrix(X_val, 'ner_tweetokenized',
+                              tfidf_ner_tweetokenized, cols)
+    X_test_pos = tf_idf_matrix(X_test, 'ner_tweetokenized',
+                               tfidf_ner_tweetokenized, cols)
     '''
 
     # Create TF-IDF for text column
     print()
     print('TF-IDF on text column')
-    tfidf_text = TfidfVectorizer(lowercase=False, token_pattern='\w+|\@\w+',
+    tfidf_text = TfidfVectorizer(ngram_range=(1, 2),
+                                 lowercase=False, token_pattern='\w+|\@\w+',
                                  norm='l2', min_df=0.01).fit(X_train['text'])
     cols = tfidf_text.get_feature_names()
 
@@ -204,6 +235,7 @@ def named_entity_recognition(df):
     # Named Entity Recognition substitution
     print('   calculating named entity recognition')
     df['ner'] = df['text'].apply(ner_tagging)
+    df['ner_tweetokenized'] = df['ner'].apply(tweet_tokens)
     return df
 
 
