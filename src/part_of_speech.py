@@ -1,6 +1,5 @@
 from nltk import word_tokenize, pos_tag
 from nltk.tag import StanfordNERTagger
-from nltk.tokenize import word_tokenize
 import preprocessor as p
 
 
@@ -19,8 +18,8 @@ def pos_tagging(text):
 
 def ner_tagging(text):
     '''
-    Takes a string of words and uses the Stanford NER Tagger to replace names,
-    places, and organizations with a standard token
+    Takes a tweetokenized string of words and uses the Stanford NER Tagger to
+    replace names, places, and organizations with a standard token
     INPUT: string
     OUTPUT: string
     '''
@@ -30,8 +29,19 @@ def ner_tagging(text):
     ner = st.tag(word_tokenize(text))
     string = ""
     for item in ner:
-        if item[1] != 'O':
-            string += item[1] + ' '
+        if item[1] == 'O':
+            if item[0] == '<' or item[0] == '@':
+                string += item[0]
+            elif item[0] == '>':
+                    string = string[:-1] + item[0] + ' '
+            else:
+                string += item[0] + ' '
         else:
-            string += item[0] + ' '
-    return string
+            string += item[1] + ' '
+    tweet = ''
+    for word in string.split():
+        if word.isupper():
+            tweet += word + ' '
+        else:
+            tweet += word.lower() + ' '
+    return tweet

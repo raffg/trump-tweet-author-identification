@@ -11,7 +11,8 @@ def tweet_tokens(tweet):
 
     gettokens = Tokenizer(usernames='<USER>', urls='<URL>',
                           hashtags='<HASHTAG>', times=',<TIME>',
-                          numbers='<NUMBER>', allcapskeep=True,)
+                          numbers='<NUMBER>', allcapskeep=True,
+                          lowercase=False)
     tokens = gettokens.tokenize(tweet)
     tweet = ' '.join(tokens)
 
