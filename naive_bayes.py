@@ -5,7 +5,7 @@ from sklearn.naive_bayes import MultinomialNB
 
 
 def main():
-    run_model_naive_bayes('data/data.pkl')
+    run_model_naive_bayes('pickle/data.pkl')
 
 
 def run_model_naive_bayes(file):

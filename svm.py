@@ -5,7 +5,7 @@ from sklearn.linear_model import SGDClassifier
 
 
 def main():
-    run_model_svm('data/data.pkl')
+    run_model_svm('pickle/data.pkl')
 
 
 def run_model_svm(file):

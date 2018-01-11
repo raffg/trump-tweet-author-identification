@@ -14,8 +14,24 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 
 
 def main():
+    save_pickle('2015-06-01', '2017-03-26',
+                ner=False, testing=True,
+                filename_suffix='_test')
+
+
+def save_pickle(start_date, end_date,
+                ner=True, testing=False,
+                filename_suffix=''):
     # Create Train, Validation, and Test sets
-    X, y = data('2015-06-01', '2017-03-26')
+    X, y = data(start_date, end_date)
+
+    # =========================================================================
+    # Testing
+    if testing:
+        X = X[0:15]
+        y = y[0:15]
+    # =========================================================================
+
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2,
                                                         random_state=1)
     X_train, X_val, y_train, y_val = train_test_split(X_train, y_train,
@@ -32,29 +48,30 @@ def main():
     print()
     print('Feature engineering on Test data')
     X_test = feature_engineering(X_test)
-    '''
-    # Create ner column for Name Entity Recognition
-    print()
-    print('Performing NER on Train Data')
-    X_train = named_entity_recognition(X_train)
-    print('Performing NER on Validation Data')
-    X_val = named_entity_recognition(X_val)
-    print('Performing NER on Test Data')
-    X_test = named_entity_recognition(X_test)
 
-    # Create TF-IDF for NER column
-    print()
-    print('TF-IDF on ner column')
-    tfidf_ner = TfidfVectorizer(ngram_range=(1, 2),
-                                lowercase=False,
-                                norm='l2',
-                                min_df=0.01).fit(X_train['ner'])
-    cols = tfidf_ner.get_feature_names()
+    if ner:
+        # Create ner column for Name Entity Recognition
+        print()
+        print('Performing NER on Train Data')
+        X_train = named_entity_recognition(X_train)
+        print('Performing NER on Validation Data')
+        X_val = named_entity_recognition(X_val)
+        print('Performing NER on Test Data')
+        X_test = named_entity_recognition(X_test)
 
-    X_train_ner = tf_idf_matrix(X_train, 'ner', tfidf_ner, cols)
-    X_val_ner = tf_idf_matrix(X_val, 'ner', tfidf_ner, cols)
-    X_test_ner = tf_idf_matrix(X_test, 'ner', tfidf_ner, cols)
-    '''
+        # Create TF-IDF for NER column
+        print()
+        print('TF-IDF on ner column')
+        tfidf_ner = TfidfVectorizer(ngram_range=(1, 2),
+                                    lowercase=False,
+                                    norm='l2',
+                                    min_df=0.01).fit(X_train['ner'])
+        cols = tfidf_ner.get_feature_names()
+
+        X_train_ner = tf_idf_matrix(X_train, 'ner', tfidf_ner, cols)
+        X_val_ner = tf_idf_matrix(X_val, 'ner', tfidf_ner, cols)
+        X_test_ner = tf_idf_matrix(X_test, 'ner', tfidf_ner, cols)
+
     # Create TF-IDF for text column
     print()
     print('TF-IDF on text column')
@@ -81,8 +98,21 @@ def main():
     X_test_pos = tf_idf_matrix(X_test, 'pos', tfidf_pos, cols)
 
     # Save pickle file
-    output = open('data/data.pkl', 'wb')
+    filename = 'pickle/data' + filename_suffix + '.pkl'
+    output = open(filename, 'wb')
     print()
+
+    '''
+    df_list = [X_train, X_val, X_test,
+               X_train_tfidf, X_val_tfidf, X_test_tfidf,
+               X_train_pos, X_val_pos, X_test_pos,
+               X_train_ner, X_val_ner, X_test_ner,
+               y_train, y_val, y_test]
+
+    for df in df_list:
+        print('Pickle dump ' + str(df))
+        pickle.dump()
+    '''
 
     print('Pickle dump X_train')
     pickle.dump(X_train, output, protocol=4)
@@ -104,14 +134,15 @@ def main():
     pickle.dump(X_val_pos, output, protocol=4)
     print('Pickle dump X_test_pos')
     pickle.dump(X_test_pos, output, protocol=4)
-    '''
-    print('Pickle dump X_train_ner')
-    pickle.dump(X_train_ner, output, protocol=4)
-    print('Pickle dump X_val_ner')
-    pickle.dump(X_val_ner, output, protocol=4)
-    print('Pickle dump X_test_ner')
-    pickle.dump(X_test_ner, output, protocol=4)
-    '''
+
+    if ner:
+        print('Pickle dump X_train_ner')
+        pickle.dump(X_train_ner, output, protocol=4)
+        print('Pickle dump X_val_ner')
+        pickle.dump(X_val_ner, output, protocol=4)
+        print('Pickle dump X_test_ner')
+        pickle.dump(X_test_ner, output, protocol=4)
+
     print('Pickle dump y_train')
     pickle.dump(y_train, output, protocol=4)
     print('Pickle dump y_val')
@@ -144,11 +175,6 @@ def data(start_date, end_date):
     masked_df = apply_date_mask(raw_data, 'created_at',
                                 start_date, end_date)
     df = masked_df.sort_values('created_at').reset_index(drop=True)
-
-    # =========================================================================
-    # Testing
-    # df = df[0:15]
-    # =========================================================================
 
     # Look only at iPhone and Android tweets
 #    df = df.loc[(df['source'] == 'Twitter for iPhone') |
@@ -213,8 +239,8 @@ def feature_engineering(df):
     print('   calculating period of day')
     df = period_of_day(df, 'created_at')
 
-    # Create column of tweetokenized tweets
-    print('   calculating tweetokenized tweets')
+    # Create column of tweetokenize tweets
+    print('   calculating tweetokenize tweets')
     df = tweet_tokenize(df, 'text')
 
     # Part of speech tagging
