@@ -1,18 +1,18 @@
 import pandas as pd
 import numpy as np
-from src.load_npy import load_npy
+from src.load_pickle import load_pickle
 from sklearn.linear_model import SGDClassifier
 
 
 def main():
-    run_model_svm('data.npy')
+    run_model_svm('pickle/data.pkl')
 
 
 def run_model_svm(file):
     (X_train, X_val, X_test,
      X_train_tfidf, X_val_tfidf, X_test_tfidf,
      X_train_pos, X_val_pos, X_test_pos,
-     y_train, y_val, y_test) = load_npy(file)
+     y_train, y_val, y_test) = load_pickle(file)
 
     feat = ['favorite_count', 'is_retweet', 'retweet_count', 'is_reply',
             'compound', 'negative', 'neutral', 'positive', 'tweet_length',

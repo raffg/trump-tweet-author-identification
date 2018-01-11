@@ -1,20 +1,20 @@
 import pandas as pd
 import numpy as np
-from src.load_npy import load_npy
+from src.load_pickle import load_pickle
 from sklearn.linear_model import Ridge
 from sklearn.model_selection import KFold
 from sklearn.metrics import accuracy_score, precision_score, recall_score
 
 
 def main():
-    run_model_logistic_regression('data.npy')
+    run_model_logistic_regression('pickle/data.pkl')
 
 
 def run_model_logistic_regression(file):
     (X_train, X_val, X_test,
      X_train_tfidf, X_val_tfidf, X_test_tfidf,
      X_train_pos, X_val_pos, X_test_pos,
-     y_train, y_val, y_test) = load_npy(file)
+     y_train, y_val, y_test) = load_pickle(file)
 
     binary = ['is_retweet', 'is_reply', 'is_quoted_retweet',
               'tweetstorm', 'period_1', 'period_2', 'period_3',

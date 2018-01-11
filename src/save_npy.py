@@ -118,7 +118,7 @@ def save_npy(start_date, end_date,
     df_dict['X_test_pos'] = X_test_pos
 
     # Save npy file
-    np.save('data.npy', df_dict)
+    np.save(filename, df_dict)
     print()
 
 
