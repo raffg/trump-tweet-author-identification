@@ -14,11 +14,13 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 
 def main():
     save_npy('2015-06-01', '2017-03-26',
-             ner=False, testing=False)
+             ner=False, testing=False,
+             filename='data.npy')
 
 
 def save_npy(start_date, end_date,
-             ner=True, testing=False):
+             ner=True, testing=False,
+             filename='data.npy'):
     X, y = data(start_date, end_date)
     df_dict = {}
 
