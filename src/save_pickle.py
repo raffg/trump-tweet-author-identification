@@ -98,7 +98,7 @@ def main():
     X_test_pos = tf_idf_matrix(X_test, 'pos', tfidf_pos, cols)
 
     # Save pickle file
-    output = open('data.pkl', 'wb')
+    output = open('data/data.pkl', 'wb')
     print()
 
     print('Pickle dump X_train')

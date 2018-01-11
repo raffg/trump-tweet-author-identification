@@ -7,7 +7,7 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score
 
 
 def main():
-    run_model_logistic_regression('data.pkl')
+    run_model_logistic_regression('data/data.pkl')
 
 
 def run_model_logistic_regression(file):
