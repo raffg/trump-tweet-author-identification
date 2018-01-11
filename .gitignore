@@ -16,3 +16,6 @@ stanford-ner/
 
 # pickle files
 *.pkl
+
+# .npy files
+*.npy
