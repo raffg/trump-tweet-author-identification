@@ -22,8 +22,8 @@ def main():
 def save_pickle(start_date, end_date,
                 ner=True, testing=False,
                 filename_suffix=''):
-    # Create Train, Validation, and Test sets
     X, y = data(start_date, end_date)
+    df_dict = {}
 
     # =========================================================================
     # Testing
@@ -32,6 +32,7 @@ def save_pickle(start_date, end_date,
         y = y[0:15]
     # =========================================================================
 
+    # Create Train, Validation, and Test sets
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2,
                                                         random_state=1)
     X_train, X_val, y_train, y_val = train_test_split(X_train, y_train,
@@ -48,6 +49,10 @@ def save_pickle(start_date, end_date,
     print()
     print('Feature engineering on Test data')
     X_test = feature_engineering(X_test)
+
+    df_dict['X_train'] = X_train
+    df_dict['X_val'] = X_val
+    df_dict['X_test'] = X_test
 
     if ner:
         # Create ner column for Name Entity Recognition
@@ -103,15 +108,24 @@ def save_pickle(start_date, end_date,
     print()
 
     '''
-    df_list = [X_train, X_val, X_test,
-               X_train_tfidf, X_val_tfidf, X_test_tfidf,
+    df_dict = {'X_train': X_train, 'X_val': X_val, X_test,
+               X_train_tfidf, X_val_: idf, X_test_tfidf,
                X_train_pos, X_val_pos, X_test_pos,
                X_train_ner, X_val_ner, X_test_ner,
-               y_train, y_val, y_test]
+               y_train, y_val, y_test}
+
+    df_list = ['', '_tfidf', 'pos', '_ner']
+
+    df_dict = {}
 
     for df in df_list:
-        print('Pickle dump ' + str(df))
-        pickle.dump()
+        for set_ in [_train, _val, _test]:
+            print('Pickle dump X + str(set) + str(df))
+            pickle.dump(X_train + set + df, output, protocol=4)
+
+    for set in [_train, _val, _test]:
+        print('Pickle dump y + str(set))
+        pickle.dump(y + set, output, protocol=4)
     '''
 
     print('Pickle dump X_train')

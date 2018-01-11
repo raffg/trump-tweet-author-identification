@@ -1,18 +1,18 @@
 import pandas as pd
 import numpy as np
-from src.load_pickle import load_pickle
+from src.load_npy import load_npy
 from sklearn.linear_model import SGDClassifier
 
 
 def main():
-    run_model_svm('pickle/data.pkl')
+    run_model_svm('data.npy')
 
 
 def run_model_svm(file):
     (X_train, X_val, X_test,
      X_train_tfidf, X_val_tfidf, X_test_tfidf,
      X_train_pos, X_val_pos, X_test_pos,
-     y_train, y_val, y_test) = load_pickle(file)
+     y_train, y_val, y_test) = load_npy(file)
 
     feat = ['favorite_count', 'is_retweet', 'retweet_count', 'is_reply',
             'compound', 'negative', 'neutral', 'positive', 'tweet_length',
@@ -58,14 +58,6 @@ def run_model_svm(file):
                                np.array(y_val).ravel())
     print('all features with pos tf-idf accuracy: ',
           svm_all_features_pos)
-
-    vader = svm(np.array(X_train[['compound', 'negative',
-                                  'neutral', 'positive']]),
-                np.array(X_val[['compound', 'negative',
-                                'neutral', 'positive']]),
-                np.array(y_train).ravel(),
-                np.array(y_val).ravel())
-    print('vader features accuracy: ', vader)
 
 
 def svm(X_train, X_val, y_train, y_val):
