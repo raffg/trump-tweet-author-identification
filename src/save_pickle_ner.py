@@ -7,7 +7,7 @@ from src.vader_sentiment import apply_vader
 from src.style import apply_avg_lengths, tweet_length, punctuation_columns, \
                       quoted_retweet, apply_all_caps, mention_hashtag_url
 from src.tweetstorm import tweetstorm
-from src.time_of_day import time_of_day
+from src.time_of_day import time_of_day, period_of_day
 from src.part_of_speech import pos_tagging, ner_tagging
 from src.tweetokenizer import tweet_tokenize, tweet_tokens
 from sklearn.feature_extraction.text import TfidfVectorizer
