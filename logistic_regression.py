@@ -20,9 +20,9 @@ def run_model_logistic_regression(file):
             'compound', 'negative', 'neutral', 'positive', 'tweet_length',
             'avg_sentence_length', 'avg_word_length', 'commas',
             'semicolons', 'exclamations', 'periods', 'questions', 'quotes',
-            'mentions', 'hashtags', 'urls', 'is_quoted_retweet', 'all_caps',
-            'tweetstorm', 'hour', 'period_1', 'period_2', 'period_3',
-            'period_4']
+            'ellipses', 'mentions', 'hashtags', 'urls', 'is_quoted_retweet',
+            'all_caps', 'tweetstorm', 'hour', 'period_1', 'period_2',
+            'period_3', 'period_4']
 
     X_train = pd.concat([X_train, X_val], axis=0)
     y_train = pd.concat([y_train, y_val], axis=0)

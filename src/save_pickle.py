@@ -54,23 +54,6 @@ def main():
     X_train_ner = tf_idf_matrix(X_train, 'ner', tfidf_ner, cols)
     X_val_ner = tf_idf_matrix(X_val, 'ner', tfidf_ner, cols)
     X_test_ner = tf_idf_matrix(X_test, 'ner', tfidf_ner, cols)
-
-    # Create TF-IDF for NER_Tweetokenized column
-    print()
-    print('TF-IDF on ner_tweetokenized column')
-    tfidf_ner_tweetokenized = TfidfVectorizer(ngram_range=(1, 2),
-                                              lowercase=False,
-                                              norm='l2',
-                                              min_df=0.01).fit(
-                                              X_train['ner_tweetokenized'])
-    cols = tfidf_ner_tweetokenized.get_feature_names()
-
-    X_train_ner_tweetokenized = tf_idf_matrix(X_train, 'ner_tweetokenized',
-                                              tfidf_ner_tweetokenized, cols)
-    X_val_ner_tweetokenized = tf_idf_matrix(X_val, 'ner_tweetokenized',
-                                            tfidf_ner_tweetokenized, cols)
-    X_test_ner_tweetokenized = tf_idf_matrix(X_test, 'ner_tweetokenized',
-                                             tfidf_ner_tweetokenized, cols)
     '''
     # Create TF-IDF for text column
     print()
@@ -128,13 +111,6 @@ def main():
     pickle.dump(X_val_ner, output, protocol=4)
     print('Pickle dump X_test_ner')
     pickle.dump(X_test_ner, output, protocol=4)
-
-    print('Pickle dump X_train_ner_tweetokenized')
-    pickle.dump(X_train_ner_tweetokenized, output, protocol=4)
-    print('Pickle dump X_val_ner_tweetokenized')
-    pickle.dump(X_val_ner_tweetokenized, output, protocol=4)
-    print('Pickle dump X_test_ner_tweetokenized')
-    pickle.dump(X_test_ner_tweetokenized, output, protocol=4)
     '''
     print('Pickle dump y_train')
     pickle.dump(y_train, output, protocol=4)
@@ -208,7 +184,8 @@ def feature_engineering(df):
     # Create columns for counts of punctuation
     print('   calculating punctuation counts')
     punctuation_dict = {'commas': ',', 'semicolons': ';', 'exclamations': '!',
-                        'periods': '.', 'questions': '?', 'quotes': '"'}
+                        'periods': '.', 'questions': '?', 'quotes': '"',
+                        'ellipses': '...'}
 
     df = punctuation_columns(df, 'text', punctuation_dict)
 
@@ -250,8 +227,7 @@ def feature_engineering(df):
 def named_entity_recognition(df):
     # Named Entity Recognition substitution
     print('   calculating named entity recognition')
-    df['ner'] = df['text'].apply(ner_tagging)
-    df['ner_tweetokenized'] = df['ner'].apply(tweet_tokens)
+    df['ner'] = df['tweetokenize'].apply(ner_tagging)
     return df
 
 

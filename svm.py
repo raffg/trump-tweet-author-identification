@@ -18,9 +18,9 @@ def run_model_svm(file):
             'compound', 'negative', 'neutral', 'positive', 'tweet_length',
             'avg_sentence_length', 'avg_word_length', 'commas',
             'semicolons', 'exclamations', 'periods', 'questions', 'quotes',
-            'mentions', 'hashtags', 'urls', 'is_quoted_retweet', 'all_caps',
-            'tweetstorm', 'hour', 'period_1', 'period_2', 'period_3',
-            'period_4']
+            'ellipses', 'mentions', 'hashtags', 'urls', 'is_quoted_retweet',
+            'all_caps', 'tweetstorm', 'hour', 'period_1', 'period_2',
+            'period_3', 'period_4']
 
     svm_all_features = svm(np.array(X_train[feat]),
                            np.array(X_val[feat]),

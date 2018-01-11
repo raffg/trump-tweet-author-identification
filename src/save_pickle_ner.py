@@ -112,13 +112,6 @@ def main():
     print('Pickle dump X_test_ner')
     pickle.dump(X_test_ner, output, protocol=4)
 
-    print('Pickle dump X_train_ner')
-    pickle.dump(X_train_ner, output, protocol=4)
-    print('Pickle dump X_val_ner')
-    pickle.dump(X_val_ner, output, protocol=4)
-    print('Pickle dump X_test_ner')
-    pickle.dump(X_test_ner, output, protocol=4)
-
     print('Pickle dump y_train')
     pickle.dump(y_train, output, protocol=4)
     print('Pickle dump y_val')
@@ -154,7 +147,7 @@ def data(start_date, end_date):
 
     # =========================================================================
     # Testing
-    df = df[0:15]
+    # df = df[0:15]
     # =========================================================================
 
     # Look only at iPhone and Android tweets
@@ -191,7 +184,8 @@ def feature_engineering(df):
     # Create columns for counts of punctuation
     print('   calculating punctuation counts')
     punctuation_dict = {'commas': ',', 'semicolons': ';', 'exclamations': '!',
-                        'periods': '.', 'questions': '?', 'quotes': '"'}
+                        'periods': '.', 'questions': '?', 'quotes': '"',
+                        'ellipses': '...'}
 
     df = punctuation_columns(df, 'text', punctuation_dict)
 

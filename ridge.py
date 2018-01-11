@@ -24,8 +24,9 @@ def run_model_logistic_regression(file):
                   'neutral', 'positive', 'tweet_length',
                   'avg_sentence_length', 'avg_word_length', 'commas',
                   'semicolons', 'exclamations', 'periods', 'questions',
-                  'quotes', 'mentions', 'hashtags', 'urls', 'all_caps',
-                  'period_1', 'period_2', 'period_3', 'period_4']
+                  'quotes', 'ellipses', 'mentions', 'hashtags', 'urls',
+                  'all_caps', 'period_1', 'period_2', 'period_3',
+                  'period_4']
 
     feat = continuous
 
