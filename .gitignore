@@ -14,6 +14,9 @@ twitterscraper_query.txt
 # Stanford Named Entity Recognition (NER) library
 stanford-ner/
 
+# NRC Sentiment-Emotion Lexicons
+NRC-Sentiment-Emotion-Lexicons/
+
 # pickle files
 *.pkl
 
