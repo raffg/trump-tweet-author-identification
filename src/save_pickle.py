@@ -15,7 +15,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 
 def main():
     save_pickle('2015-06-01', '2017-03-26',
-                testing=True, filename='pickle/data_test.pkl')
+                testing=False, filename='pickle/data.pkl')
 
 
 def save_pickle(start_date, end_date,

@@ -5,6 +5,7 @@ def main():
     (X_train, X_val, X_test,
      X_train_tfidf, X_val_tfidf, X_test_tfidf,
      X_train_pos, X_val_pos, X_test_pos,
+     X_train_ner, X_val_ner, X_test_ner,
      y_train, y_val, y_test) = load_pickle('pickle/data.pkl')
 
 
