@@ -82,6 +82,15 @@ def run_model_logistic_regression(file):
     print('all features with ner tf-idf recall: ', lr_all_features_ner[2])
     print()
 
+    whole_train = pd.concat([X_train[feat], X_train_pos,
+                             X_train_tfidf, X_train_ner], axis=1)
+    lr_whole = lr(np.array(whole_train),
+                  np.array(y_train).ravel())
+    print('Whole model accuracy: ', lr_whole[0])
+    print('Whole model precision: ', lr_whole[1])
+    print('Whole model recall: ', lr_whole[2])
+    print()
+
 
 def lr(X_train, y_train):
     # Basic Logistic Regression

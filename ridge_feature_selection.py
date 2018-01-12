@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import operator
 from src.load_pickle import load_pickle
 from src.standardize import standardize
 from sklearn.linear_model import RidgeClassifier
@@ -34,62 +35,38 @@ def run_model_ridge_regression(file):
     X_train_pos = pd.concat([X_train_pos, X_val_pos], axis=0)
     X_train_ner = pd.concat([X_train_ner, X_val_ner], axis=0)
 
-    ridge_all_features = ridge(X_train[feat], y_train)
-    print('all features accuracy: ', ridge_all_features[0])
-    print('all features precision: ', ridge_all_features[1])
-    print('all features recall: ', ridge_all_features[2])
-    print()
-
-    ridge_text_accuracy = ridge(X_train_tfidf, y_train)
-    print('text accuracy: ', ridge_text_accuracy[0])
-    print('text precision: ', ridge_text_accuracy[1])
-    print('text recall: ', ridge_text_accuracy[2])
-    print()
-
-    ridge_pos = ridge(X_train_pos, y_train)
-    print('pos accuracy: ', ridge_pos[0])
-    print('pos precision: ', ridge_pos[1])
-    print('pos recall: ', ridge_pos[2])
-    print()
-
-    ridge_ner = ridge(X_train_ner, y_train)
-    print('ner accuracy: ', ridge_ner[0])
-    print('ner precision: ', ridge_ner[1])
-    print('ner recall: ', ridge_ner[2])
-    print()
-
-    feat_text_train = pd.concat([X_train[feat], X_train_tfidf], axis=1)
-    ridge_all_features_text = ridge(feat_text_train, y_train)
-    print('all features with text tf-idf accuracy: ',
-          ridge_all_features_text[0])
-    print('all features with text tf-idf precision: ',
-          ridge_all_features_text[1])
-    print('all features with text tf-idf recall: ', ridge_all_features_text[2])
-    print()
-
-    feat_pos_train = pd.concat([X_train[feat], X_train_pos], axis=1)
-    ridge_all_features_pos = ridge(feat_pos_train, y_train)
-    print('all features with pos tf-idf accuracy: ', ridge_all_features_pos[0])
-    print('all features with pos tf-idf precision: ',
-          ridge_all_features_pos[1])
-    print('all features with pos tf-idf recall: ', ridge_all_features_pos[2])
-    print()
-
-    feat_ner_train = pd.concat([X_train[feat], X_train_ner], axis=1)
-    ridge_all_features_ner = ridge(feat_ner_train, y_train)
-    print('all features with ner tf-idf accuracy: ', ridge_all_features_ner[0])
-    print('all features with ner tf-idf precision: ',
-          ridge_all_features_ner[1])
-    print('all features with ner tf-idf recall: ', ridge_all_features_ner[2])
-    print()
-
     whole_train = pd.concat([X_train[feat], X_train_pos,
                              X_train_tfidf, X_train_ner], axis=1)
     ridge_whole = ridge(whole_train, y_train)
-    print('Whole model accuracy: ', ridge_whole[0])
-    print('Whole model precision: ', ridge_whole[1])
-    print('Whole model recall: ', ridge_whole[2])
-    print()
+    print('    Whole model accuracy: ', ridge_whole[0])
+
+    feat_coef = dict(zip(whole_train.columns, ridge_whole[3][0]))
+    sorted_list = sorted(feat_coef.items(), key=operator.itemgetter(1))
+
+    top_n = 400
+    top_trump = sorted_list[::-1][:top_n]
+    top_not_trump = sorted_list[:top_n]
+
+    trump_feat = [item[0] for item in top_trump]
+    not_trump_feat = [item[0] for item in top_not_trump]
+
+    top_feat = trump_feat + not_trump_feat
+
+    top_ridge = ridge(whole_train[top_feat], y_train)
+    print('Condensed model accuracy: ', top_ridge[0])
+
+    for n in range(300, 500):
+        top_n = n
+        top_trump = sorted_list[::-1][:top_n]
+        top_not_trump = sorted_list[:top_n]
+
+        trump_feat = [item[0] for item in top_trump]
+        not_trump_feat = [item[0] for item in top_not_trump]
+
+        top_feat = trump_feat + not_trump_feat
+
+        top_ridge = ridge(whole_train[top_feat], y_train)
+        print(n, 'Condensed model accuracy: ', top_ridge[0])
 
 
 def ridge(X_train, y_train):
