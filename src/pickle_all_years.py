@@ -6,7 +6,7 @@ def main():
     for year in years:
         print('-----Saving ' + str(year) + '-----')
         save_pickle(str(year) + '-01-01', str(year + 1) + '-01-01',
-                    testing=True, filename='pickle/' + str(year) + '.pkl')
+                    testing=False, filename='pickle/' + str(year) + '.pkl')
         print('============================================================')
         print()
 
