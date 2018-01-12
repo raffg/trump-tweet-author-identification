@@ -91,6 +91,14 @@ def run_model_ridge_regression(file):
     print('Whole model recall: ', ridge_whole[2])
     print()
 
+    top_feat = np.load('top_features.npz')['arr_0']
+    condensed_train = whole_train[top_feat]
+    ridge_condensed = ridge(condensed_train, y_train)
+    print('Whole model accuracy: ', ridge_condensed[0])
+    print('Whole model precision: ', ridge_condensed[1])
+    print('Whole model recall: ', ridge_condensed[2])
+    print()
+
 
 def ridge(X_train, y_train):
     # Ridge Logistic Regression

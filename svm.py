@@ -75,6 +75,25 @@ def run_model_svm(file):
     print('all features with ner tf-idf accuracy: ',
           svm_all_features_ner)
 
+    whole_train = pd.concat([X_train[feat], X_train_pos,
+                             X_train_tfidf, X_train_ner], axis=1)
+    whole_val = pd.concat([X_val[feat], X_val_pos,
+                           X_val_tfidf, X_val_ner], axis=1)
+    svm_whole = svm(np.array(whole_train),
+                    np.array(whole_val),
+                    np.array(y_train).ravel(),
+                    np.array(y_val).ravel())
+    print('whole model accuracy: ', svm_whole)
+
+    top_feat = np.load('top_features.npz')['arr_0']
+    condensed_train = whole_train[top_feat]
+    condensed_val = whole_val[top_feat]
+    svm_condensed = svm(np.array(condensed_train),
+                        np.array(condensed_val),
+                        np.array(y_train).ravel(),
+                        np.array(y_val).ravel())
+    print('condensed model accuracy: ', svm_condensed)
+
 
 def svm(X_train, X_val, y_train, y_val):
     # Basic SVM

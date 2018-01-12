@@ -86,9 +86,18 @@ def run_model_logistic_regression(file):
                              X_train_tfidf, X_train_ner], axis=1)
     lr_whole = lr(np.array(whole_train),
                   np.array(y_train).ravel())
-    print('Whole model accuracy: ', lr_whole[0])
-    print('Whole model precision: ', lr_whole[1])
-    print('Whole model recall: ', lr_whole[2])
+    print('whole model accuracy: ', lr_whole[0])
+    print('whole model precision: ', lr_whole[1])
+    print('whole model recall: ', lr_whole[2])
+    print()
+
+    top_feat = np.load('top_features.npz')['arr_0']
+    condensed_train = whole_train[top_feat]
+    lr_condensed = lr(np.array(condensed_train),
+                      np.array(y_train).ravel())
+    print('condensed model accuracy: ', lr_condensed[0])
+    print('condensed model precision: ', lr_condensed[1])
+    print('condensed model recall: ', lr_condensed[2])
     print()
 
 
