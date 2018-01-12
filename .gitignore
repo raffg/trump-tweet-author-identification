@@ -20,5 +20,6 @@ NRC-Sentiment-Emotion-Lexicons/
 # pickle files
 *.pkl
 
-# .npy files
+# .npy and .npz files
 *.npy
+*.npz
