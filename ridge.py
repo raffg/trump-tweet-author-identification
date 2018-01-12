@@ -1,44 +1,33 @@
 import pandas as pd
 import numpy as np
 from src.load_pickle import load_pickle
+from src.standardize import standardize
 from sklearn.linear_model import RidgeClassifier
 from sklearn.model_selection import KFold
 from sklearn.metrics import accuracy_score, precision_score, recall_score
 
 
 def main():
-    run_model_logistic_regression('pickle/data.pkl')
+    run_model_ridge_regression('pickle/data.pkl')
 
 
-def run_model_logistic_regression(file):
+def run_model_ridge_regression(file):
     (X_train, X_val, X_test,
      X_train_tfidf, X_val_tfidf, X_test_tfidf,
      X_train_pos, X_val_pos, X_test_pos,
      X_train_ner, X_val_ner, X_test_ner,
      y_train, y_val, y_test) = load_pickle(file)
 
-    binary = ['is_retweet', 'is_reply', 'is_quoted_retweet',
-              'tweetstorm', 'period_1', 'period_2', 'period_3',
-              'period_4']
+    feat = ['favorite_count', 'is_retweet', 'retweet_count', 'is_reply',
+            'compound', 'negative', 'neutral', 'positive', 'tweet_length',
+            'avg_sentence_length', 'avg_word_length', 'commas',
+            'semicolons', 'exclamations', 'periods', 'questions', 'quotes',
+            'ellipses', 'mentions', 'hashtags', 'urls', 'is_quoted_retweet',
+            'all_caps', 'tweetstorm', 'hour', 'period_1', 'period_2',
+            'period_3', 'period_4']
 
-    continuous = ['favorite_count', 'retweet_count', 'compound', 'negative',
-                  'neutral', 'positive', 'tweet_length',
-                  'avg_sentence_length', 'avg_word_length', 'commas',
-                  'semicolons', 'exclamations', 'periods', 'questions',
-                  'quotes', 'ellipses', 'mentions', 'hashtags', 'urls',
-                  'all_caps', 'period_1', 'period_2', 'period_3',
-                  'period_4']
-
-    feature = ['favorite_count', 'is_retweet', 'retweet_count', 'is_reply',
-               'compound', 'negative', 'neutral', 'positive', 'tweet_length',
-               'avg_sentence_length', 'avg_word_length', 'commas',
-               'semicolons', 'exclamations', 'periods', 'questions', 'quotes',
-               'ellipses', 'mentions', 'hashtags', 'urls', 'is_quoted_retweet',
-               'all_caps', 'tweetstorm', 'hour', 'period_1', 'period_2',
-               'period_3', 'period_4']
-
-    feat = feature
     X_train = pd.concat([X_train, X_val], axis=0)
+    (X_train, X_test) = standardize(feat, X_train, X_test)
     y_train = pd.concat([y_train, y_val], axis=0)
 
     X_train_tfidf = pd.concat([X_train_tfidf, X_val_tfidf], axis=0)

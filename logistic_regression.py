@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from src.load_pickle import load_pickle
+from src.standardize import standardize
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import KFold
 from sklearn.metrics import accuracy_score, precision_score, recall_score
@@ -26,6 +27,7 @@ def run_model_logistic_regression(file):
             'period_3', 'period_4']
 
     X_train = pd.concat([X_train, X_val], axis=0)
+    (X_train, X_test) = standardize(feat, X_train, X_test)
     y_train = pd.concat([y_train, y_val], axis=0)
 
     X_train_tfidf = pd.concat([X_train_tfidf, X_val_tfidf], axis=0)
