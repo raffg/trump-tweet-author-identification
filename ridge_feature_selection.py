@@ -43,7 +43,7 @@ def run_model_ridge_regression(file):
     feat_coef = dict(zip(whole_train.columns, ridge_whole[3][0]))
     sorted_list = sorted(feat_coef.items(), key=operator.itemgetter(1))
 
-    top_n = 400
+    top_n = 283
     top_trump = sorted_list[::-1][:top_n]
     top_not_trump = sorted_list[:top_n]
 
@@ -55,7 +55,16 @@ def run_model_ridge_regression(file):
     top_ridge = ridge(whole_train[top_feat], y_train)
     print('Condensed model accuracy: ', top_ridge[0])
 
-    for n in range(300, 500):
+    np.savez('top_features.npz', top_feat)
+
+    '''
+    best_n = 0
+    best_n_reduced = 0
+    best_n_reduced2 = 0
+    accuracy = 0
+    accuracy_reduced = 0
+    accuracy_reduced2 = 0
+    for n in range(1, 500):
         top_n = n
         top_trump = sorted_list[::-1][:top_n]
         top_not_trump = sorted_list[:top_n]
@@ -66,8 +75,24 @@ def run_model_ridge_regression(file):
         top_feat = trump_feat + not_trump_feat
 
         top_ridge = ridge(whole_train[top_feat], y_train)
-        print(n, 'Condensed model accuracy: ', top_ridge[0])
 
+        if top_ridge[0] > accuracy:
+            accuracy = top_ridge[0]
+            best_n = n
+
+        if top_ridge[0] > accuracy_reduced + .005:
+            accuracy_reduced = top_ridge[0]
+            best_n_reduced = n
+
+        if top_ridge[0] > accuracy_reduced2 + .01:
+            accuracy_reduced2 = top_ridge[0]
+            best_n_reduced2 = n
+
+        print(n, 'n model accuracy: ', top_ridge[0])
+    print(best_n, 'n model accuracy: ', accuracy)
+    print(best_n_reduced, 'n model accuracy: ', accuracy_reduced)
+    print(best_n_reduced2, 'n model accuracy: ', accuracy_reduced2)
+    '''
 
 def ridge(X_train, y_train):
     # Ridge Logistic Regression
