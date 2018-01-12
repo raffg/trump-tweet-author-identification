@@ -1,6 +1,5 @@
 import pandas as pd
 import numpy as np
-import pickle
 from sklearn.model_selection import train_test_split
 from src.load_data import load_json_list, apply_date_mask
 from src.vader_sentiment import apply_vader
@@ -14,12 +13,12 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 
 
 def main():
-    save_pickle('2015-06-01', '2017-03-26',
-                testing=True, filename='pickle/data_test.pkl')
+    save_npz('2015-06-01', '2017-03-26',
+             testing=True, filename='data.npz')
 
 
-def save_pickle(start_date, end_date,
-                testing=False, filename='pickle/data.pkl'):
+def save_npz(start_date, end_date,
+             testing=False, filename='data.npz'):
 
     (X, y) = data(start_date, end_date)
     df_dict = {}
@@ -37,6 +36,10 @@ def save_pickle(start_date, end_date,
     X_train, X_val, y_train, y_val = train_test_split(X_train, y_train,
                                                       test_size=0.2,
                                                       random_state=1)
+
+    df_dict['y_train'] = y_train
+    df_dict['y_val'] = y_val
+    df_dict['y_test'] = y_test
 
     # Apply feature engineering to all X sets
     print()
@@ -112,46 +115,9 @@ def save_pickle(start_date, end_date,
     df_dict['X_val_pos'] = X_val_pos
     df_dict['X_test_pos'] = X_test_pos
 
-    # Save pickle file
-    output = open(filename, 'wb')
+    # Save npz file
+    np.savez(filename, **df_dict)
     print()
-
-    print('Pickle dump X_train')
-    pickle.dump(X_train, output, protocol=4)
-    print('Pickle dump X_val')
-    pickle.dump(X_val, output, protocol=4)
-    print('Pickle dump X_test')
-    pickle.dump(X_test, output, protocol=4)
-
-    print('Pickle dump X_train_tfidf')
-    pickle.dump(X_train_tfidf, output, protocol=4)
-    print('Pickle dump X_val_tfidf')
-    pickle.dump(X_val_tfidf, output, protocol=4)
-    print('Pickle dump X_test_tfidf')
-    pickle.dump(X_test_tfidf, output, protocol=4)
-
-    print('Pickle dump X_train_pos')
-    pickle.dump(X_train_pos, output, protocol=4)
-    print('Pickle dump X_val_pos')
-    pickle.dump(X_val_pos, output, protocol=4)
-    print('Pickle dump X_test_pos')
-    pickle.dump(X_test_pos, output, protocol=4)
-
-    print('Pickle dump X_train_ner')
-    pickle.dump(X_train_ner, output, protocol=4)
-    print('Pickle dump X_val_ner')
-    pickle.dump(X_val_ner, output, protocol=4)
-    print('Pickle dump X_test_ner')
-    pickle.dump(X_test_ner, output, protocol=4)
-
-    print('Pickle dump y_train')
-    pickle.dump(y_train, output, protocol=4)
-    print('Pickle dump y_val')
-    pickle.dump(y_val, output, protocol=4)
-    print('Pickle dump y_test')
-    pickle.dump(y_test, output, protocol=4)
-
-    output.close()
 
 
 def data(start_date, end_date):

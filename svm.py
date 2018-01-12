@@ -12,6 +12,7 @@ def run_model_svm(file):
     (X_train, X_val, X_test,
      X_train_tfidf, X_val_tfidf, X_test_tfidf,
      X_train_pos, X_val_pos, X_test_pos,
+     X_train_ner, X_val_ner, X_test_ner,
      y_train, y_val, y_test) = load_pickle(file)
 
     feat = ['favorite_count', 'is_retweet', 'retweet_count', 'is_reply',
@@ -34,11 +35,17 @@ def run_model_svm(file):
                             np.array(y_val).ravel())
     print('text accuracy: ', svm_text_accuracy)
 
-    svm_pos_n_grams = svm(np.array(X_train_pos),
-                          np.array(X_val_pos),
-                          np.array(y_train).ravel(),
-                          np.array(y_val).ravel())
-    print('pos accuracy: ', svm_pos_n_grams)
+    svm_pos = svm(np.array(X_train_pos),
+                  np.array(X_val_pos),
+                  np.array(y_train).ravel(),
+                  np.array(y_val).ravel())
+    print('pos accuracy: ', svm_pos)
+
+    svm_ner = svm(np.array(X_train_ner),
+                  np.array(X_val_ner),
+                  np.array(y_train).ravel(),
+                  np.array(y_val).ravel())
+    print('pos accuracy: ', svm_ner)
 
     feat_text_train = pd.concat([X_train[feat], X_train_tfidf], axis=1)
     feat_text_val = pd.concat([X_val[feat], X_val_tfidf], axis=1)
@@ -59,9 +66,18 @@ def run_model_svm(file):
     print('all features with pos tf-idf accuracy: ',
           svm_all_features_pos)
 
+    feat_ner_train = pd.concat([X_train[feat], X_train_ner], axis=1)
+    feat_ner_val = pd.concat([X_val[feat], X_val_ner], axis=1)
+    svm_all_features_ner = svm(np.array(feat_ner_train),
+                               np.array(feat_ner_val),
+                               np.array(y_train).ravel(),
+                               np.array(y_val).ravel())
+    print('all features with ner tf-idf accuracy: ',
+          svm_all_features_ner)
+
 
 def svm(X_train, X_val, y_train, y_val):
-    # Basic Naive Bayes
+    # Basic SVM
     clf = SGDClassifier(loss='hinge', penalty='l2',
                         alpha=1e3, max_iter=50).fit(X_train, y_train)
     predicted = clf.predict(X_val)

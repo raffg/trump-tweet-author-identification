@@ -12,6 +12,7 @@ def run_model_naive_bayes(file):
     (X_train, X_val, X_test,
      X_train_tfidf, X_val_tfidf, X_test_tfidf,
      X_train_pos, X_val_pos, X_test_pos,
+     X_train_ner, X_val_ner, X_test_ner,
      y_train, y_val, y_test) = load_pickle(file)
 
     feat = ['favorite_count', 'is_retweet', 'retweet_count', 'is_reply',
@@ -34,11 +35,17 @@ def run_model_naive_bayes(file):
                                             np.array(y_val).ravel())
     print('text accuracy: ', naive_bayes_text_accuracy)
 
-    naive_bayes_pos_n_grams = naive_bayes(np.array(X_train_pos),
-                                          np.array(X_val_pos),
-                                          np.array(y_train).ravel(),
-                                          np.array(y_val).ravel())
-    print('pos accuracy: ', naive_bayes_pos_n_grams)
+    naive_bayes_pos = naive_bayes(np.array(X_train_pos),
+                                  np.array(X_val_pos),
+                                  np.array(y_train).ravel(),
+                                  np.array(y_val).ravel())
+    print('pos accuracy: ', naive_bayes_pos)
+
+    naive_bayes_ner = naive_bayes(np.array(X_train_ner),
+                                  np.array(X_val_ner),
+                                  np.array(y_train).ravel(),
+                                  np.array(y_val).ravel())
+    print('ner accuracy: ', naive_bayes_ner)
 
     feat_text_train = pd.concat([X_train[feat], X_train_tfidf], axis=1)
     feat_text_val = pd.concat([X_val[feat], X_val_tfidf], axis=1)
@@ -57,6 +64,15 @@ def run_model_naive_bayes(file):
                                                np.array(y_train).ravel(),
                                                np.array(y_val).ravel())
     print('all features with pos tf-idf accuracy: ',
+          naive_bayes_all_features_pos)
+
+    feat_ner_train = pd.concat([X_train[feat], X_train_ner], axis=1)
+    feat_ner_val = pd.concat([X_val[feat], X_val_ner], axis=1)
+    naive_bayes_all_features_ner = naive_bayes(np.array(feat_ner_train),
+                                               np.array(feat_ner_val),
+                                               np.array(y_train).ravel(),
+                                               np.array(y_val).ravel())
+    print('all features with ner tf-idf accuracy: ',
           naive_bayes_all_features_pos)
 
 

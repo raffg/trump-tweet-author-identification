@@ -14,6 +14,7 @@ def run_model_logistic_regression(file):
     (X_train, X_val, X_test,
      X_train_tfidf, X_val_tfidf, X_test_tfidf,
      X_train_pos, X_val_pos, X_test_pos,
+     X_train_ner, X_val_ner, X_test_ner,
      y_train, y_val, y_test) = load_pickle(file)
 
     feat = ['favorite_count', 'is_retweet', 'retweet_count', 'is_reply',
@@ -29,6 +30,7 @@ def run_model_logistic_regression(file):
 
     X_train_tfidf = pd.concat([X_train_tfidf, X_val_tfidf], axis=0)
     X_train_pos = pd.concat([X_train_pos, X_val_pos], axis=0)
+    X_train_ner = pd.concat([X_train_ner, X_val_ner], axis=0)
 
     lr_all_features = lr(np.array(X_train[feat]), np.array(y_train).ravel())
     print('all features accuracy: ', lr_all_features[0])
@@ -42,10 +44,16 @@ def run_model_logistic_regression(file):
     print('text recall: ', lr_text_accuracy[2])
     print()
 
-    lr_pos_n_grams = lr(np.array(X_train_pos), np.array(y_train).ravel())
-    print('pos accuracy: ', lr_pos_n_grams[0])
-    print('pos precision: ', lr_pos_n_grams[1])
-    print('pos recall: ', lr_pos_n_grams[2])
+    lr_pos = lr(np.array(X_train_pos), np.array(y_train).ravel())
+    print('pos accuracy: ', lr_pos[0])
+    print('pos precision: ', lr_pos[1])
+    print('pos recall: ', lr_pos[2])
+    print()
+
+    lr_ner = lr(np.array(X_train_ner), np.array(y_train).ravel())
+    print('ner accuracy: ', lr_ner[0])
+    print('ner precision: ', lr_ner[1])
+    print('ner recall: ', lr_ner[2])
     print()
 
     feat_text_train = pd.concat([X_train[feat], X_train_tfidf], axis=1)
@@ -62,6 +70,14 @@ def run_model_logistic_regression(file):
     print('all features with pos tf-idf accuracy: ', lr_all_features_pos[0])
     print('all features with pos tf-idf precision: ', lr_all_features_pos[1])
     print('all features with pos tf-idf recall: ', lr_all_features_pos[2])
+    print()
+
+    feat_ner_train = pd.concat([X_train[feat], X_train_ner], axis=1)
+    lr_all_features_ner = lr(np.array(feat_ner_train),
+                             np.array(y_train).ravel())
+    print('all features with ner tf-idf accuracy: ', lr_all_features_ner[0])
+    print('all features with ner tf-idf precision: ', lr_all_features_ner[1])
+    print('all features with ner tf-idf recall: ', lr_all_features_ner[2])
     print()
 
 
