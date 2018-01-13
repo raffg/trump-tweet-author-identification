@@ -19,7 +19,9 @@ def run_model_ridge_regression(file):
      y_train, y_val, y_test) = load_pickle(file)
 
     feat = ['favorite_count', 'is_retweet', 'retweet_count', 'is_reply',
-            'compound', 'negative', 'neutral', 'positive', 'tweet_length',
+            'compound', 'v_negative', 'v_neutral', 'v_positive', 'anger',
+            'anticipation', 'disgust', 'fear', 'joy', 'negative', 'positive',
+            'sadness', 'surprise', 'trust', 'tweet_length',
             'avg_sentence_length', 'avg_word_length', 'commas',
             'semicolons', 'exclamations', 'periods', 'questions', 'quotes',
             'ellipses', 'mentions', 'hashtags', 'urls', 'is_quoted_retweet',
