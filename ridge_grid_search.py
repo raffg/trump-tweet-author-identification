@@ -9,16 +9,11 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score
 
 
 def main():
-    scores = grid_search('pickle/data.pkl')
-    plot_alphas(scores)
-
-
-def grid_search(file):
     (X_train, X_val, X_test,
      X_train_tfidf, X_val_tfidf, X_test_tfidf,
      X_train_pos, X_val_pos, X_test_pos,
      X_train_ner, X_val_ner, X_test_ner,
-     y_train, y_val, y_test) = load_pickle(file)
+     y_train, y_val, y_test) = load_pickle('pickle/data.pkl')
 
     feat = ['favorite_count', 'is_retweet', 'retweet_count', 'is_reply',
             'compound', 'v_negative', 'v_neutral', 'v_positive', 'anger',
@@ -34,13 +29,20 @@ def grid_search(file):
     (X_train, X_test) = standardize(feat, X_train, X_test)
     y_train = pd.concat([y_train, y_val], axis=0)
 
+    # scores = grid_search(X_train[feat], y_train)
+    # plot_alphas(scores)
+    plot_regularization(X_train[feat], y_train)
+
+
+def grid_search(X, y):
+
     scores = []
     n_alphas = 500
     alphas = np.logspace(.75, 3, n_alphas)
     highest_score = 0
 
     for a in alphas:
-        score = ridge(X_train[feat], y_train, a)
+        score = ridge(X, y, a)
         scores.append((score[0], a))
         if score[0] > highest_score:
             highest_score = score[0]
@@ -69,6 +71,35 @@ def plot_alphas(alphas):
     plt.xlabel('Alpha')
     plt.ylabel('Accuracy')
     plt.title('Ridge accuracies as a function of alpha')
+    plt.axis('tight')
+    plt.show()
+
+
+def plot_regularization(X, y):
+    # #############################################################################
+    # Compute paths
+
+    n_alphas = 200
+    alphas = np.logspace(1, 7, n_alphas)
+
+    coefs = []
+    for a in alphas:
+        ridge = RidgeClassifier(alpha=a, fit_intercept=False)
+        ridge.fit(X, np.array(y).ravel())
+        coefs.append(ridge.coef_[0])
+
+    # #############################################################################
+    # Display results
+
+    ax = plt.figure(figsize=(15, 8))
+    ax = plt.gca()
+
+    ax.plot(alphas, coefs)
+    ax.set_xscale('log')
+    # ax.set_xlim(ax.get_xlim()[::-1])  # reverse axis
+    plt.xlabel('alpha')
+    plt.ylabel('weights')
+    plt.title('Ridge coefficients as a function of the regularization')
     plt.axis('tight')
     plt.show()
 
