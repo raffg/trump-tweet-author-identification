@@ -86,17 +86,17 @@ def run_model_ridge_regression(file):
     whole_train = pd.concat([X_train[feat], X_train_pos,
                              X_train_tfidf, X_train_ner], axis=1)
     ridge_whole = ridge(whole_train, y_train)
-    print('Whole model accuracy: ', ridge_whole[0])
-    print('Whole model precision: ', ridge_whole[1])
-    print('Whole model recall: ', ridge_whole[2])
+    print('whole model accuracy: ', ridge_whole[0])
+    print('whole model precision: ', ridge_whole[1])
+    print('whole model recall: ', ridge_whole[2])
     print()
 
     top_feat = np.load('top_features.npz')['arr_0']
     condensed_train = whole_train[top_feat]
     ridge_condensed = ridge(condensed_train, y_train)
-    print('Whole model accuracy: ', ridge_condensed[0])
-    print('Whole model precision: ', ridge_condensed[1])
-    print('Whole model recall: ', ridge_condensed[2])
+    print('condensed model accuracy: ', ridge_condensed[0])
+    print('condensed model precision: ', ridge_condensed[1])
+    print('condensed model recall: ', ridge_condensed[2])
     print()
 
 
