@@ -4,6 +4,7 @@ import pickle
 from sklearn.model_selection import train_test_split
 from src.load_data import load_json_list, apply_date_mask
 from src.vader_sentiment import apply_vader
+from src.text_emotion import text_emotion
 from src.style import apply_avg_lengths, tweet_length, punctuation_columns, \
                       quoted_retweet, apply_all_caps, mention_hashtag_url
 from src.tweetstorm import tweetstorm
@@ -15,7 +16,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 
 def main():
     save_pickle('2015-06-01', '2017-03-26',
-                testing=False, filename='pickle/data.pkl')
+                testing=False, filename='pickle/data_new.pkl')
 
 
 def save_pickle(start_date, end_date,
@@ -202,6 +203,10 @@ def feature_engineering(df):
     # Create columns for vader sentiment
     print('   calculating vader sentiment')
     df = apply_vader(df, 'text')
+
+    # Create columns for NRC Emotion Lexicon
+    print('   calculating NRC Emotion Lexicon score')
+    df = text_emotion(df, 'text')
 
     # Create columns for average tweet, sentence, and word length of tweet
     print('   calculating average tweet, sentence, and word length')
