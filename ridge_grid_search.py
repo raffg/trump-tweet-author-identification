@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 from src.load_pickle import load_pickle
 from src.standardize import standardize
 from sklearn.linear_model import RidgeClassifier
@@ -8,7 +9,8 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score
 
 
 def main():
-    grid_search('pickle/data.pkl')
+    scores = grid_search('pickle/data.pkl')
+    plot_alphas(scores)
 
 
 def grid_search(file):
@@ -28,12 +30,47 @@ def grid_search(file):
             'all_caps', 'tweetstorm', 'hour', 'period_1', 'period_2',
             'period_3', 'period_4']
 
+    X_train = pd.concat([X_train, X_val], axis=0)
+    (X_train, X_test) = standardize(feat, X_train, X_test)
+    y_train = pd.concat([y_train, y_val], axis=0)
+
     scores = []
-    n_alphas = 50
-    alphas = np.logspace(0, .25, n_alphas)
+    n_alphas = 500
+    alphas = np.logspace(.75, 3, n_alphas)
+    highest_score = 0
+
     for a in alphas:
         score = ridge(X_train[feat], y_train, a)
+        scores.append((score[0], a))
+        if score[0] > highest_score:
+            highest_score = score[0]
+            highest_alpha = a
         print('accuracy: ', score[0], ',   alpha: ', a)
+    print()
+    print('highest accuracy of ', highest_score,
+          'at alpha of ', highest_alpha)
+
+    return scores
+
+
+def plot_alphas(alphas):
+    '''
+    Takes a list of n alphas and plots the accuracy as a function of number of
+    alphas
+    INPUT: list
+    OUTPUT:
+    '''
+
+    ax = plt.figure(figsize=(15, 8))
+    ax = plt.gca()
+
+    ax.plot([item[1] for item in alphas], [item[0] for item in alphas])
+    ax.set_xscale('log')
+    plt.xlabel('Alpha')
+    plt.ylabel('Accuracy')
+    plt.title('Ridge accuracies as a function of alpha')
+    plt.axis('tight')
+    plt.show()
 
 
 def ridge(X_train, y_train, alpha):

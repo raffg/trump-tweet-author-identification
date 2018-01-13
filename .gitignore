@@ -23,3 +23,6 @@ NRC-Sentiment-Emotion-Lexicons/
 # .npy and .npz files
 *.npy
 *.npz
+
+# images folder
+images/
