@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 import pickle
-from sklearn.model_selection import train_test_split
 from src.load_data import load_json_list, apply_date_mask
 from src.vader_sentiment import apply_vader
 from src.text_emotion import text_emotion
@@ -11,6 +10,7 @@ from src.tweetstorm import tweetstorm
 from src.time_of_day import time_of_day, period_of_day
 from src.part_of_speech import pos_tagging, ner_tagging
 from src.tweetokenizer import tweet_tokenize, tweet_tokens
+from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 
