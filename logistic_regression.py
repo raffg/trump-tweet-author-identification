@@ -116,7 +116,7 @@ def lr(X_train, y_train):
     recalls = []
 
     for train_index, test_index in kfold.split(X):
-        model = LogisticRegression()
+        model = LogisticRegression(C=1)
         X_train, X_test = X[train_index], X[test_index]
         y_train, y_test = y[train_index], y[test_index]
         model.fit(X_train, y_train)
