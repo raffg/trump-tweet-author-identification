@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import operator
+import matplotlib.pyplot as plt
 from src.load_pickle import load_pickle
 from src.standardize import standardize
 from sklearn.linear_model import RidgeClassifier
@@ -45,14 +46,11 @@ def run_model_ridge_regression(file):
     feat_coef = dict(zip(whole_train.columns, ridge_whole[3][0]))
     sorted_list = sorted(feat_coef.items(), key=operator.itemgetter(1))
 
-    top_n = 283
-    top_trump = sorted_list[::-1][:top_n]
-    top_not_trump = sorted_list[:top_n]
+    abs_sorted_list = [(item[0], abs(item[1])) for item in sorted_list]
+    abs_sorted_list = sorted(abs_sorted_list, key=lambda x: x[1])[::-1]
 
-    trump_feat = [item[0] for item in top_trump]
-    not_trump_feat = [item[0] for item in top_not_trump]
-
-    top_feat = trump_feat + not_trump_feat
+    top_n = 829
+    top_feat = [item[0] for item in abs_sorted_list[:top_n]]
 
     top_ridge = ridge(whole_train[top_feat], y_train)
     print('Condensed model accuracy: ', top_ridge[0])
@@ -67,16 +65,12 @@ def run_model_ridge_regression(file):
     accuracy_reduced = 0
     accuracy_reduced2 = 0
     for n in range(1, 500):
-        top_n = n
-        top_trump = sorted_list[::-1][:top_n]
-        top_not_trump = sorted_list[:top_n]
-
-        trump_feat = [item[0] for item in top_trump]
-        not_trump_feat = [item[0] for item in top_not_trump]
-
-        top_feat = trump_feat + not_trump_feat
+        top_feat = [item[0] for item in abs_sorted_list[:n]]
 
         top_ridge = ridge(whole_train[top_feat], y_train)
+
+        accuracies.append(top_ridge[0])
+        ns.append(n)
 
         if top_ridge[0] > accuracy:
             accuracy = top_ridge[0]
@@ -91,9 +85,20 @@ def run_model_ridge_regression(file):
             best_n_reduced2 = n
 
         print(n, 'n model accuracy: ', top_ridge[0])
+    print()
     print(best_n, 'n model accuracy: ', accuracy)
     print(best_n_reduced, 'n model accuracy: ', accuracy_reduced)
     print(best_n_reduced2, 'n model accuracy: ', accuracy_reduced2)
+
+    ax = plt.figure(figsize=(15, 8))
+    ax = plt.gca()
+
+    ax.plot(ns, accuracies)
+    plt.xlabel('Accuracy')
+    plt.ylabel('Number of Features')
+    plt.title('Ridge accuracies as a function of the number of features')
+    plt.axis('tight')
+    plt.show()
     '''
 
 def ridge(X_train, y_train):
@@ -109,7 +114,7 @@ def ridge(X_train, y_train):
     recalls = []
 
     for train_index, test_index in kfold.split(X):
-        model = RidgeClassifier(alpha=1.25)
+        model = RidgeClassifier(alpha=1.42)
         X_train, X_test = X[train_index], X[test_index]
         y_train, y_test = y[train_index], y[test_index]
         model.fit(X_train, y_train)

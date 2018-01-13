@@ -68,8 +68,7 @@ def save_pickle(start_date, end_date,
     print('TF-IDF on ner column')
     tfidf_ner = TfidfVectorizer(ngram_range=(1, 2),
                                 lowercase=False,
-                                norm='l2',
-                                min_df=0.01).fit(X_train['ner'])
+                                norm='l2').fit(X_train['ner'])
     cols = tfidf_ner.get_feature_names()
 
     X_train_ner = tf_idf_matrix(X_train, 'ner', tfidf_ner, cols)
@@ -85,7 +84,7 @@ def save_pickle(start_date, end_date,
     print('TF-IDF on text column')
     tfidf_text = TfidfVectorizer(ngram_range=(1, 2),
                                  lowercase=False, token_pattern='\w+|\@\w+',
-                                 norm='l2', min_df=0.01).fit(X_train['text'])
+                                 norm='l2').fit(X_train['text'])
     cols = tfidf_text.get_feature_names()
 
     X_train_tfidf = tf_idf_matrix(X_train, 'text', tfidf_text, cols)
@@ -101,8 +100,7 @@ def save_pickle(start_date, end_date,
     print('TF-IDF on pos column')
     tfidf_pos = TfidfVectorizer(ngram_range=(2, 3),
                                 lowercase=False,
-                                norm='l2',
-                                min_df=0.01).fit(X_train['pos'])
+                                norm='l2').fit(X_train['pos'])
     cols = tfidf_pos.get_feature_names()
 
     X_train_pos = tf_idf_matrix(X_train, 'pos', tfidf_pos, cols)
@@ -274,7 +272,6 @@ def tf_idf_matrix(df, column, vectorizer, cols):
     print('   calculating TF-IDF matrix')
     matrix = vectorizer.transform(df[column])
     df_tfidf = pd.DataFrame(matrix.todense(), columns=[cols], index=df.index)
-    # new_df = pd.concat([df, df_tfidf], axis=1)
     return df_tfidf
 
 
