@@ -24,7 +24,7 @@ def period_of_day(df, timestamp):
     '''
 
     new_df = df.copy()
-    new_df['period_1'] = np.where(((new_df['created_at'].dt.hour >= 20) &
+    new_df['period_1'] = np.where(((new_df['created_at'].dt.hour >= 20) |
                                   (new_df['created_at'].dt.hour < 2)),
                                   True, False)
     new_df['period_2'] = np.where(((new_df['created_at'].dt.hour >= 15) &
