@@ -13,7 +13,7 @@ def main():
      X_train_tfidf, X_val_tfidf, X_test_tfidf,
      X_train_pos, X_val_pos, X_test_pos,
      X_train_ner, X_val_ner, X_test_ner,
-     y_train, y_val, y_test) = load_pickle('pickle/data.pkl')
+     y_train, y_val, y_test) = load_pickle('pickle/data_large.pkl')
 
     feat = ['favorite_count', 'is_retweet', 'retweet_count', 'is_reply',
             'compound', 'v_negative', 'v_neutral', 'v_positive', 'anger',
@@ -29,8 +29,8 @@ def main():
     (X_train, X_test) = standardize(feat, X_train, X_test)
     y_train = pd.concat([y_train, y_val], axis=0)
 
-    # scores = grid_search(X_train[feat], y_train)
-    # plot_alphas(scores)
+    scores = grid_search(X_train[feat], y_train)
+    # plot_alphas(scores, 'Ridge')
     plot_regularization(X_train[feat], y_train)
 
 
@@ -55,11 +55,11 @@ def grid_search(X, y):
     return scores
 
 
-def plot_alphas(alphas):
+def plot_alphas(alphas, model):
     '''
     Takes a list of n alphas and plots the accuracy as a function of number of
-    alphas
-    INPUT: list
+    alphas. Model name required for title.
+    INPUT: list, string
     OUTPUT:
     '''
 
@@ -70,7 +70,7 @@ def plot_alphas(alphas):
     ax.set_xscale('log')
     plt.xlabel('Alpha')
     plt.ylabel('Accuracy')
-    plt.title('Ridge accuracies as a function of alpha')
+    plt.title(model + ' accuracies as a function of alpha')
     plt.axis('tight')
     plt.show()
 

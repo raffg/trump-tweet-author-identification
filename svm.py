@@ -1,11 +1,45 @@
 import pandas as pd
 import numpy as np
+import operator
 from src.load_pickle import load_pickle
+from ridge_feature_selection import plot_accuracies
 from sklearn.linear_model import SGDClassifier
 
 
 def main():
-    run_model_svm('pickle/data.pkl')
+    # run_model_svm('pickle/data.pkl')
+    svm_grid_search('pickle/data_large.pkl')
+
+
+def svm_grid_search(file):
+    (X_train, X_val, X_test,
+     X_train_tfidf, X_val_tfidf, X_test_tfidf,
+     X_train_pos, X_val_pos, X_test_pos,
+     X_train_ner, X_val_ner, X_test_ner,
+     y_train, y_val, y_test) = load_pickle(file)
+
+    whole_train = pd.concat([X_train, X_train_pos,
+                             X_train_tfidf, X_train_ner], axis=1)
+    whole_val = pd.concat([X_val, X_val_pos,
+                           X_val_tfidf, X_val_ner], axis=1)
+
+    feat = np.load('all_train_features.npz')['arr_0']
+
+    accuracies = []
+
+    for n in range(1, len(feat)):
+        accuracy = svm(np.array(whole_train[feat[:n]]),
+                       np.array(whole_val[feat[:n]]),
+                       np.array(y_train).ravel(),
+                       np.array(y_val).ravel())
+        accuracies.append(accuracy[1])
+        print(n, accuracy[1])
+
+    plot_accuracies(accuracies, "SVM")
+
+    (max_index, max_value) = (max(enumerate(values),
+                              key=operator.itemgetter(1)))
+    print(max_value, max_index)
 
 
 def run_model_svm(file):

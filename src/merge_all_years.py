@@ -2,6 +2,7 @@ import pandas as pd
 import pickle
 from src.load_pickle import load_pickle
 from src.save_pickle import tf_idf_matrix
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 
 def main():
@@ -9,7 +10,7 @@ def main():
 
 
 def merge_all_years():
-    years = range(2009, 2018)
+    years = range(2009, 2017)
 
     X_train = pd.DataFrame()
     X_val = pd.DataFrame()
@@ -42,30 +43,57 @@ def merge_all_years():
         print('============================================================')
         print()
 
-    '''
+
+    print('-----Opening 2017_partial-----')
     (X_train1, X_val1, X_test1,
      X_train_tfidf1, X_val_tfidf1, X_test_tfidf1,
      X_train_pos1, X_val_pos1, X_test_pos1,
      X_train_ner1, X_val_ner1, X_test_ner1,
      y_train1, y_val1, y_test1) = load_pickle('pickle/2017_partial.pkl')
 
-     print('concatentating X_train')
-     X_train = pd.concat([X_train, X_train1], axis=0)
-     X_val = pd.concat([X_val, X_val1], axis=0)
-     X_test = pd.concat([X_test, X_test1], axis=0)
+    print('concatentating X_train')
+    X_train = pd.concat([X_train, X_train1], axis=0)
+    X_val = pd.concat([X_val, X_val1], axis=0)
+    X_test = pd.concat([X_test, X_test1], axis=0)
 
-     print('concatentating y_train')
-     y_train = pd.concat([y_train, y_train1], axis=0)
-     y_val = pd.concat([y_val, y_val1], axis=0)
-     y_test = pd.concat([y_test, y_test1], axis=0)
-    '''
+    print('concatentating y_train')
+    y_train = pd.concat([y_train, y_train1], axis=0)
+    y_val = pd.concat([y_val, y_val1], axis=0)
+    y_test = pd.concat([y_test, y_test1], axis=0)
+
+
+    X_train_tfidf1 = None
+    X_val1 = None
+    X_test1 = None
+    X_train_tfidf1 = None
+    X_val_tfidf1 = None
+    X_test_tfidf1 = None
+    X_train_pos1 = None
+    X_val_pos1 = None
+    X_test_pos1 = None
+    X_train_ner1 = None
+    X_val_ner1 = None
+    X_test_ner1 = None
+    y_train1 = None
+    y_val1 = None
+    y_test1 = None
+    X_train_tfidf = None
+    X_val_tfidf = None
+    X_test_tfidf = None
+    X_train_pos = None
+    X_val_pos = None
+    X_test_pos = None
+    X_train_ner = None
+    X_val_ner = None
+    X_test_ner = None
 
     # Create TF-IDF for text column
     print()
     print('TF-IDF on text column')
     tfidf_text = TfidfVectorizer(ngram_range=(1, 2),
                                  lowercase=False, token_pattern='\w+|\@\w+',
-                                 norm='l2').fit(X_train['text'])
+                                 norm='l2', max_df=.99, min_df=.01
+                                 ).fit(X_train['text'])
     cols = tfidf_text.get_feature_names()
 
     X_train_tfidf = tf_idf_matrix(X_train, 'text', tfidf_text, cols)
@@ -77,7 +105,8 @@ def merge_all_years():
     print('TF-IDF on pos column')
     tfidf_pos = TfidfVectorizer(ngram_range=(2, 3),
                                 lowercase=False,
-                                norm='l2').fit(X_train['pos'])
+                                norm='l2', max_df=.99, min_df=.01
+                                ).fit(X_train['pos'])
     cols = tfidf_pos.get_feature_names()
 
     X_train_pos = tf_idf_matrix(X_train, 'pos', tfidf_pos, cols)
@@ -89,14 +118,15 @@ def merge_all_years():
     print('TF-IDF on ner column')
     tfidf_ner = TfidfVectorizer(ngram_range=(1, 2),
                                 lowercase=False,
-                                norm='l2').fit(X_train['ner'])
+                                norm='l2', max_df=.99, min_df=.01
+                                ).fit(X_train['ner'])
     cols = tfidf_ner.get_feature_names()
 
     X_train_ner = tf_idf_matrix(X_train, 'ner', tfidf_ner, cols)
     X_val_ner = tf_idf_matrix(X_val, 'ner', tfidf_ner, cols)
     X_test_ner = tf_idf_matrix(X_test, 'ner', tfidf_ner, cols)
 
-    output = open('pickle/all_data.pkl', 'wb')
+    output = open('pickle/data_large.pkl', 'wb')
     print()
 
     print('Pickle dump X_train')

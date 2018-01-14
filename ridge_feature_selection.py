@@ -14,7 +14,7 @@ def main():
      X_train_tfidf, X_val_tfidf, X_test_tfidf,
      X_train_pos, X_val_pos, X_test_pos,
      X_train_ner, X_val_ner, X_test_ner,
-     y_train, y_val, y_test) = load_pickle('pickle/data.pkl')
+     y_train, y_val, y_test) = load_pickle('pickle/data_large.pkl')
 
     feat = ['favorite_count', 'is_retweet', 'retweet_count', 'is_reply',
             'compound', 'v_negative', 'v_neutral', 'v_positive', 'anger',
@@ -38,12 +38,19 @@ def main():
                              X_train_tfidf, X_train_ner], axis=1)
 
     feature_list = create_feature_list(whole_train, y_train)
-    (accuracies, top_accuracies) = ridge_feature_iteration(whole_train,
-                                                           y_train,
-                                                           feature_list)
 
-    plot_accuracies(accuracies)
-    save_top_feature_list(top_accuracies[0][0], feature_list)
+    # Save full, sorted feature list
+    # save_top_feature_list(len(feature_list), feature_list)
+
+    # Plot accuracies
+    # (accuracies, top_accuracies) = ridge_feature_iteration(whole_train,
+    #                                                       y_train,
+    #                                                       feature_list)
+
+    # plot_accuracies(accuracies, 'Ridge')
+
+    # Save feature list with highest accuracy
+    # save_top_feature_list(top_accuracies[0][0], feature_list)
 
 
 def create_feature_list(X, y):
@@ -114,11 +121,12 @@ def ridge_feature_iteration(X, y, feature_list):
     return accuracies, top_accuracies
 
 
-def plot_accuracies(accuracies):
+def plot_accuracies(accuracies, model):
     '''
     Takes a list of list of n accuracies from n number of features and plots
-    the accuracy as a function of number of features
-    INPUT: list
+    the accuracy as a function of number of features. Model name required for
+    plot title.
+    INPUT: list, string
     OUTPUT:
     '''
 
@@ -128,7 +136,7 @@ def plot_accuracies(accuracies):
     ax.plot(range(len(accuracies)), accuracies)
     plt.xlabel('Number of Features')
     plt.ylabel('Accuracy')
-    plt.title('Ridge accuracies as a function of the number of features')
+    plt.title(model + ' accuracies as a function of the number of features')
     plt.axis('tight')
     plt.show()
 
@@ -142,7 +150,7 @@ def save_top_feature_list(number_of_features, feature_list):
 
     top_feat = [item[0] for item in feature_list[:number_of_features]]
 
-    np.savez('top_features.npz', top_feat)
+    np.savez('top_train_val_features.npz', top_feat)
 
 
 def ridge(X_train, y_train):
@@ -158,7 +166,7 @@ def ridge(X_train, y_train):
     recalls = []
 
     for train_index, test_index in kfold.split(X):
-        model = RidgeClassifier(alpha=28.4)
+        model = RidgeClassifier(alpha=46.7)
         X_train, X_test = X[train_index], X[test_index]
         y_train, y_test = y[train_index], y[test_index]
         model.fit(X_train, y_train)
