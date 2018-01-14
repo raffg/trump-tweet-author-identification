@@ -42,6 +42,24 @@ def merge_all_years():
         print('============================================================')
         print()
 
+    '''
+    (X_train1, X_val1, X_test1,
+     X_train_tfidf1, X_val_tfidf1, X_test_tfidf1,
+     X_train_pos1, X_val_pos1, X_test_pos1,
+     X_train_ner1, X_val_ner1, X_test_ner1,
+     y_train1, y_val1, y_test1) = load_pickle('pickle/2017_partial.pkl')
+
+     print('concatentating X_train')
+     X_train = pd.concat([X_train, X_train1], axis=0)
+     X_val = pd.concat([X_val, X_val1], axis=0)
+     X_test = pd.concat([X_test, X_test1], axis=0)
+
+     print('concatentating y_train')
+     y_train = pd.concat([y_train, y_train1], axis=0)
+     y_val = pd.concat([y_val, y_val1], axis=0)
+     y_test = pd.concat([y_test, y_test1], axis=0)
+    '''
+
     # Create TF-IDF for text column
     print()
     print('TF-IDF on text column')
