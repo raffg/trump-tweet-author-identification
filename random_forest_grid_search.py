@@ -44,7 +44,7 @@ def random_forest_grid_search(X, y):
                   'min_samples_split': [2, 5],
                   'min_samples_leaf': [1, 2, 5],
                   'max_leaf_nodes': [10, 25, 50, 100, None],
-                  'oob_score': [True, False]}
+                  'n_jobs': [-1]}
 
     rf = RandomForestClassifier()
     clf = GridSearchCV(rf, parameters)
