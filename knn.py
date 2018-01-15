@@ -102,7 +102,7 @@ def run_model_knn(file):
 
 def knn(X_train, X_val, y_train, y_val):
     # Basic K Nearest Neighbors Classifier
-    clf = KNeighborsClassifier().fit(X_train, y_train)
+    clf = KNeighborsClassifier(n_neighbors=7).fit(X_train, y_train)
     predicted = clf.predict(X_val)
     accuracy_train = np.mean(clf.predict(X_train) == y_train)
     accuracy_test = np.mean(predicted == y_val)

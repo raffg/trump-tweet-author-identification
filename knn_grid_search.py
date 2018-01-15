@@ -52,8 +52,7 @@ def main():
 
 
 def knn_grid_search(X, y):
-    parameters = {'n_neighbors': [3, 4, 5, 6, 7],
-                  'weights': ['uniform', 'distance']}
+    parameters = {'n_neighbors': [3, 4, 5, 6, 7, 8, 9, 10]}
 
     knn = KNeighborsClassifier()
     clf = GridSearchCV(knn, parameters)

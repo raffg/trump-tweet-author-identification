@@ -76,7 +76,7 @@ def run_model_decision_tree(file):
     print('all features with ner tf-idf accuracy: ',
           decision_tree_all_features_ner)
 
-    feat = np.load('all_train_features.npz')['arr_0'][:14]
+    feat = np.load('all_train_features.npz')['arr_0'][:18]
 
     whole_train = pd.concat([X_train, X_train_pos,
                              X_train_tfidf, X_train_ner], axis=1)
@@ -99,8 +99,12 @@ def run_model_decision_tree(file):
 
 
 def decision_tree(X_train, X_val, y_train, y_val):
-    # Basic decision_tree
-    dt = DecisionTreeClassifier().fit(X_train, y_train)
+    # Basic decision tree
+    dt = DecisionTreeClassifier('max_depth': 20,
+                                'max_features': 'sqrt',
+                                'max_leaf_nodes': 100,
+                                'min_samples_leaf': 2,
+                                'min_samples_split': 2).fit(X_train, y_train)
     predicted = dt.predict(X_val)
     accuracy_train = np.mean(dt.predict(X_train) == y_train)
     accuracy_test = np.mean(predicted == y_val)
