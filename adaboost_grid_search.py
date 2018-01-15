@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 from src.load_pickle import load_pickle
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import AdaBoostClassifier
 from sklearn.model_selection import GridSearchCV
 
 
@@ -28,8 +28,8 @@ def main():
 
     results = []
     for n in range(len(feat)-1, len(feat)):
-        result = random_forest_grid_search(np.array(X_train[feat[0:n]]),
-                                           np.array(y_train).ravel())
+        result = adaboost_grid_search(np.array(X_train[feat[0:n]]),
+                                      np.array(y_train).ravel())
         results.append((n, result.best_params_, result.best_score_))
         print(n, result.best_params_, result.best_score_)
 
@@ -37,17 +37,12 @@ def main():
         print(item[0], item[1], item[2])
 
 
-def random_forest_grid_search(X, y):
-    parameters = {'n_estimators': [8, 10, 15, 20, 30],
-                  'max_features': [None, 'sqrt', 'log2'],
-                  'max_depth': [None, 3, 5, 10, 20],
-                  'min_samples_split': [2, 5],
-                  'min_samples_leaf': [1, 2, 5],
-                  'max_leaf_nodes': [10, 25, 50, 100, None],
-                  'n_jobs': [-1]}
+def adaboost_grid_search(X, y):
+    parameters = {'n_estimators': [30, 40, 50, 60, 70],
+                  'learning_rate': [.5, .75, 1, 1.25, 1.5]}
 
-    rf = RandomForestClassifier()
-    clf = GridSearchCV(rf, parameters)
+    ab = AdaBoostClassifier()
+    clf = GridSearchCV(ab, parameters)
     clf.fit(X, y)
 
     return clf
