@@ -6,7 +6,7 @@ from sklearn.neighbors import KNeighborsClassifier
 
 
 def main():
-    run_model_knn('pickle/data.pkl')
+    run_model_knn('pickle/data_large.pkl')
 
 
 def run_model_knn(file):
