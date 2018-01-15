@@ -41,7 +41,7 @@ def decision_tree_grid_search(X, y):
     parameters = {'max_depth': [3, 5, 10, 20],
                   'min_samples_split': [2, 5],
                   'min_samples_leaf': [1, 2, 5],
-                  'max_features': [None, 'sqrt', 'log2'],
+                  'max_features': [None, 'auto', 'sqrt', 'log2'],
                   'max_leaf_nodes': [10, 25, 50, 100, None]}
 
     dt = DecisionTreeClassifier()
