@@ -39,8 +39,8 @@ def main():
 
 def naive_bayes_grid_search(X, y):
     parameters = {'alpha': [1e-10, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1, 10, 100,
-                            500, 750, 875, 1000, 1125, 1250, 1375, 1500, 10000,
-                            100000]}
+                            500, 750, 875, 1000, 1125, 1250, 1375, 1500, 2000,
+                            2500, 3000, 10000, 100000]}
 
     nb = MultinomialNB()
     clf = GridSearchCV(nb, parameters)
