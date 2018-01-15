@@ -22,15 +22,16 @@ def main():
     y_train = pd.concat([y_train, y_val], axis=0)
 
     # Standardize the X data
-    feature = ['favorite_count', 'is_retweet', 'retweet_count', 'is_reply',
-               'compound', 'v_negative', 'v_neutral', 'v_positive', 'anger',
-               'anticipation', 'disgust', 'fear', 'joy', 'negative',
-               'positive', 'sadness', 'surprise', 'trust', 'tweet_length',
-               'avg_sentence_length', 'avg_word_length', 'commas',
-               'semicolons', 'exclamations', 'periods', 'questions', 'quotes',
-               'ellipses', 'mentions', 'hashtags', 'urls', 'is_quoted_retweet',
-               'all_caps', 'tweetstorm', 'hour', 'period_1', 'period_2',
-               'period_3', 'period_4']
+    feat = ['favorite_count', 'is_retweet', 'retweet_count', 'is_reply',
+            'compound', 'v_negative', 'v_neutral', 'v_positive', 'anger',
+            'anticipation', 'disgust', 'fear', 'joy', 'negative', 'positive',
+            'sadness', 'surprise', 'trust', 'tweet_length',
+            'avg_sentence_length', 'avg_word_length', 'commas',
+            'semicolons', 'exclamations', 'periods', 'questions', 'quotes',
+            'ellipses', 'mentions', 'hashtags', 'urls', 'is_quoted_retweet',
+            'all_caps', 'tweetstorm', 'hour', 'period_1', 'period_2',
+            'period_3', 'period_4']
+
     (X_train, X_test) = standardize(feat, X_train, X_test)
 
     # Add TF-IDF columns to X data
