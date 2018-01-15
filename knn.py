@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from src.load_pickle import load_pickle
+from src.standardize import standardize
 from sklearn.neighbors import KNeighborsClassifier
 
 
@@ -24,6 +25,8 @@ def run_model_knn(file):
             'ellipses', 'mentions', 'hashtags', 'urls', 'is_quoted_retweet',
             'all_caps', 'tweetstorm', 'hour', 'period_1', 'period_2',
             'period_3', 'period_4']
+
+    (X_train, X_val, X_test) = standardize(feat, X_train, X_val, X_test)
 
     knn_all_features = knn(np.array(X_train[feat]),
                            np.array(X_val[feat]),

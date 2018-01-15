@@ -37,7 +37,7 @@ def svm_grid_search(file):
 
     plot_accuracies(accuracies, "SVM")
 
-    (max_index, max_value) = (max(enumerate(values),
+    (max_index, max_value) = (max(enumerate(accuracies),
                               key=operator.itemgetter(1)))
     print(max_value, max_index)
 
@@ -131,10 +131,10 @@ def run_model_svm(file):
     print('condensed model accuracy: ', svm_condensed)
 
 
-def svm(X_train, X_val, y_train, y_val):
+def svm(X_train, X_val, y_train, y_val, alpha=0.0001):
     # Basic SVM
     clf = SGDClassifier(loss='hinge', penalty='l2',
-                        alpha=1e3, max_iter=50).fit(X_train, y_train)
+                        alpha=alpha, max_iter=50).fit(X_train, y_train)
     predicted = clf.predict(X_val)
     accuracy_train = np.mean(clf.predict(X_train) == y_train)
     accuracy_test = np.mean(predicted == y_val)
