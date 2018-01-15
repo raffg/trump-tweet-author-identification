@@ -4,7 +4,6 @@ from src.load_pickle import load_pickle
 from src.standardize import standardize
 from sklearn.linear_model import SGDClassifier
 from sklearn.model_selection import GridSearchCV
-from sklearn.preprocessing import StandardScaler
 
 
 def main():
