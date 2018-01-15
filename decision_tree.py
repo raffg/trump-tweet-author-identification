@@ -1,6 +1,5 @@
 import pandas as pd
 import numpy as np
-import operator
 from src.load_pickle import load_pickle
 from sklearn.tree import DecisionTreeClassifier
 

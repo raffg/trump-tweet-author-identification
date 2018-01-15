@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 from src.load_pickle import load_pickle
-from sklearn.naive_bayes import MultinomialNB
+from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import GridSearchCV
 
 
@@ -27,9 +27,9 @@ def main():
     feat = np.load('all_train_features.npz')['arr_0']
 
     results = []
-    for n in range(1, 20):
-        result = naive_bayes_grid_search(np.array(X_train[feat[0:n]]),
-                                         np.array(y_train).ravel())
+    for n in range(1, len(feat)):
+        result = decision_tree_grid_search(np.array(X_train[feat[0:n]]),
+                                           np.array(y_train).ravel())
         results.append((n, result.best_params_, result.best_score_))
         print(n, result.best_params_, result.best_score_)
 
@@ -37,13 +37,15 @@ def main():
         print(item[0], item[1], item[2])
 
 
-def naive_bayes_grid_search(X, y):
-    parameters = {'alpha': [1e-10, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1, 10, 100,
-                            500, 750, 875, 1000, 1125, 1250, 1375, 1500, 2000,
-                            2500, 3000, 10000, 100000]}
+def decision_tree_grid_search(X, y):
+    parameters = {'max_depth': [3, 5, 10, 20],
+                  'min_samples_split': [2, 5],
+                  'min_samples_leaf': [1, 2, 5],
+                  'max_features': [None, 'auto', 'sqrt', 'log2'],
+                  'max_leaf_nodes': [10, 25, 50, 100, None]}
 
-    nb = MultinomialNB()
-    clf = GridSearchCV(nb, parameters)
+    dt = DecisionTreeClassifier()
+    clf = GridSearchCV(dt, parameters)
     clf.fit(X, y)
 
     return clf

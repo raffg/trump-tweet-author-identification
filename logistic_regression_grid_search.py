@@ -14,7 +14,7 @@ def main():
      X_train_ner, X_val_ner, X_test_ner,
      y_train, y_val, y_test) = load_pickle('pickle/data_large.pkl')
 
-    # Performing cross-validation, don't need separate train and validation
+    # Performing cross-validation, don't need to separate train and validation
     X_train = pd.concat([X_train, X_val], axis=0)
     X_train_tfidf = pd.concat([X_train_tfidf, X_val_tfidf], axis=0)
     X_train_pos = pd.concat([X_train_pos, X_val_pos], axis=0)
