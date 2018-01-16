@@ -3,6 +3,7 @@ import numpy as np
 import operator
 import matplotlib.pyplot as plt
 from src.load_pickle import load_pickle
+from src.cross_val_data import cross_val_data
 from src.standardize import standardize
 from sklearn.linear_model import RidgeClassifier
 from sklearn.model_selection import KFold
@@ -26,21 +27,23 @@ def main():
             'all_caps', 'tweetstorm', 'hour', 'period_1', 'period_2',
             'period_3', 'period_4']
 
-    X_train = pd.concat([X_train, X_val], axis=0)
+    (X_train, X_train_tfidf, X_train_pos, X_train_ner,
+     X_test, X_test_tfidf, X_test_pos, X_test_ner) = cross_val_data(X_train,
+                                                                    X_val,
+                                                                    X_test)
     (X_train, X_test) = standardize(feat, X_train, X_test)
+
+    # Concatenate all training DataFrames
+    X_train = pd.concat([X_train, X_train_tfidf,
+                         X_train_pos, X_train_ner], axis=1)
+    X_test = pd.concat([X_test, X_test_tfidf,
+                        X_test_pos, X_test_ner], axis=1)
     y_train = pd.concat([y_train, y_val], axis=0)
 
-    X_train_tfidf = pd.concat([X_train_tfidf, X_val_tfidf], axis=0)
-    X_train_pos = pd.concat([X_train_pos, X_val_pos], axis=0)
-    X_train_ner = pd.concat([X_train_ner, X_val_ner], axis=0)
-
-    whole_train = pd.concat([X_train[feat], X_train_pos,
-                             X_train_tfidf, X_train_ner], axis=1)
-
-    feature_list = create_feature_list(whole_train, y_train)
+    feature_list = create_feature_list(X_train, y_train)
 
     # Save full, sorted feature list
-    # save_top_feature_list(len(feature_list), feature_list)
+    save_top_feature_list(len(feature_list), feature_list)
 
     # Plot accuracies
     # (accuracies, top_accuracies) = ridge_feature_iteration(whole_train,
@@ -150,7 +153,7 @@ def save_top_feature_list(number_of_features, feature_list):
 
     top_feat = [item[0] for item in feature_list[:number_of_features]]
 
-    np.savez('top_train_val_features.npz', top_feat)
+    np.savez('all_train_features.npz', top_feat)
 
 
 def ridge(X_train, y_train):

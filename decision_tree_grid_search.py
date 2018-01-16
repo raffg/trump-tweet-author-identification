@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from src.load_pickle import load_pickle
+from src.cross_val_data import cross_val_data
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import GridSearchCV
 
@@ -14,20 +15,21 @@ def main():
      y_train, y_val, y_test) = load_pickle('pickle/data_large.pkl')
 
     # Performing cross-validation, don't need to separate train and validation
-    X_train = pd.concat([X_train, X_val], axis=0)
-    X_train_tfidf = pd.concat([X_train_tfidf, X_val_tfidf], axis=0)
-    X_train_pos = pd.concat([X_train_pos, X_val_pos], axis=0)
-    X_train_ner = pd.concat([X_train_ner, X_val_ner], axis=0)
-    y_train = pd.concat([y_train, y_val], axis=0)
-
-    # Add TF-IDF columns to X data
+    (X_train, X_train_tfidf, X_train_pos, X_train_ner,
+     X_test, X_test_tfidf, X_test_pos, X_test_ner) = cross_val_data(X_train,
+                                                                    X_val,
+                                                                    X_test)
+    # Concatenate all training DataFrames
     X_train = pd.concat([X_train, X_train_tfidf,
                          X_train_pos, X_train_ner], axis=1)
+    X_test = pd.concat([X_test, X_test_tfidf,
+                        X_test_pos, X_test_ner], axis=1)
+    y_train = pd.concat([y_train, y_val], axis=0)
 
     feat = np.load('all_train_features.npz')['arr_0']
 
     results = []
-    for n in range(1, len(feat)):
+    for n in range(1, len(feat) + 1):
         result = decision_tree_grid_search(np.array(X_train[feat[0:n]]),
                                            np.array(y_train).ravel())
         results.append((n, result.best_params_, result.best_score_))
