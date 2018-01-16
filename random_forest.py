@@ -88,7 +88,7 @@ def run_model_random_forest(file):
                                         np.array(y_val).ravel())
     print('whole model accuracy: ', random_forest_whole)
 
-    top_feat = set(np.load('all_train_features.npz')['arr_0'][:200])
+    top_feat = set(np.load('all_train_features.npz')['arr_0'][:150])
     train_feat = []
     val_feat = []
     for feat in top_feat:
@@ -108,12 +108,12 @@ def run_model_random_forest(file):
 
 def random_forest(X_train, X_val, y_train, y_val):
     # Basic random forest
-    rf = RandomForestClassifier(max_depth=30,
+    rf = RandomForestClassifier(max_depth=20,
                                 max_features=None,
                                 max_leaf_nodes=None,
                                 min_samples_leaf=2,
                                 min_samples_split=2,
-                                n_estimators=25,
+                                n_estimators=100,
                                 n_jobs=-1).fit(X_train, y_train)
     predicted = rf.predict(X_val)
     accuracy_train = np.mean(rf.predict(X_train) == y_train)
