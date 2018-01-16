@@ -46,8 +46,21 @@ def random_forest_grid_search(X, y):
                   'max_leaf_nodes': [10, 25, 50, 100, None],
                   'n_jobs': [-1]}
 
+    '''
+    Results:
+    {'max_depth': 20, 'max_features': None, 'max_leaf_nodes': None,
+    'min_samples_leaf': 5, 'min_samples_split': 5, 'n_estimators': 30,
+    'n_jobs': -1} 0.943672304871
+    '''
+
+    parameters2 = {'n_estimators': [25, 30, 35],
+                   'max_depth': [20, 30],
+                   'min_samples_split': [4, 5, 6],
+                   'min_samples_leaf': [4, 5, 6],
+                   'n_jobs': [-1]}
+
     rf = RandomForestClassifier()
-    clf = GridSearchCV(rf, parameters, verbose=True)
+    clf = GridSearchCV(rf, parameters2, verbose=True)
     clf.fit(X, y)
 
     return clf

@@ -100,7 +100,13 @@ def run_model_random_forest(file):
 
 def random_forest(X_train, X_val, y_train, y_val):
     # Basic random forest
-    rf = RandomForestClassifier().fit(X_train, y_train)
+    rf = RandomForestClassifier(max_depth=20,
+                                max_features=None,
+                                max_leaf_nodes=None,
+                                min_samples_leaf=5,
+                                min_samples_split=5,
+                                n_estimators=30,
+                                n_jobs=-1).fit(X_train, y_train)
     predicted = rf.predict(X_val)
     accuracy_train = np.mean(rf.predict(X_train) == y_train)
     accuracy_test = np.mean(predicted == y_val)
