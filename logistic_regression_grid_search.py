@@ -56,7 +56,7 @@ def lr_grid_search(X, y):
     parameters2 = {'penalty': ['l2'], 'C': [.05, .075, .1, .125, .25]}
 
     lr = LogisticRegression()
-    clf = GridSearchCV(lr, parameters2)
+    clf = GridSearchCV(lr, parameters2, verbose=True)
     clf.fit(X, y)
 
     return clf

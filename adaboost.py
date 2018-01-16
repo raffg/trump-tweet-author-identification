@@ -100,7 +100,8 @@ def run_model_random_forest(file):
 
 def adaboost(X_train, X_val, y_train, y_val):
     # Basic AdaBoost classifier
-    ab = AdaBoostClassifier().fit(X_train, y_train)
+    ab = AdaBoostClassifier(learning_rate=1.25,
+                            n_estimators=40).fit(X_train, y_train)
     predicted = ab.predict(X_val)
     accuracy_train = np.mean(ab.predict(X_train) == y_train)
     accuracy_test = np.mean(predicted == y_val)

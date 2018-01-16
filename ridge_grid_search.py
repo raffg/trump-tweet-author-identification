@@ -54,7 +54,7 @@ def ridge_grid_search(X, y):
     parameters = {'alpha': [1e-5, 1e-3, 1e-1, 1, 10, 100, 1000, 10000]}
 
     ridge = RidgeClassifier()
-    clf = GridSearchCV(ridge, parameters)
+    clf = GridSearchCV(ridge, parameters, verbose=True)
     clf.fit(X, y)
 
     return clf

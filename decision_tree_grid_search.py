@@ -45,7 +45,7 @@ def decision_tree_grid_search(X, y):
                   'max_leaf_nodes': [10, 25, 50, 100, None]}
 
     dt = DecisionTreeClassifier()
-    clf = GridSearchCV(dt, parameters)
+    clf = GridSearchCV(dt, parameters, verbose=True)
     clf.fit(X, y)
 
     return clf

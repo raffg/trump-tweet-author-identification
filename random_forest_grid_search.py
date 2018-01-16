@@ -27,8 +27,8 @@ def main():
     feat = np.load('all_train_features.npz')['arr_0']
 
     results = []
-    for n in range(len(feat)-1, len(feat)):
-        result = random_forest_grid_search(np.array(X_train[feat[0:n]]),
+    for n in range(len(feat), len(feat) + 1):
+        result = random_forest_grid_search(np.array(X_train[feat[:n]]),
                                            np.array(y_train).ravel())
         results.append((n, result.best_params_, result.best_score_))
         print(n, result.best_params_, result.best_score_)
@@ -47,7 +47,7 @@ def random_forest_grid_search(X, y):
                   'n_jobs': [-1]}
 
     rf = RandomForestClassifier()
-    clf = GridSearchCV(rf, parameters)
+    clf = GridSearchCV(rf, parameters, verbose=True)
     clf.fit(X, y)
 
     return clf

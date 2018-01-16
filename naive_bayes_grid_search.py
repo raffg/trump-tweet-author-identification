@@ -43,7 +43,7 @@ def naive_bayes_grid_search(X, y):
                             2500, 3000, 10000, 100000]}
 
     nb = MultinomialNB()
-    clf = GridSearchCV(nb, parameters)
+    clf = GridSearchCV(nb, parameters, verbose=True)
     clf.fit(X, y)
 
     return clf

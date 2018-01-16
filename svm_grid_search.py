@@ -60,7 +60,7 @@ def svm_grid_search(X, y):
                   'tol': [1e-4, 1e-3, 1e-2]}
 
     svm = SGDClassifier()
-    clf = GridSearchCV(svm, parameters)
+    clf = GridSearchCV(svm, parameters, verbose=True)
     clf.fit(X, y)
 
     return clf
