@@ -76,8 +76,6 @@ def run_model_random_forest(file):
     print('all features with ner tf-idf accuracy: ',
           adaboost_all_features_ner)
 
-    feat = np.load('all_train_features.npz')['arr_0'][:18]
-
     whole_train = pd.concat([X_train, X_train_pos,
                              X_train_tfidf, X_train_ner], axis=1)
     whole_val = pd.concat([X_val, X_val_pos,
@@ -88,7 +86,7 @@ def run_model_random_forest(file):
                               np.array(y_val).ravel())
     print('whole model accuracy: ', adaboost_whole)
 
-    top_feat = np.load('top_features.npz')['arr_0']
+    top_feat = np.load('all_train_features.npz')['arr_0'][:18]
     condensed_train = whole_train[top_feat]
     condensed_val = whole_val[top_feat]
     adaboost_condensed = adaboost(np.array(condensed_train),

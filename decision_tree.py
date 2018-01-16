@@ -88,7 +88,7 @@ def run_model_decision_tree(file):
                                         np.array(y_val).ravel())
     print('whole model accuracy: ', decision_tree_whole)
 
-    top_feat = np.load('top_features.npz')['arr_0']
+    top_feat = np.load('all_train_features.npz')['arr_0'][:200]
     condensed_train = whole_train[top_feat]
     condensed_val = whole_val[top_feat]
     decision_tree_condensed = decision_tree(np.array(condensed_train),

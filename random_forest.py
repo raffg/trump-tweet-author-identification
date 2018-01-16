@@ -25,6 +25,7 @@ def run_model_random_forest(file):
             'all_caps', 'tweetstorm', 'hour', 'period_1', 'period_2',
             'period_3', 'period_4']
 
+    '''
     random_forest_all_features = random_forest(np.array(X_train[feat]),
                                                np.array(X_val[feat]),
                                                np.array(y_train).ravel(),
@@ -75,8 +76,7 @@ def run_model_random_forest(file):
                                                    np.array(y_val).ravel())
     print('all features with ner tf-idf accuracy: ',
           random_forest_all_features_ner)
-
-    feat = np.load('all_train_features.npz')['arr_0'][:18]
+    '''
 
     whole_train = pd.concat([X_train, X_train_pos,
                              X_train_tfidf, X_train_ner], axis=1)
@@ -88,9 +88,17 @@ def run_model_random_forest(file):
                                         np.array(y_val).ravel())
     print('whole model accuracy: ', random_forest_whole)
 
-    top_feat = np.load('top_features.npz')['arr_0']
-    condensed_train = whole_train[top_feat]
-    condensed_val = whole_val[top_feat]
+    top_feat = set(np.load('all_train_features.npz')['arr_0'][:200])
+    train_feat = []
+    val_feat = []
+    for feat in top_feat:
+        if feat in whole_train.columns:
+            train_feat.append(feat)
+        if feat in whole_val.columns:
+            val_feat.append(feat)
+
+    condensed_train = whole_train[train_feat]
+    condensed_val = whole_val[val_feat]
     random_forest_condensed = random_forest(np.array(condensed_train),
                                             np.array(condensed_val),
                                             np.array(y_train).ravel(),
@@ -100,12 +108,12 @@ def run_model_random_forest(file):
 
 def random_forest(X_train, X_val, y_train, y_val):
     # Basic random forest
-    rf = RandomForestClassifier(max_depth=20,
+    rf = RandomForestClassifier(max_depth=30,
                                 max_features=None,
                                 max_leaf_nodes=None,
-                                min_samples_leaf=5,
-                                min_samples_split=5,
-                                n_estimators=30,
+                                min_samples_leaf=2,
+                                min_samples_split=2,
+                                n_estimators=25,
                                 n_jobs=-1).fit(X_train, y_train)
     predicted = rf.predict(X_val)
     accuracy_train = np.mean(rf.predict(X_train) == y_train)

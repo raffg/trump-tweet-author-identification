@@ -93,7 +93,7 @@ def run_model_ridge_regression(file):
     print('whole model recall: ', ridge_whole[2])
     print()
 
-    top_feat = np.load('top_features.npz')['arr_0']
+    top_feat = np.load('all_train_features.npz')['arr_0'][:100]
     condensed_train = whole_train[top_feat]
     ridge_condensed = ridge(condensed_train, y_train)
     print('condensed model accuracy: ', ridge_condensed[0])
