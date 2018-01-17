@@ -5,7 +5,8 @@ from src.load_data import load_json_list, apply_date_mask
 from src.vader_sentiment import apply_vader
 from src.text_emotion import text_emotion
 from src.style import apply_avg_lengths, tweet_length, punctuation_columns, \
-                      quoted_retweet, apply_all_caps, mention_hashtag_url
+                      quoted_retweet, apply_all_caps, mention_hashtag_url, \
+                      mention_start
 from src.tweetstorm import tweetstorm
 from src.time_of_day import time_of_day, period_of_day
 from src.part_of_speech import pos_tagging, ner_tagging
@@ -242,6 +243,10 @@ def feature_engineering(df):
     # Create column identifying the period of the day, in 6-hour increments
     print('   calculating period of day')
     df = period_of_day(df, 'created_at')
+
+    # Create column identifying if the tweet begins with an @mentions
+    print('   calculating @mention beginnings')
+    df['start_mention'] = df['ner'].apply(mention_start)
 
     # Create column of tweetokenize tweets
     print('   calculating tweetokenize tweets')

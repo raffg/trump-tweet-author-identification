@@ -146,3 +146,13 @@ def apply_all_caps(df, column):
     new_df = df.copy()
     new_df['all_caps'] = new_df[column].apply(all_caps)
     return new_df
+
+
+def mention_start(text):
+    '''
+    Takes a text string and outputs True if the string begins with "<USER>" and
+    False if not.
+    INPUT: string
+    OUTPUT: boolean
+    '''
+    return True if text[:6] == '<USER>' else False
