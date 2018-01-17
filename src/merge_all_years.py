@@ -43,7 +43,6 @@ def merge_all_years():
         print('============================================================')
         print()
 
-
     print('-----Opening 2017_partial-----')
     (X_train1, X_val1, X_test1,
      X_train_tfidf1, X_val_tfidf1, X_test_tfidf1,
@@ -60,7 +59,6 @@ def merge_all_years():
     y_train = pd.concat([y_train, y_train1], axis=0)
     y_val = pd.concat([y_val, y_val1], axis=0)
     y_test = pd.concat([y_test, y_test1], axis=0)
-
 
     X_train_tfidf1 = None
     X_val1 = None

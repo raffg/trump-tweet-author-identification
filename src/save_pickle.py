@@ -96,6 +96,11 @@ def save_pickle(start_date, end_date,
     df_dict['X_val_tfidf'] = X_val_tfidf
     df_dict['X_test_tfidf'] = X_test_tfidf
 
+    # Drop ner columns also present in tfidf_text
+    columns_to_keep = [x for x in X_train_ner if x not in X_train_tfidf]
+    X_train_ner = X_train_ner[columns_to_keep]
+    X_test_ner = X_test_ner[columns_to_keep]
+
     # Create TF-IDF for pos column
     print()
     print('TF-IDF on pos column')

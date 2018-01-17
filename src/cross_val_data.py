@@ -39,7 +39,7 @@ def cross_val_data(X_train, X_val, X_test):
     X_test_tfidf = tf_idf_matrix(X_test, 'text', tfidf_text, cols)
 
     # Drop ner columns also present in tfidf_text
-    columns_to_keep = [x for x in X_train_tfidf if x not in X_train_ner]
+    columns_to_keep = [x for x in X_train_ner if x not in X_train_tfidf]
     X_train_ner = X_train_ner[columns_to_keep]
     X_test_ner = X_test_ner[columns_to_keep]
 
