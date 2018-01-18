@@ -1,7 +1,9 @@
 import pandas as pd
 import numpy as np
 import operator
+import math
 import matplotlib.pyplot as plt
+from src.ridge_grid_scan import ridge_grid_scan
 from src.load_pickle import load_pickle
 from src.cross_val_data import cross_val_data
 from src.standardize import standardize
@@ -15,7 +17,7 @@ def main():
      X_train_tfidf, X_val_tfidf, X_test_tfidf,
      X_train_pos, X_val_pos, X_test_pos,
      X_train_ner, X_val_ner, X_test_ner,
-     y_train, y_val, y_test) = load_pickle('pickle/data_large.pkl')
+     y_train, y_val, y_test) = load_pickle('pickle/data.pkl')
 
     feat = ['favorite_count', 'is_retweet', 'retweet_count', 'is_reply',
             'compound', 'v_negative', 'v_neutral', 'v_positive', 'anger',
@@ -40,10 +42,13 @@ def main():
                         X_test_pos, X_test_ner], axis=1)
     y_train = pd.concat([y_train, y_val], axis=0)
 
-    feature_list = create_feature_list(X_train, y_train)
+    # Run feature selection iterations
+    feature_list = ridge_grid_scan(X_train, y_train)
+
+    print(feature_list)
 
     # Save full, sorted feature list
-    save_top_feature_list(len(feature_list), feature_list)
+    np.savez('top_features.npz', feature_list)
 
     # Plot accuracies
     # (accuracies, top_accuracies) = ridge_feature_iteration(whole_train,
@@ -56,17 +61,43 @@ def main():
     # save_top_feature_list(top_accuracies[0][0], feature_list)
 
 
+def ridge_feature_selection(X, y):
+    '''
+    Takes a feature DataFrame and a label DataFrame and iterates through alpha
+    values of ridge regression to drop out features creates an ordered feature
+    list.
+    INPUT: DataFrame, DataFrame
+    OUTPUT: list
+    '''
+    features = []
+    for alpha in np.geomspace(1e-1, 1e8, 200):
+        print('alpha: ', alpha)
+        model = ridge(X, y, alpha)
+        feat_coef = list(zip(X.columns, model[3][0]))
+        for feature in feat_coef:
+            if (abs(feature[1]) < 1e-3 and feature[0] not in features):
+                features.append(feature[0])
+        print(len(features))
+        print('% complete: ', 100 * (len(features) / len(feat_coef)))
+        print()
+        if not (set(X.columns) - set(features)):
+            break
+    return list(reversed(features))
+
+
 def create_feature_list(X, y):
     '''
     Creates a list of features, sorted by importance
     INPUT: DataFrame of tweet data and DataFrame of labels
-    OUTPUT: list of tuples of the feature name and it's ridge importance score
+    OUTPUT: list of tuples of the feature name and its ridge importance score
     '''
 
     ridge_whole = ridge(X, y)
 
     feat_coef = dict(zip(X.columns, ridge_whole[3][0]))
     sorted_list = sorted(feat_coef.items(), key=operator.itemgetter(1))
+
+    np.savez('sorted_data_pos_corrected_ner.npz', sorted_list)
 
     abs_sorted_list = [(item[0], abs(item[1])) for item in sorted_list]
     abs_sorted_list = sorted(abs_sorted_list, key=lambda x: x[1])[::-1]
@@ -153,10 +184,10 @@ def save_top_feature_list(number_of_features, feature_list):
 
     top_feat = [item[0] for item in feature_list[:number_of_features]]
 
-    np.savez('all_train_features.npz', top_feat)
+    np.savez('top_features.npz', top_feat)
 
 
-def ridge(X_train, y_train):
+def ridge(X_train, y_train, alpha=50):
     # Ridge Logistic Regression
 
     X = np.array(X_train)
@@ -169,7 +200,7 @@ def ridge(X_train, y_train):
     recalls = []
 
     for train_index, test_index in kfold.split(X):
-        model = RidgeClassifier(alpha=46.7)
+        model = RidgeClassifier(alpha=alpha)
         X_train, X_test = X[train_index], X[test_index]
         y_train, y_test = y[train_index], y[test_index]
         model.fit(X_train, y_train)
@@ -179,7 +210,6 @@ def ridge(X_train, y_train):
         precisions.append(precision_score(y_true, y_predict,
                           average='weighted'))
         recalls.append(recall_score(y_true, y_predict, average='weighted'))
-
     return (np.average(accuracies), np.average(precisions),
             np.average(recalls), model.coef_)
 
