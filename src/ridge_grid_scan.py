@@ -1,7 +1,7 @@
 from sklearn.linear_model import RidgeClassifier
 
 
-def ridge_grid_scan(X_train, y_train):
+def ridge_grid_scan(X_train, y_train, n=100):
     '''
     Recursively performs ridge regression to sort all features in order of
     importance
@@ -9,7 +9,8 @@ def ridge_grid_scan(X_train, y_train):
     OUTPUT: list of feature importances
     '''
 
-    scan = GridScan(X_train, y_train)
+    scan = GridScan(X_train, y_train, n)
+
     return scan.feature_importances
 
 
@@ -19,16 +20,21 @@ class GridScan(object):
     which are driven out of the model at each alpha levels
     '''
 
-    def __init__(self, X_train, y_train):
+    def __init__(self, X_train, y_train, n):
         self.X_train = X_train
         self.y_train = y_train
+        self.n = n
         alpha_min = 1e-5
-        alpha_max = 1e8
+        alpha_max = 1e12
         self.alpha_levels = {}
         self.feature_importances = []
 
         self.ridge(alpha_min)
         self.ridge(alpha_max)
+        while len(self.alpha_levels[alpha_max]) < len(self.X_train.columns):
+            print('alpha too low; increasing value')
+            alpha_max *= 2
+            self.ridge(alpha_max)
 
         self.scan(alpha_min, alpha_max)
 
@@ -45,9 +51,9 @@ class GridScan(object):
 
         mid = (lower + upper) / 2
 
-        # Uncomment the following lines to output only the top 100 features
-        # if len(self.alpha_levels[upper]) < 900:
-        #     return
+        if len(self.alpha_levels[upper]) <= (len(self.X_train.columns) -
+                                             self.n):
+            return
 
         diff = self.alpha_levels[upper] - self.alpha_levels[lower]
         if not diff:
@@ -85,7 +91,7 @@ class GridScan(object):
 
         features = set()
         for element in feat_coef:
-            if abs(element[1]) < .0001:
+            if abs(element[1]) < 1e-24:
                 features.add(element[0])
 
         self.alpha_levels[alpha] = features

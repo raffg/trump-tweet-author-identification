@@ -43,7 +43,6 @@ def cross_val_data(X_train, X_val, X_test):
     X_train_ner = X_train_ner[columns_to_keep]
     X_test_ner = X_test_ner[columns_to_keep]
 
-
     # Create TF-IDF for pos column
     tfidf_pos = TfidfVectorizer(ngram_range=(2, 3),
                                 lowercase=False,

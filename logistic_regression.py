@@ -93,7 +93,7 @@ def run_model_logistic_regression(file):
     print('whole model recall: ', lr_whole[2])
     print()
 
-    top_feat = np.load('top_features.npz')['arr_0'][:20]
+    top_feat = np.load('pickle/top_features.npz')['arr_0'][:20]
     condensed_train = whole_train[top_feat]
     lr_condensed = lr(np.array(condensed_train),
                       np.array(y_train).ravel())

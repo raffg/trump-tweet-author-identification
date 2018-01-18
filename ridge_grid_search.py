@@ -35,12 +35,12 @@ def main():
                'avg_sentence_length', 'avg_word_length', 'commas',
                'semicolons', 'exclamations', 'periods', 'questions', 'quotes',
                'ellipses', 'mentions', 'hashtags', 'urls', 'is_quoted_retweet',
-               'all_caps', 'tweetstorm', 'hour', 'period_1', 'period_2',
-               'period_3', 'period_4']
+               'all_caps', 'tweetstorm', 'hour', 'hour_20_02', 'hour_14_20',
+               'hour_08_14', 'hour_02_08']
 
     (X_train, X_test) = standardize(feature, X_train, X_test)
 
-    feat = np.load('all_train_features.npz')['arr_0']
+    feat = np.load('pickle/top_features.npz')['arr_0']
 
     results = []
     for n in range(1, len(feat) + 1):

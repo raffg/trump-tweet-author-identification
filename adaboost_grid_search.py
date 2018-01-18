@@ -40,7 +40,7 @@ def main():
 
     (X_train, X_test) = standardize(feature, X_train, X_test)
 
-    feat = np.load('all_train_features.npz')['arr_0']
+    feat = np.load('pickle/top_features.npz')['arr_0']
 
     results = []
     for n in range(1, len(feat) + 1):

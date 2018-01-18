@@ -5,7 +5,7 @@ from sklearn.ensemble import RandomForestClassifier
 
 
 def main():
-    run_model_random_forest('pickle/data.pkl')
+    run_model_random_forest('pickle/data_period_mod.pkl')
 
 
 def run_model_random_forest(file):
@@ -22,8 +22,8 @@ def run_model_random_forest(file):
             'avg_sentence_length', 'avg_word_length', 'commas',
             'semicolons', 'exclamations', 'periods', 'questions', 'quotes',
             'ellipses', 'mentions', 'hashtags', 'urls', 'is_quoted_retweet',
-            'all_caps', 'tweetstorm', 'hour', 'hour_20_02', 'hour_14_20',
-            'hour_08_14', 'hour_02_08']
+            'all_caps', 'tweetstorm', 'hour', 'hour_20_5', 'hour_3_13',
+            'hour_10_15', 'hour_13_21']
 
     random_forest_all_features = random_forest(np.array(X_train[feat]),
                                                np.array(X_val[feat]),
@@ -86,7 +86,7 @@ def run_model_random_forest(file):
                                         np.array(y_val).ravel())
     print('whole model accuracy: ', random_forest_whole)
 
-    top_feat = set(np.load('top_features.npz')['arr_0'][:150])
+    top_feat = set(np.load('pickle/top_features.npz')['arr_0'][:150])
     train_feat = []
     val_feat = []
     for feat in top_feat:

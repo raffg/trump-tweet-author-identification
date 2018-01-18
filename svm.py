@@ -23,7 +23,7 @@ def svm_grid_search(file):
     whole_val = pd.concat([X_val, X_val_pos,
                            X_val_tfidf, X_val_ner], axis=1)
 
-    feat = np.load('top_features.npz')['arr_0']
+    feat = np.load('pickle/top_features.npz')['arr_0']
 
     accuracies = []
 

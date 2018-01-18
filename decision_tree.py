@@ -76,7 +76,7 @@ def run_model_decision_tree(file):
     print('all features with ner tf-idf accuracy: ',
           decision_tree_all_features_ner)
 
-    feat = np.load('top_features.npz')['arr_0'][:18]
+    feat = np.load('pickle/top_features.npz')['arr_0'][:18]
 
     whole_train = pd.concat([X_train, X_train_pos,
                              X_train_tfidf, X_train_ner], axis=1)

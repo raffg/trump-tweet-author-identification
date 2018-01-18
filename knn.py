@@ -90,7 +90,7 @@ def run_model_knn(file):
                     np.array(y_val).ravel())
     print('whole model accuracy: ', knn_whole)
 
-    top_feat = np.load('top_features.npz')['arr_0'][:20]
+    top_feat = np.load('pickle/top_features.npz')['arr_0'][:20]
     condensed_train = whole_train[top_feat]
     condensed_val = whole_val[top_feat]
     knn_condensed = knn(np.array(condensed_train),

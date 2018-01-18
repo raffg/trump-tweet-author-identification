@@ -26,7 +26,7 @@ def main():
                         X_test_pos, X_test_ner], axis=1)
     y_train = pd.concat([y_train, y_val], axis=0)
 
-    feat = np.load('top_features.npz')['arr_0']
+    feat = np.load('pickle/top_features.npz')['arr_0']
 
     results = []
     for n in range(1, len(feat) + 1):
