@@ -5,7 +5,7 @@ from sklearn.ensemble import RandomForestClassifier
 
 
 def main():
-    run_model_random_forest('pickle/data_large.pkl')
+    run_model_random_forest('pickle/data.pkl')
 
 
 def run_model_random_forest(file):
@@ -25,7 +25,6 @@ def run_model_random_forest(file):
             'all_caps', 'tweetstorm', 'hour', 'period_1', 'period_2',
             'period_3', 'period_4']
 
-    '''
     random_forest_all_features = random_forest(np.array(X_train[feat]),
                                                np.array(X_val[feat]),
                                                np.array(y_train).ravel(),
@@ -76,7 +75,6 @@ def run_model_random_forest(file):
                                                    np.array(y_val).ravel())
     print('all features with ner tf-idf accuracy: ',
           random_forest_all_features_ner)
-    '''
 
     whole_train = pd.concat([X_train, X_train_pos,
                              X_train_tfidf, X_train_ner], axis=1)
@@ -88,7 +86,7 @@ def run_model_random_forest(file):
                                         np.array(y_val).ravel())
     print('whole model accuracy: ', random_forest_whole)
 
-    top_feat = set(np.load('all_train_features.npz')['arr_0'][:150])
+    top_feat = set(np.load('data_pos_corrected_mentions.npz')['arr_0'][:150])
     train_feat = []
     val_feat = []
     for feat in top_feat:
@@ -113,7 +111,7 @@ def random_forest(X_train, X_val, y_train, y_val):
                                 max_leaf_nodes=None,
                                 min_samples_leaf=2,
                                 min_samples_split=2,
-                                n_estimators=100,
+                                n_estimators=20,
                                 n_jobs=-1).fit(X_train, y_train)
     predicted = rf.predict(X_val)
     accuracy_train = np.mean(rf.predict(X_train) == y_train)

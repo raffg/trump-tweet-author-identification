@@ -12,7 +12,7 @@ def main():
      X_train_tfidf, X_val_tfidf, X_test_tfidf,
      X_train_pos, X_val_pos, X_test_pos,
      X_train_ner, X_val_ner, X_test_ner,
-     y_train, y_val, y_test) = load_pickle('pickle/data_large.pkl')
+     y_train, y_val, y_test) = load_pickle('pickle/data.pkl')
 
     # Performing cross-validation, don't need to separate train and validation
     (X_train, X_train_tfidf, X_train_pos, X_train_ner,
@@ -26,10 +26,10 @@ def main():
                         X_test_pos, X_test_ner], axis=1)
     y_train = pd.concat([y_train, y_val], axis=0)
 
-    feat = np.load('all_train_features.npz')['arr_0']
+    feat = np.load('data_pos_corrected_mentions.npz')['arr_0']
 
     results = []
-    for n in np.arange(200, 201, 25):
+    for n in np.arange(100, len(feat) + 1, 100):
         result = random_forest_grid_search(np.array(X_train[feat[:n]]),
                                            np.array(y_train).ravel())
         results.append((n, result.best_params_, result.best_score_))
@@ -68,14 +68,14 @@ def random_forest_grid_search(X, y):
     'min_samples_split': 2, 'n_estimators': 30, 'n_jobs': -1} 0.94122681883
     '''
 
-    parameters3 = {'n_estimators': [30],
-                   'max_depth': [20],
+    parameters3 = {'n_estimators': [25, 30],
+                   'max_depth': [20, 30],
                    'min_samples_split': [2],
-                   'min_samples_leaf': [1],
+                   'min_samples_leaf': [1, 2],
                    'n_jobs': [-1]}
 
     rf = RandomForestClassifier()
-    clf = GridSearchCV(rf, parameters3, verbose=True)
+    clf = GridSearchCV(rf, parameters3, cv=5, verbose=True)
     clf.fit(X, y)
 
     return clf

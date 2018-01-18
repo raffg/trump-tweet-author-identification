@@ -8,8 +8,6 @@ from src.load_pickle import load_pickle
 from src.cross_val_data import cross_val_data
 from src.standardize import standardize
 from sklearn.linear_model import RidgeClassifier
-from sklearn.model_selection import KFold
-from sklearn.metrics import accuracy_score, precision_score, recall_score
 
 
 def main():
@@ -57,102 +55,17 @@ def main():
 
     # plot_accuracies(accuracies, 'Ridge')
 
-    # Save feature list with highest accuracy
-    # save_top_feature_list(top_accuracies[0][0], feature_list)
 
-
-def ridge_feature_selection(X, y):
+def save_top_feature_list(number_of_features, feature_list, filename):
     '''
-    Takes a feature DataFrame and a label DataFrame and iterates through alpha
-    values of ridge regression to drop out features creates an ordered feature
-    list.
-    INPUT: DataFrame, DataFrame
-    OUTPUT: list
-    '''
-    features = []
-    for alpha in np.geomspace(1e-1, 1e8, 200):
-        print('alpha: ', alpha)
-        model = ridge(X, y, alpha)
-        feat_coef = list(zip(X.columns, model[3][0]))
-        for feature in feat_coef:
-            if (abs(feature[1]) < 1e-3 and feature[0] not in features):
-                features.append(feature[0])
-        print(len(features))
-        print('% complete: ', 100 * (len(features) / len(feat_coef)))
-        print()
-        if not (set(X.columns) - set(features)):
-            break
-    return list(reversed(features))
-
-
-def create_feature_list(X, y):
-    '''
-    Creates a list of features, sorted by importance
-    INPUT: DataFrame of tweet data and DataFrame of labels
-    OUTPUT: list of tuples of the feature name and its ridge importance score
+    Takes the number of features to keep and saves the top N features to .npz
+    INPUT: int: N number of features to keep, feature list, filename string
+    OUTPUT:
     '''
 
-    ridge_whole = ridge(X, y)
+    top_feat = [item[0] for item in feature_list[:number_of_features]]
 
-    feat_coef = dict(zip(X.columns, ridge_whole[3][0]))
-    sorted_list = sorted(feat_coef.items(), key=operator.itemgetter(1))
-
-    np.savez('sorted_data_pos_corrected_ner.npz', sorted_list)
-
-    abs_sorted_list = [(item[0], abs(item[1])) for item in sorted_list]
-    abs_sorted_list = sorted(abs_sorted_list, key=lambda x: x[1])[::-1]
-
-    return abs_sorted_list
-
-
-def ridge_feature_iteration(X, y, feature_list):
-    '''
-    Takes a DataFrame and a sorted feature list and iteratively performs ridge
-    regression on an increasing number of features to produce a list of
-    accuracy scores and the number of features corresponding to the highest
-    accuracy, the highest accuracy minus .5%, and the highest accuracy minus 1%
-    INPUT: X DataFrame, y DataFrame, list of features
-    OUTPUT: accuracy list, list of tuples
-    '''
-    best_n = 0
-    best_n_reduced = 0
-    best_n_reduced2 = 0
-
-    accuracy = 0
-    accuracy_reduced = 0
-    accuracy_reduced2 = 0
-
-    accuracies = []
-
-    for n in range(1, len(feature_list)):
-        top_feat = [item[0] for item in feature_list[:n]]
-        top_ridge = ridge(X[top_feat], y)
-
-        accuracies.append(top_ridge[0])
-
-        if top_ridge[0] > accuracy:
-            accuracy = top_ridge[0]
-            best_n = n
-
-        if top_ridge[0] > accuracy_reduced + .005:
-            accuracy_reduced = top_ridge[0]
-            best_n_reduced = n
-
-        if top_ridge[0] > accuracy_reduced2 + .01:
-            accuracy_reduced2 = top_ridge[0]
-            best_n_reduced2 = n
-
-        print(n, 'n model accuracy: ', top_ridge[0])
-    print()
-    print(best_n, 'feature model accuracy: ', accuracy)
-    print(best_n_reduced, 'feature model accuracy: ', accuracy_reduced)
-    print(best_n_reduced2, 'feature model accuracy: ', accuracy_reduced2)
-
-    top_accuracies = [(best_n, accuracy),
-                      (best_n_reduced, accuracy_reduced),
-                      (best_n_reduced2, accuracy_reduced2)]
-
-    return accuracies, top_accuracies
+    np.savez(filename, top_feat)
 
 
 def plot_accuracies(accuracies, model):
@@ -173,18 +86,6 @@ def plot_accuracies(accuracies, model):
     plt.title(model + ' accuracies as a function of the number of features')
     plt.axis('tight')
     plt.show()
-
-
-def save_top_feature_list(number_of_features, feature_list):
-    '''
-    Takes the number of features to keep and saves the top N features to .npz
-    INPUT: int: N number of features to keep
-    OUTPUT:
-    '''
-
-    top_feat = [item[0] for item in feature_list[:number_of_features]]
-
-    np.savez('top_features.npz', top_feat)
 
 
 def ridge(X_train, y_train, alpha=50):
