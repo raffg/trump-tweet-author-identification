@@ -24,16 +24,16 @@ def period_of_day(df, timestamp):
     '''
 
     new_df = df.copy()
-    new_df['hour_20-02'] = np.where(((new_df['created_at'].dt.hour >= 20) |
+    new_df['hour_20_02'] = np.where(((new_df['created_at'].dt.hour >= 20) |
                                     (new_df['created_at'].dt.hour < 2)),
                                     True, False)
-    new_df['hour_14-20'] = np.where(((new_df['created_at'].dt.hour >= 14) &
+    new_df['hour_14_20'] = np.where(((new_df['created_at'].dt.hour >= 14) &
                                     (new_df['created_at'].dt.hour < 20)),
                                     True, False)
-    new_df['hour_08-14'] = np.where(((new_df['created_at'].dt.hour >= 8) &
+    new_df['hour_08_14'] = np.where(((new_df['created_at'].dt.hour >= 8) &
                                     (new_df['created_at'].dt.hour < 14)),
                                     True, False)
-    new_df['hour_02-08'] = np.where(((new_df['created_at'].dt.hour >= 2) &
+    new_df['hour_02_08'] = np.where(((new_df['created_at'].dt.hour >= 2) &
                                     (new_df['created_at'].dt.hour < 8)),
                                     True, False)
     return new_df
