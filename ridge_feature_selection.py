@@ -24,8 +24,8 @@ def main():
             'avg_sentence_length', 'avg_word_length', 'commas',
             'semicolons', 'exclamations', 'periods', 'questions', 'quotes',
             'ellipses', 'mentions', 'hashtags', 'urls', 'is_quoted_retweet',
-            'all_caps', 'tweetstorm', 'hour', 'period_1', 'period_2',
-            'period_3', 'period_4']
+            'all_caps', 'tweetstorm', 'hour', 'hour_20_02', 'hour_14_20',
+            'hour_08_14', 'hour_02_08']
 
     (X_train, X_train_tfidf, X_train_pos, X_train_ner,
      X_test, X_test_tfidf, X_test_pos, X_test_ner) = cross_val_data(X_train,
@@ -46,7 +46,7 @@ def main():
     print(feature_list)
 
     # Save full, sorted feature list
-    np.savez('top_features.npz', feature_list)
+    np.savez('pickle/top_features.npz', feature_list)
 
     # Plot accuracies
     # (accuracies, top_accuracies) = ridge_feature_iteration(whole_train,

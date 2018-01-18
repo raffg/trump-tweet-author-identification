@@ -58,6 +58,9 @@ class GridScan(object):
                 self.feature_importances.append((feature, mid))
                 print('========')
                 print(len(self.feature_importances), feature)
+                print('{:0.1f}% complete'.format((
+                      len(self.feature_importances) /
+                      len(self.X_train.columns)) * 100))
                 print('========')
             return
 
