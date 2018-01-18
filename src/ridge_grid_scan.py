@@ -56,6 +56,9 @@ class GridScan(object):
         if len(diff) == 1:
             for feature in diff:
                 self.feature_importances.append((feature, mid))
+                print('========')
+                print(len(self.feature_importances), feature)
+                print('========')
             return
 
         self.ridge(mid)

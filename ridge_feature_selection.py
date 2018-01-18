@@ -41,7 +41,7 @@ def main():
     y_train = pd.concat([y_train, y_val], axis=0)
 
     # Run feature selection iterations
-    feature_list = ridge_grid_scan(X_train, y_train)
+    feature_list = ridge_grid_scan(X_train, np.array(y_train).ravel())
 
     print(feature_list)
 
