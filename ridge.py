@@ -25,8 +25,8 @@ def run_model_ridge_regression(file):
             'avg_sentence_length', 'avg_word_length', 'commas',
             'semicolons', 'exclamations', 'periods', 'questions', 'quotes',
             'ellipses', 'mentions', 'hashtags', 'urls', 'is_quoted_retweet',
-            'all_caps', 'tweetstorm', 'hour', 'period_1', 'period_2',
-            'period_3', 'period_4']
+            'all_caps', 'tweetstorm', 'hour', 'hour_20_02', 'hour_14_20',
+            'hour_08_14', 'hour_02_08']
 
     X_train = pd.concat([X_train, X_val], axis=0)
     (X_train, X_test) = standardize(feat, X_train, X_test)
@@ -93,7 +93,7 @@ def run_model_ridge_regression(file):
     print('whole model recall: ', ridge_whole[2])
     print()
 
-    top_feat = np.load('all_train_features.npz')['arr_0'][:100]
+    top_feat = np.load('top_features.npz')['arr_0'][:100]
     condensed_train = whole_train[top_feat]
     ridge_condensed = ridge(condensed_train, y_train)
     print('condensed model accuracy: ', ridge_condensed[0])

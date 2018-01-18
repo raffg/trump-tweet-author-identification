@@ -13,7 +13,7 @@ def main():
      X_train_tfidf, X_val_tfidf, X_test_tfidf,
      X_train_pos, X_val_pos, X_test_pos,
      X_train_ner, X_val_ner, X_test_ner,
-     y_train, y_val, y_test) = load_pickle('pickle/data_large.pkl')
+     y_train, y_val, y_test) = load_pickle('pickle/data.pkl')
 
     # Performing cross-validation, don't need to separate train and validation
     (X_train, X_train_tfidf, X_train_pos, X_train_ner,
@@ -35,12 +35,12 @@ def main():
                'avg_sentence_length', 'avg_word_length', 'commas',
                'semicolons', 'exclamations', 'periods', 'questions', 'quotes',
                'ellipses', 'mentions', 'hashtags', 'urls', 'is_quoted_retweet',
-               'all_caps', 'tweetstorm', 'hour', 'period_1', 'period_2',
-               'period_3', 'period_4']
+               'all_caps', 'tweetstorm', 'hour', 'hour_20_02', 'hour_14_20',
+               'hour_08_14', 'hour_02_08']
 
     (X_train, X_test) = standardize(feature, X_train, X_test)
 
-    feat = np.load('all_train_features.npz')['arr_0']
+    feat = np.load('top_features.npz')['arr_0']
 
     results = []
     for n in range(1, 25):

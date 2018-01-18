@@ -6,7 +6,7 @@ from sklearn.neighbors import KNeighborsClassifier
 
 
 def main():
-    run_model_knn('pickle/data_large.pkl')
+    run_model_knn('pickle/data.pkl')
 
 
 def run_model_knn(file):
@@ -23,8 +23,8 @@ def run_model_knn(file):
             'avg_sentence_length', 'avg_word_length', 'commas',
             'semicolons', 'exclamations', 'periods', 'questions', 'quotes',
             'ellipses', 'mentions', 'hashtags', 'urls', 'is_quoted_retweet',
-            'all_caps', 'tweetstorm', 'hour', 'period_1', 'period_2',
-            'period_3', 'period_4']
+            'all_caps', 'tweetstorm', 'hour', 'hour_20_02', 'hour_14_20',
+            'hour_08_14', 'hour_02_08']
 
     (X_train, X_val, X_test) = standardize(feat, X_train, X_val, X_test)
 
@@ -90,7 +90,7 @@ def run_model_knn(file):
                     np.array(y_val).ravel())
     print('whole model accuracy: ', knn_whole)
 
-    top_feat = np.load('all_train_features.npz')['arr_0'][:20]
+    top_feat = np.load('top_features.npz')['arr_0'][:20]
     condensed_train = whole_train[top_feat]
     condensed_val = whole_val[top_feat]
     knn_condensed = knn(np.array(condensed_train),

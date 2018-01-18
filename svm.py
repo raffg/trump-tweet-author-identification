@@ -7,8 +7,8 @@ from sklearn.linear_model import SGDClassifier
 
 
 def main():
-    # run_model_svm('pickle/data.pkl')
-    svm_grid_search('pickle/data_large.pkl')
+    run_model_svm('pickle/data.pkl')
+    # svm_grid_search('pickle/data.pkl')
 
 
 def svm_grid_search(file):
@@ -23,7 +23,7 @@ def svm_grid_search(file):
     whole_val = pd.concat([X_val, X_val_pos,
                            X_val_tfidf, X_val_ner], axis=1)
 
-    feat = np.load('all_train_features.npz')['arr_0']
+    feat = np.load('top_features.npz')['arr_0']
 
     accuracies = []
 
@@ -56,8 +56,8 @@ def run_model_svm(file):
             'avg_sentence_length', 'avg_word_length', 'commas',
             'semicolons', 'exclamations', 'periods', 'questions', 'quotes',
             'ellipses', 'mentions', 'hashtags', 'urls', 'is_quoted_retweet',
-            'all_caps', 'tweetstorm', 'hour', 'period_1', 'period_2',
-            'period_3', 'period_4']
+            'all_caps', 'tweetstorm', 'hour', 'hour_20_02', 'hour_14_20',
+            'hour_08_14', 'hour_02_08']
 
     svm_all_features = svm(np.array(X_train[feat]),
                            np.array(X_val[feat]),
@@ -121,7 +121,7 @@ def run_model_svm(file):
                     np.array(y_val).ravel())
     print('whole model accuracy: ', svm_whole)
 
-    top_feat = np.load('all_train_features.npz')['arr_0'][:100]
+    top_feat = np.load('top_features.npz')['arr_0'][:100]
     condensed_train = whole_train[top_feat]
     condensed_val = whole_val[top_feat]
     svm_condensed = svm(np.array(condensed_train),

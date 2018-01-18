@@ -5,7 +5,7 @@ from sklearn.tree import DecisionTreeClassifier
 
 
 def main():
-    run_model_decision_tree('pickle/data_large.pkl')
+    run_model_decision_tree('pickle/data.pkl')
 
 
 def run_model_decision_tree(file):
@@ -22,8 +22,8 @@ def run_model_decision_tree(file):
             'avg_sentence_length', 'avg_word_length', 'commas',
             'semicolons', 'exclamations', 'periods', 'questions', 'quotes',
             'ellipses', 'mentions', 'hashtags', 'urls', 'is_quoted_retweet',
-            'all_caps', 'tweetstorm', 'hour', 'period_1', 'period_2',
-            'period_3', 'period_4']
+            'all_caps', 'tweetstorm', 'hour', 'hour_20_02', 'hour_14_20',
+            'hour_08_14', 'hour_02_08']
 
     decision_tree_all_features = decision_tree(np.array(X_train[feat]),
                                                np.array(X_val[feat]),
@@ -76,7 +76,7 @@ def run_model_decision_tree(file):
     print('all features with ner tf-idf accuracy: ',
           decision_tree_all_features_ner)
 
-    feat = np.load('all_train_features.npz')['arr_0'][:18]
+    feat = np.load('top_features.npz')['arr_0'][:18]
 
     whole_train = pd.concat([X_train, X_train_pos,
                              X_train_tfidf, X_train_ner], axis=1)

@@ -5,7 +5,7 @@ from sklearn.ensemble import AdaBoostClassifier
 
 
 def main():
-    run_model_random_forest('pickle/data_large.pkl')
+    run_model_random_forest('pickle/data.pkl')
 
 
 def run_model_random_forest(file):
@@ -22,8 +22,8 @@ def run_model_random_forest(file):
             'avg_sentence_length', 'avg_word_length', 'commas',
             'semicolons', 'exclamations', 'periods', 'questions', 'quotes',
             'ellipses', 'mentions', 'hashtags', 'urls', 'is_quoted_retweet',
-            'all_caps', 'tweetstorm', 'hour', 'period_1', 'period_2',
-            'period_3', 'period_4']
+            'all_caps', 'tweetstorm', 'hour', 'hour_20_02', 'hour_14_20',
+            'hour_08_14', 'hour_02_08']
 
     adaboost_all_features = adaboost(np.array(X_train[feat]),
                                      np.array(X_val[feat]),
@@ -86,7 +86,7 @@ def run_model_random_forest(file):
                               np.array(y_val).ravel())
     print('whole model accuracy: ', adaboost_whole)
 
-    top_feat = np.load('all_train_features.npz')['arr_0'][:18]
+    top_feat = np.load('top_features.npz')['arr_0'][:18]
     condensed_train = whole_train[top_feat]
     condensed_val = whole_val[top_feat]
     adaboost_condensed = adaboost(np.array(condensed_train),

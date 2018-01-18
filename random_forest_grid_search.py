@@ -26,7 +26,7 @@ def main():
                         X_test_pos, X_test_ner], axis=1)
     y_train = pd.concat([y_train, y_val], axis=0)
 
-    feat = np.load('data_pos_corrected_mentions.npz')['arr_0']
+    feat = np.load('top_features.npz')['arr_0']
 
     results = []
     for n in np.arange(100, len(feat) + 1, 100):

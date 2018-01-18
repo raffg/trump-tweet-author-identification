@@ -7,7 +7,7 @@ from sklearn.naive_bayes import MultinomialNB
 
 
 def main():
-    run_model_naive_bayes('pickle/data_large.pkl')
+    run_model_naive_bayes('pickle/data.pkl')
     # naive_bayes_grid_search('pickle/data_large.pkl')
 
 
@@ -23,7 +23,7 @@ def naive_bayes_grid_search(file):
     whole_val = pd.concat([X_val, X_val_pos,
                            X_val_tfidf, X_val_ner], axis=1)
 
-    feat = np.load('all_train_features.npz')['arr_0']
+    feat = np.load('top_features.npz')['arr_0']
 
     accuracies = []
     alphas = []
@@ -60,8 +60,8 @@ def run_model_naive_bayes(file):
             'avg_sentence_length', 'avg_word_length', 'commas',
             'semicolons', 'exclamations', 'periods', 'questions', 'quotes',
             'ellipses', 'mentions', 'hashtags', 'urls', 'is_quoted_retweet',
-            'all_caps', 'tweetstorm', 'hour', 'period_1', 'period_2',
-            'period_3', 'period_4']
+            'all_caps', 'tweetstorm', 'hour', 'hour_20_02', 'hour_14_20',
+            'hour_08_14', 'hour_02_08']
 
     naive_bayes_all_features = naive_bayes(np.array(X_train[feat]),
                                            np.array(X_val[feat]),
@@ -125,7 +125,7 @@ def run_model_naive_bayes(file):
                                     np.array(y_val).ravel())
     print('whole model accuracy: ', naive_bayes_whole)
 
-    top_feat = np.load('all_train_features.npz')['arr_0'][:14]
+    top_feat = np.load('top_features.npz')['arr_0'][:14]
     condensed_train = whole_train[top_feat]
     condensed_val = whole_val[top_feat]
     naive_bayes_condensed = naive_bayes(np.array(condensed_train),
