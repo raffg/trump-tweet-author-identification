@@ -113,6 +113,13 @@ def save_pickle(start_date, end_date,
     X_val_pos = tf_idf_matrix(X_val, 'pos', tfidf_pos, cols)
     X_test_pos = tf_idf_matrix(X_test, 'pos', tfidf_pos, cols)
 
+    # Drop pos columns also present in ner
+    columns_to_drop = ['LOCATION LOCATION',
+                       'ORGANIZATION ORGANIZATION',
+                       'PERSON PERSON']
+    X_train_pos = X_train_pos.drop(columns_to_drop, axis=1)
+    X_test_pos = X_test_pos.drop(columns_to_drop, axis=1)
+
     df_dict['X_train_pos'] = X_train_pos
     df_dict['X_val_pos'] = X_val_pos
     df_dict['X_test_pos'] = X_test_pos
