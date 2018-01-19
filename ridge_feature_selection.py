@@ -47,6 +47,8 @@ def main():
 
     print(feature_list)
 
+    feature_list = [(x[0]) for x in list(feature_list)]
+
     # Save full, sorted feature list
     np.savez('pickle/top_features.npz', feature_list)
 

@@ -8,8 +8,7 @@ from logistic_regression import lr
 
 def main():
     coef = run_model_logistic_regression('pickle/data.pkl')
-    top_features = np.load('pickle/top_features.npz')['arr_0']
-    feats = [(x[0]) for x in list(top_features)]
+    feats = np.load('pickle/top_features.npz')['arr_0']
     features_coefs = list(zip(feats, coef))
     np.savez('pickle/features_coefs.npz', features_coefs)
 
