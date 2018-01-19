@@ -107,7 +107,7 @@ def run_model_random_forest(file):
 def random_forest(X_train, X_val, y_train, y_val):
     # Basic random forest
     rf = RandomForestClassifier(max_depth=20,
-                                max_features=None,
+                                max_features='sqrt',
                                 max_leaf_nodes=None,
                                 min_samples_leaf=2,
                                 min_samples_split=2,

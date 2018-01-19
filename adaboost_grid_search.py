@@ -58,7 +58,7 @@ def adaboost_grid_search(X, y):
                   'learning_rate': [.5, .75, 1, 1.25, 1.5]}
 
     ab = AdaBoostClassifier()
-    clf = GridSearchCV(ab, parameters, verbose=True)
+    clf = GridSearchCV(ab, parameters, cv=5, verbose=True)
     clf.fit(X, y)
 
     return clf
