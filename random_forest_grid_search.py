@@ -68,10 +68,11 @@ def random_forest_grid_search(X, y):
     'min_samples_split': 2, 'n_estimators': 30, 'n_jobs': -1} 0.94122681883
     '''
 
-    parameters3 = {'n_estimators': [25, 30],
-                   'max_depth': [20, 30],
+    parameters3 = {'n_estimators': [300],
+                   'max_features': [100, 'sqrt', 'log2'],
+                   'max_depth': [20],
                    'min_samples_split': [2],
-                   'min_samples_leaf': [1, 2],
+                   'min_samples_leaf': [1],
                    'n_jobs': [-1]}
 
     rf = RandomForestClassifier()

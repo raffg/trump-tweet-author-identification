@@ -43,7 +43,7 @@ def main():
     feat = np.load('pickle/top_features.npz')['arr_0']
 
     results = []
-    for n in range(1, len(feat) + 1):
+    for n in range(1, len(feat) + 1, 10):
         result = adaboost_grid_search(np.array(X_train[feat[:n]]),
                                       np.array(y_train).ravel())
         results.append((n, result.best_params_, result.best_score_))

@@ -88,9 +88,18 @@ def run_model_decision_tree(file):
                                         np.array(y_val).ravel())
     print('whole model accuracy: ', decision_tree_whole)
 
-    top_feat = np.load('all_train_features.npz')['arr_0'][:200]
-    condensed_train = whole_train[top_feat]
-    condensed_val = whole_val[top_feat]
+    top_feat = set(np.load('pickle/top_features.npz')['arr_0'][:100])
+    train_feat = []
+    val_feat = []
+    for feat in top_feat:
+        if feat in whole_train.columns:
+            train_feat.append(feat)
+        if feat in whole_val.columns:
+            val_feat.append(feat)
+
+    condensed_train = whole_train[train_feat]
+    condensed_val = whole_val[val_feat]
+
     decision_tree_condensed = decision_tree(np.array(condensed_train),
                                             np.array(condensed_val),
                                             np.array(y_train).ravel(),

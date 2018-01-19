@@ -86,7 +86,7 @@ def run_model_random_forest(file):
                                         np.array(y_val).ravel())
     print('whole model accuracy: ', random_forest_whole)
 
-    top_feat = set(np.load('pickle/top_features.npz')['arr_0'][:150])
+    top_feat = set(np.load('pickle/top_features.npz')['arr_0'][:100])
     train_feat = []
     val_feat = []
     for feat in top_feat:
@@ -111,7 +111,7 @@ def random_forest(X_train, X_val, y_train, y_val):
                                 max_leaf_nodes=None,
                                 min_samples_leaf=2,
                                 min_samples_split=2,
-                                n_estimators=20,
+                                n_estimators=500,
                                 n_jobs=-1).fit(X_train, y_train)
     predicted = rf.predict(X_val)
     accuracy_train = np.mean(rf.predict(X_train) == y_train)

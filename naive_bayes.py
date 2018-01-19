@@ -125,9 +125,18 @@ def run_model_naive_bayes(file):
                                     np.array(y_val).ravel())
     print('whole model accuracy: ', naive_bayes_whole)
 
-    top_feat = np.load('top_features.npz')['arr_0'][:14]
-    condensed_train = whole_train[top_feat]
-    condensed_val = whole_val[top_feat]
+    top_feat = set(np.load('pickle/top_features.npz')['arr_0'][:10])
+    train_feat = []
+    val_feat = []
+    for feat in top_feat:
+        if feat in whole_train.columns:
+            train_feat.append(feat)
+        if feat in whole_val.columns:
+            val_feat.append(feat)
+
+    condensed_train = whole_train[train_feat]
+    condensed_val = whole_val[val_feat]
+
     naive_bayes_condensed = naive_bayes(np.array(condensed_train),
                                         np.array(condensed_val),
                                         np.array(y_train).ravel(),
@@ -135,7 +144,7 @@ def run_model_naive_bayes(file):
     print('condensed model accuracy: ', naive_bayes_condensed)
 
 
-def naive_bayes(X_train, X_val, y_train, y_val, alpha=2500):
+def naive_bayes(X_train, X_val, y_train, y_val, alpha=10):
     # Basic Naive Bayes
     clf = MultinomialNB(alpha).fit(X_train, y_train)
     predicted = clf.predict(X_val)
