@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from src.load_pickle import load_pickle
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, precision_score, recall_score
 
 
 def main():
@@ -117,6 +118,11 @@ def random_forest(X_train, X_val, y_train, y_val):
     predicted = rf.predict(X_val)
     accuracy_train = np.mean(rf.predict(X_train) == y_train)
     accuracy_test = np.mean(predicted == y_val)
+
+    print('Accuracy: ', accuracy_score(y_val, predicted))
+    print('Precision: ', precision_score(y_val, predicted))
+    print('Recall: ', recall_score(y_val, predicted))
+
     return accuracy_train, accuracy_test
 
 
