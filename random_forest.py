@@ -23,8 +23,9 @@ def run_model_random_forest(file):
             'semicolons', 'exclamations', 'periods', 'questions', 'quotes',
             'ellipses', 'mentions', 'hashtags', 'urls', 'is_quoted_retweet',
             'all_caps', 'tweetstorm', 'hour', 'hour_20_02', 'hour_14_20',
-            'hour_08_14', 'hour_02_08']
+            'hour_08_14', 'hour_02_08', 'start_mention']
 
+    '''
     random_forest_all_features = random_forest(np.array(X_train[feat]),
                                                np.array(X_val[feat]),
                                                np.array(y_train).ravel(),
@@ -75,16 +76,19 @@ def run_model_random_forest(file):
                                                    np.array(y_val).ravel())
     print('all features with ner tf-idf accuracy: ',
           random_forest_all_features_ner)
+    '''
 
     whole_train = pd.concat([X_train, X_train_pos,
                              X_train_tfidf, X_train_ner], axis=1)
     whole_val = pd.concat([X_val, X_val_pos,
                            X_val_tfidf, X_val_ner], axis=1)
+    '''
     random_forest_whole = random_forest(np.array(whole_train[feat]),
                                         np.array(whole_val[feat]),
                                         np.array(y_train).ravel(),
                                         np.array(y_val).ravel())
     print('whole model accuracy: ', random_forest_whole)
+    '''
 
     top_feat = set(np.load('pickle/top_features.npz')['arr_0'][:100])
     train_feat = []
@@ -111,7 +115,7 @@ def random_forest(X_train, X_val, y_train, y_val):
                                 max_leaf_nodes=None,
                                 min_samples_leaf=2,
                                 min_samples_split=2,
-                                n_estimators=500,
+                                n_estimators=1000,
                                 n_jobs=-1).fit(X_train, y_train)
     predicted = rf.predict(X_val)
     accuracy_train = np.mean(rf.predict(X_train) == y_train)

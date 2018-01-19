@@ -13,7 +13,7 @@ def main():
      X_train_tfidf, X_val_tfidf, X_test_tfidf,
      X_train_pos, X_val_pos, X_test_pos,
      X_train_ner, X_val_ner, X_test_ner,
-     y_train, y_val, y_test) = load_pickle('pickle/data_large.pkl')
+     y_train, y_val, y_test) = load_pickle('pickle/data.pkl')
 
     # Performing cross-validation, don't need to separate train and validation
     (X_train, X_train_tfidf, X_train_pos, X_train_ner,
@@ -36,7 +36,7 @@ def main():
                'semicolons', 'exclamations', 'periods', 'questions', 'quotes',
                'ellipses', 'mentions', 'hashtags', 'urls', 'is_quoted_retweet',
                'all_caps', 'tweetstorm', 'hour', 'hour_20_02', 'hour_14_20',
-               'hour_08_14', 'hour_02_08']
+               'hour_08_14', 'hour_02_08', 'start_mention']
 
     (X_train, X_test) = standardize(feature, X_train, X_test)
 

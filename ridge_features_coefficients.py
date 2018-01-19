@@ -45,7 +45,7 @@ def run_model_logistic_regression(file):
             'semicolons', 'exclamations', 'periods', 'questions', 'quotes',
             'ellipses', 'mentions', 'hashtags', 'urls', 'is_quoted_retweet',
             'all_caps', 'tweetstorm', 'hour', 'hour_20_02', 'hour_14_20',
-            'hour_08_14', 'hour_02_08']
+            'hour_08_14', 'hour_02_08', 'start_mention']
 
     (X_train, X_train_tfidf, X_train_pos, X_train_ner,
      X_test, X_test_tfidf, X_test_pos, X_test_ner) = cross_val_data(X_train,

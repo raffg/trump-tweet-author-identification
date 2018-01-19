@@ -57,7 +57,7 @@ def run_model_svm(file):
             'semicolons', 'exclamations', 'periods', 'questions', 'quotes',
             'ellipses', 'mentions', 'hashtags', 'urls', 'is_quoted_retweet',
             'all_caps', 'tweetstorm', 'hour', 'hour_20_02', 'hour_14_20',
-            'hour_08_14', 'hour_02_08']
+            'hour_08_14', 'hour_02_08', 'start_mention']
 
     svm_all_features = svm(np.array(X_train[feat]),
                            np.array(X_val[feat]),

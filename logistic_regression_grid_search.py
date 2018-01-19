@@ -36,14 +36,14 @@ def main():
                'semicolons', 'exclamations', 'periods', 'questions', 'quotes',
                'ellipses', 'mentions', 'hashtags', 'urls', 'is_quoted_retweet',
                'all_caps', 'tweetstorm', 'hour', 'hour_20_02', 'hour_14_20',
-               'hour_08_14', 'hour_02_08']
+               'hour_08_14', 'hour_02_08', 'start_mention']
 
     (X_train, X_test) = standardize(feature, X_train, X_test)
 
     feat = np.load('pickle/top_features.npz')['arr_0']
 
     results = []
-    for n in range(1, len(feat) + 1):
+    for n in range(1, len(feat) + 1, 10):
         result = lr_grid_search(np.array(X_train[feat[0:n]]),
                                 np.array(y_train).ravel())
         results.append((n, result.best_params_))
@@ -59,7 +59,7 @@ def lr_grid_search(X, y):
     parameters2 = {'penalty': ['l2'], 'C': [.05, .075, .1, .125, .25]}
 
     lr = LogisticRegression()
-    clf = GridSearchCV(lr, parameters2, verbose=True)
+    clf = GridSearchCV(lr, parameters2, cv=10, verbose=True)
     clf.fit(X, y)
 
     return clf

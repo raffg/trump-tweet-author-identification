@@ -36,7 +36,7 @@ def main():
                'semicolons', 'exclamations', 'periods', 'questions', 'quotes',
                'ellipses', 'mentions', 'hashtags', 'urls', 'is_quoted_retweet',
                'all_caps', 'tweetstorm', 'hour', 'hour_20_02', 'hour_14_20',
-               'hour_08_14', 'hour_02_08']
+               'hour_08_14', 'hour_02_08', 'start_mention']
 
     (X_train, X_test) = standardize(feature, X_train, X_test)
 
