@@ -4,13 +4,12 @@ from sklearn.linear_model import RidgeClassifier
 def ridge_grid_scan(X_train, y_train, n=100):
     '''
     Recursively performs ridge regression to sort all features in order of
-    importance
-    INPUT: X DataFrame, y DataFrame
+    importance and return the top n features
+    INPUT: X DataFrame, y DataFrame, int
     OUTPUT: list of feature importances
     '''
 
     scan = GridScan(X_train, y_train, n)
-
     return scan.feature_importances
 
 

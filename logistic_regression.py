@@ -126,7 +126,8 @@ def lr(X_train, y_train):
         precisions.append(precision_score(y_true, y_predict))
         recalls.append(recall_score(y_true, y_predict))
 
-    return np.average(accuracies), np.average(precisions), np.average(recalls)
+    return (np.average(accuracies), np.average(precisions),
+            np.average(recalls), model.coef_)
 
 
 if __name__ == '__main__':
