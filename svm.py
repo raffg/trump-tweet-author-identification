@@ -7,8 +7,8 @@ from sklearn.linear_model import SGDClassifier
 
 
 def main():
-    run_model_svm('pickle/data.pkl')
-    # svm_grid_search('pickle/data.pkl')
+    # run_model_svm('pickle/data.pkl')
+    svm_grid_search('pickle/data.pkl')
 
 
 def svm_grid_search(file):
@@ -121,7 +121,7 @@ def run_model_svm(file):
                     np.array(y_val).ravel())
     print('whole model accuracy: ', svm_whole)
 
-    top_feat = np.load('top_features.npz')['arr_0'][:100]
+    top_feat = np.load('pickle/top_features.npz')['arr_0'][:100]
     condensed_train = whole_train[top_feat]
     condensed_val = whole_val[top_feat]
     svm_condensed = svm(np.array(condensed_train),
