@@ -25,7 +25,6 @@ def run_model_random_forest(file):
             'all_caps', 'tweetstorm', 'hour', 'hour_20_02', 'hour_14_20',
             'hour_08_14', 'hour_02_08', 'start_mention']
 
-    '''
     random_forest_all_features = random_forest(np.array(X_train[feat]),
                                                np.array(X_val[feat]),
                                                np.array(y_train).ravel(),
@@ -76,19 +75,17 @@ def run_model_random_forest(file):
                                                    np.array(y_val).ravel())
     print('all features with ner tf-idf accuracy: ',
           random_forest_all_features_ner)
-    '''
 
     whole_train = pd.concat([X_train, X_train_pos,
                              X_train_tfidf, X_train_ner], axis=1)
     whole_val = pd.concat([X_val, X_val_pos,
                            X_val_tfidf, X_val_ner], axis=1)
-    '''
+
     random_forest_whole = random_forest(np.array(whole_train[feat]),
                                         np.array(whole_val[feat]),
                                         np.array(y_train).ravel(),
                                         np.array(y_val).ravel())
     print('whole model accuracy: ', random_forest_whole)
-    '''
 
     top_feat = set(np.load('pickle/top_features.npz')['arr_0'][:100])
     train_feat = []
