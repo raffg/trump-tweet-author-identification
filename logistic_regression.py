@@ -1,14 +1,17 @@
 import pandas as pd
 import numpy as np
+import pickle
 from src.load_pickle import load_pickle
 from src.standardize import standardize
+from src.cross_val_data import cross_val_data
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import KFold
 from sklearn.metrics import accuracy_score, precision_score, recall_score
 
 
 def main():
-    run_model_logistic_regression('pickle/data.pkl')
+    # run_model_logistic_regression('pickle/data.pkl')
+    lr_save_pickle()
 
 
 def run_model_logistic_regression(file):
@@ -104,7 +107,7 @@ def run_model_logistic_regression(file):
 
 
 def lr(X_train, y_train):
-    # Basic Logistic Regression
+    # Cross-validated Logistic Regression
 
     X = np.array(X_train)
     y = np.array(y_train)
@@ -128,6 +131,57 @@ def lr(X_train, y_train):
 
     return (np.average(accuracies), np.average(precisions),
             np.average(recalls), model.coef_)
+
+
+def lr_save_pickle():
+    # Basic Logistic Regression, save pickle
+
+    (X_train, X_val, X_test,
+     X_train_tfidf, X_val_tfidf, X_test_tfidf,
+     X_train_pos, X_val_pos, X_test_pos,
+     X_train_ner, X_val_ner, X_test_ner,
+     y_train, y_val, y_test) = load_pickle('pickle/data.pkl')
+
+    feat = ['favorite_count', 'is_retweet', 'retweet_count', 'is_reply',
+            'compound', 'v_negative', 'v_neutral', 'v_positive', 'anger',
+            'anticipation', 'disgust', 'fear', 'joy', 'negative', 'positive',
+            'sadness', 'surprise', 'trust', 'tweet_length',
+            'avg_sentence_length', 'avg_word_length', 'commas',
+            'semicolons', 'exclamations', 'periods', 'questions', 'quotes',
+            'ellipses', 'mentions', 'hashtags', 'urls', 'is_quoted_retweet',
+            'all_caps', 'tweetstorm', 'hour', 'hour_20_02', 'hour_14_20',
+            'hour_08_14', 'hour_02_08', 'start_mention']
+
+    (X_train, X_train_tfidf, X_train_pos, X_train_ner,
+     X_test, X_test_tfidf, X_test_pos, X_test_ner) = cross_val_data(X_train,
+                                                                    X_val,
+                                                                    X_test)
+    (X_train, X_test) = standardize(feat, X_train, X_test)
+
+    # Concatenate all training DataFrames
+    X_train = pd.concat([X_train, X_train_tfidf,
+                         X_train_pos, X_train_ner], axis=1)
+    X_test = pd.concat([X_test, X_test_tfidf,
+                        X_test_pos, X_test_ner], axis=1)
+    y_train = pd.concat([y_train, y_val], axis=0)
+
+    X = np.array(X_train)
+    y = np.array(y_train).ravel()
+
+    accuracies = []
+    precisions = []
+    recalls = []
+
+    lr = LogisticRegression(C=.05)
+    lr.fit(X, y)
+
+    # Save pickle file
+    output = open('pickle/logistic_regression_model.pkl', 'wb')
+    print('Pickle dump model')
+    pickle.dump(lr, output, protocol=4)
+    output.close()
+
+    return
 
 
 if __name__ == '__main__':
