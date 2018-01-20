@@ -108,7 +108,7 @@ def identify_quoted_retweet(text):
     OUTPUT: int
     '''
 
-    return (False if re.match('^"@', text) is None else True)
+    return (0 if re.match('^"@', text) is None else 1)
 
 
 def quoted_retweet(df, column):
@@ -150,9 +150,9 @@ def apply_all_caps(df, column):
 
 def mention_start(text):
     '''
-    Takes a text string and outputs True if the string begins with "<USER>" and
-    False if not.
+    Takes a text string and outputs 1 if the string begins with "<USER>" and
+    0 if not.
     INPUT: string
-    OUTPUT: boolean
+    OUTPUT: int
     '''
-    return True if text[:6] == '<USER>' else False
+    return 1 if text[:6] == '<USER>' else 0
