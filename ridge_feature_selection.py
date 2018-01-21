@@ -11,11 +11,8 @@ from sklearn.linear_model import RidgeClassifier
 
 
 def main():
-    (X_train, X_val, X_test,
-     X_train_tfidf, X_val_tfidf, X_test_tfidf,
-     X_train_pos, X_val_pos, X_test_pos,
-     X_train_ner, X_val_ner, X_test_ner,
-     y_train, y_val, y_test) = load_pickle('pickle/data.pkl')
+    X_train = pd.read_pickle('pickle/train_all_std.pkl')
+    y_train = pd.read_pickle('pickle/y_train_all_std.pkl')
 
     feat = ['favorite_count', 'is_retweet', 'retweet_count', 'is_reply',
             'compound', 'v_negative', 'v_neutral', 'v_positive', 'anger',
@@ -27,18 +24,11 @@ def main():
             'all_caps', 'tweetstorm', 'hour', 'hour_20_02', 'hour_14_20',
             'hour_08_14', 'hour_02_08', 'start_mention']
 
-    (X_train, X_train_tfidf, X_train_pos, X_train_ner,
-     X_test, X_test_tfidf, X_test_pos, X_test_ner) = cross_val_data(X_train,
-                                                                    X_val,
-                                                                    X_test)
-    (X_train, X_test) = standardize(feat, X_train, X_test)
+    drop = ['created_at', 'id_str', 'in_reply_to_user_id_str', 'tweetokenize',
+            'text', 'pos', 'ner']
 
-    # Concatenate all training DataFrames
-    X_train = pd.concat([X_train, X_train_tfidf,
-                         X_train_pos, X_train_ner], axis=1)
-    X_test = pd.concat([X_test, X_test_tfidf,
-                        X_test_pos, X_test_ner], axis=1)
-    y_train = pd.concat([y_train, y_val], axis=0)
+    # Remove non-numeric features
+    X_train = X_train.drop(drop, axis=1)
 
     # Run feature selection iterations
     feature_list = ridge_grid_scan(X_train,
@@ -50,14 +40,7 @@ def main():
     feature_list = [(x[0]) for x in list(feature_list)]
 
     # Save full, sorted feature list
-    np.savez('pickle/top_features.npz', feature_list)
-
-    # Plot accuracies
-    # (accuracies, top_accuracies) = ridge_feature_iteration(whole_train,
-    #                                                       y_train,
-    #                                                       feature_list)
-
-    # plot_accuracies(accuracies, 'Ridge')
+    np.savez('pickle/top_100_features.npz', feature_list)
 
 
 def save_top_feature_list(number_of_features, feature_list, filename):
@@ -70,26 +53,6 @@ def save_top_feature_list(number_of_features, feature_list, filename):
     top_feat = [item[0] for item in feature_list[:number_of_features]]
 
     np.savez(filename, top_feat)
-
-
-def plot_accuracies(accuracies, model):
-    '''
-    Takes a list of list of n accuracies from n number of features and plots
-    the accuracy as a function of number of features. Model name required for
-    plot title.
-    INPUT: list, string
-    OUTPUT:
-    '''
-
-    ax = plt.figure(figsize=(15, 8))
-    ax = plt.gca()
-
-    ax.plot(range(len(accuracies)), accuracies)
-    plt.xlabel('Number of Features')
-    plt.ylabel('Accuracy')
-    plt.title(model + ' accuracies as a function of the number of features')
-    plt.axis('tight')
-    plt.show()
 
 
 def ridge(X_train, y_train, alpha=50):
