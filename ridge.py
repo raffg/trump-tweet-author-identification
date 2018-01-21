@@ -30,6 +30,9 @@ def run_model_ridge_regression():
     drop = ['created_at', 'id_str', 'in_reply_to_user_id_str', 'tweetokenize',
             'text', 'pos', 'ner']
 
+    y_train = np.array(y_train).ravel()
+    y_val = np.array(y_val).ravel()
+
     ridge_all_features = ridge(X_train[feat], X_val[feat], y_train, y_val)
     print()
 
