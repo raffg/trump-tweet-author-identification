@@ -7,7 +7,7 @@ from logistic_regression import lr
 
 
 def main():
-    coef = run_model_logistic_regression('pickle/data.pkl')
+    coef = run_model_logistic_regression()
     feats = np.load('pickle/top_features.npz')['arr_0']
     features_coefs = list(zip(feats, coef))
     np.savez('pickle/features_coefs.npz', features_coefs)
@@ -30,12 +30,9 @@ def main():
              not_trump_feats=not_trump_feats)
 
 
-def run_model_logistic_regression(file):
-    (X_train, X_val, X_test,
-     X_train_tfidf, X_val_tfidf, X_test_tfidf,
-     X_train_pos, X_val_pos, X_test_pos,
-     X_train_ner, X_val_ner, X_test_ner,
-     y_train, y_val, y_test) = load_pickle(file)
+def run_model_logistic_regression():
+    X_train = pd.read_pickle('pickle/train_all_std.pkl')
+    y_train = pd.read_pickle('pickle/y_train_all_std.pkl')
 
     feat = ['favorite_count', 'is_retweet', 'retweet_count', 'is_reply',
             'compound', 'v_negative', 'v_neutral', 'v_positive', 'anger',
@@ -47,18 +44,11 @@ def run_model_logistic_regression(file):
             'all_caps', 'tweetstorm', 'hour', 'hour_20_02', 'hour_14_20',
             'hour_08_14', 'hour_02_08', 'start_mention']
 
-    (X_train, X_train_tfidf, X_train_pos, X_train_ner,
-     X_test, X_test_tfidf, X_test_pos, X_test_ner) = cross_val_data(X_train,
-                                                                    X_val,
-                                                                    X_test)
-    (X_train, X_test) = standardize(feat, X_train, X_test)
+    drop = ['created_at', 'id_str', 'in_reply_to_user_id_str', 'tweetokenize',
+            'text', 'pos', 'ner']
 
-    # Concatenate all training DataFrames
-    X_train = pd.concat([X_train, X_train_tfidf,
-                         X_train_pos, X_train_ner], axis=1)
-    X_test = pd.concat([X_test, X_test_tfidf,
-                        X_test_pos, X_test_ner], axis=1)
-    y_train = pd.concat([y_train, y_val], axis=0)
+    # Remove non-numeric features
+    X_train = X_train.drop(drop, axis=1)
 
     model = lr(np.array(X_train),
                np.array(y_train).ravel())
