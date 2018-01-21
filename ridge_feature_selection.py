@@ -1,8 +1,5 @@
 import pandas as pd
 import numpy as np
-import operator
-import math
-import matplotlib.pyplot as plt
 from src.ridge_grid_scan import ridge_grid_scan
 from sklearn.linear_model import RidgeClassifier
 from logistic_regression import lr
