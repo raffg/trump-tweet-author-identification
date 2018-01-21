@@ -32,6 +32,8 @@ def main():
     # df.to_pickle('pickle/all_data_features.pkl')
     df = pd.read_pickle('pickle/all_data_features.pkl')
 
+    eng_feat = list(df.columns)
+
     # Standardize features
     feat = ['favorite_count', 'retweet_count', 'compound', 'anger',
             'anticipation', 'disgust', 'fear', 'joy', 'negative', 'positive',
@@ -58,13 +60,13 @@ def main():
 
     # Process and save all TF-IDF matrices
     (all_data_labeled,
-     all_data_unlabeled) = tfidf_process((df_feature_data_labeled,
-                                         df_feature_data_unlabeled))
+     all_data_unlabeled) = tfidf_process((df_feature_data_labeled[eng_feat],
+                                         df_feature_data_unlabeled[eng_feat]))
     print('   all data')
 
     (all_data_campaign,
-     all_data_campaign_y) = tfidf_process((df_feature_data_campaign,
-                                          df_feature_data_unlabeled))
+     all_data_campaign_y) = tfidf_process((df_feature_data_campaign[eng_feat],
+                                          df_feature_data_unlabeled[eng_feat]))
     print('   all campaign data')
 
     df_dict = {'all_data_labeled': all_data_labeled,
@@ -72,6 +74,8 @@ def main():
                'all_data_campaign': all_data_campaign}
 
     for df in list(df_dict):
+        if 'source' in df_dict[df].columns:
+            df_dict[df] = df_dict[df].drop(['source'], axis=1)
         df_dict[df].to_pickle('pickle/{}.pkl'.format(df))
 
     # Perform train/test splits on all data sets and save pickles
@@ -79,7 +83,8 @@ def main():
     (train_all, test_all,
      y_train_all, y_test_all) = train_test(all_data_labeled)
     _train_all = train_all.copy()
-    (train_all, test_all) = tfidf_process((train_all, test_all))
+    (train_all, test_all) = tfidf_process((train_all[eng_feat],
+                                           test_all[eng_feat]))
 
     print('Performing Test/Train split on all campaign data')
     (train_campaign,
@@ -88,7 +93,8 @@ def main():
      y_test_campaign) = train_test(all_data_campaign)
     _train_campaign = train_campaign.copy()
     (train_campaign,
-     test_campaign) = tfidf_process((train_campaign, test_campaign))
+     test_campaign) = tfidf_process((train_campaign[eng_feat],
+                                     test_campaign[eng_feat]))
 
     # Standardize the data
     (train_all_std, test_all_std) = standardize(train_all, test_all, feat)
@@ -113,19 +119,23 @@ def main():
                'y_test_campaign_std': y_test_campaign}
 
     for df in list(df_dict):
+        if 'source' in df_dict[df].columns:
+            df_dict[df] = df_dict[df].drop(['source'], axis=1)
         df_dict[df].to_pickle('pickle/{}.pkl'.format(df))
 
     # Perform train/val/test splits on all data sets and save pickles
     print('Performing Validation/Train split on all data')
     (train_all, val_all,
      y_train_all, y_val_all) = train_val(_train_all, y_train_all)
-    (train_all, val_all) = tfidf_process((train_all, val_all))
+    (train_all, val_all) = tfidf_process((train_all[eng_feat],
+                                          val_all[eng_feat]))
 
     print('Performing Validation/Train split on all data, standardized')
     # Standardize the data
     (train_all_std,
      val_all_std) = standardize(train_all, val_all, feat)
-    (train_all_std, val_all_std) = tfidf_process((train_all_std, val_all_std))
+    (train_all_std, val_all_std) = tfidf_process((train_all_std[eng_feat],
+                                                  val_all_std[eng_feat]))
 
     print('Performing Validation/Train split on all campaign data')
     (train_campaign,
@@ -133,7 +143,8 @@ def main():
      y_train_campaign,
      y_val_campaign) = train_val(_train_campaign, y_train_campaign)
     (train_campaign,
-     val_campaign) = tfidf_process((train_campaign, val_campaign))
+     val_campaign) = tfidf_process((train_campaign[eng_feat],
+                                    val_campaign[eng_feat]))
 
     print('Performing Validation/Train split'
           'on all campaign data, standardized')
@@ -142,7 +153,8 @@ def main():
      val_campaign_std) = standardize(train_campaign,
                                      val_campaign, feat)
     (train_campaign_std,
-     val_campaign_std) = tfidf_process((train_campaign_std, val_campaign_std))
+     val_campaign_std) = tfidf_process((train_campaign_std[eng_feat],
+                                        val_campaign_std[eng_feat]))
 
     df_dict = {'train_val_all': train_all,
                'val_all': val_all,
@@ -162,6 +174,8 @@ def main():
                'y_val_campaign_std': y_val_campaign}
 
     for df in list(df_dict):
+        if 'source' in df_dict[df].columns:
+            df_dict[df] = df_dict[df].drop(['source'], axis=1)
         df_dict[df].to_pickle('pickle/{}.pkl'.format(df))
 
 
@@ -174,7 +188,7 @@ def train_test(df):
     '''
 
     y = pd.DataFrame(np.where(df['source'] == 'Twitter for Android', 1, 0))
-    X = df.drop(['source'], axis=1)
+    X = df
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2,
                                                         random_state=1)
@@ -271,11 +285,10 @@ def tfidf_process(pair):
     tfidf_unlabeled_ner = tfidf_unlabeled_ner[columns_to_keep]
 
     # Drop pos columns also present in ner
-    # columns_to_drop = ['LOCATION LOCATION',
-    #                    'ORGANIZATION ORGANIZATION',
-    #                    'PERSON PERSON']
-    # tfidf_labeled_pos = tfidf_labeled_pos.drop(columns_to_drop, axis=1)
-    # tfidf_unlabeled_pos = tfidf_unlabeled_pos.drop(columns_to_drop, axis=1)
+    columns_to_keep = [x for x in tfidf_labeled_pos
+                       if x not in tfidf_labeled_ner]
+    tfidf_labeled_pos = tfidf_labeled_pos[columns_to_keep]
+    tfidf_unlabeled_pos = tfidf_unlabeled_pos[columns_to_keep]
 
     feat = ['created_at', 'favorite_count', 'is_retweet', 'retweet_count',
             'source', 'text', 'is_reply', 'compound', 'v_negative',
