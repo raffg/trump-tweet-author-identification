@@ -28,9 +28,9 @@ def main():
     # =========================================================================
 
     # Apply feature engineering
-    df = feature_engineering(df)
-    df.to_pickle('pickle/all_data_features.pkl')
-
+    # df = feature_engineering(df)
+    # df.to_pickle('pickle/all_data_features.pkl')
+    df = pd.read_pickle('pickle/all_data_features.pkl')
     # Standardize
     feat = ['favorite_count', 'retweet_count', 'compound', 'anger',
             'anticipation', 'disgust', 'fear', 'joy', 'negative', 'positive',
@@ -41,7 +41,8 @@ def main():
     df_std = standardize(df, feat)
     df_std.to_pickle('pickle/all_data_features_std.pkl')
 
-    # Separate data into known/unknown author time periods and campaign only
+    # Separate data into labeled time period, unlabed time period, and campaign
+    # period only
     df_feature_data_labeled = apply_date_mask(df, 'created_at',
                                               '2009-01-01', '2017-03-26')
     df_feature_data_unlabeled = apply_date_mask(df, 'created_at',
@@ -67,22 +68,29 @@ def main():
 
     # Process and save all TF-IDF matrices
     (all_data_labeled,
-     all_data_unlabled) = tfidf_process((df_feature_data_labeled,
-                                        df_feature_data_unlabeled))
+     all_data_unlabeled) = tfidf_process((df_feature_data_labeled,
+                                         df_feature_data_unlabeled))
+    print('   all data')
+
     (all_data_labeled_std,
-     all_data_unlabled_std) = tfidf_process((df_feature_data_labeled_std,
-                                            df_feature_data_unlabeled_std))
+     all_data_unlabeled_std) = tfidf_process((df_feature_data_labeled_std,
+                                             df_feature_data_unlabeled_std))
+    print('   all data, standardized')
+
     (all_data_campaign,
      all_data_campaign_y) = tfidf_process((df_feature_data_campaign,
                                           df_feature_data_unlabeled))
+    print('   all campaign data')
+
     (all_data_campaign_std,
      all_data_campaign_y_std) = tfidf_process((df_feature_data_campaign_std,
                                               df_feature_data_unlabeled_std))
+    print('   all campaign data, standardized')
 
     df_dict = {'all_data_labeled': all_data_labeled,
                'all_data_unlabeled': all_data_unlabeled,
-               'all_labeled_std': all_labeled_std,
-               'all_unlabeled_std': all_unlabeled_std,
+               'all_data_labeled_std': all_data_labeled_std,
+               'all_data_unlabeled_std': all_data_unlabeled_std,
                'all_data_campaign': all_data_campaign,
                'all_data_campaign_std': all_data_campaign_std}
 
@@ -90,30 +98,34 @@ def main():
         df_dict[df].to_pickle('pickle/{}.pkl'.format(df))
 
     # Perform train/test splits on all data sets and save pickles
+    print('Performing Test/Train split on all data')
     (train_all, test_all,
      y_train_all, y_test_all) = train_test(all_data_labeled)
     _train_all = train_all.copy()
     (train_all, test_all) = tfidf_process((train_all, test_all))
 
+    print('Performing Test/Train split on all data, standardized')
     (train_all_std, test_all_std,
      y_train_all_std, y_test_all_std) = train_test(all_data_labeled_std)
     _train_all_std = train_all.copy()
     (train_all_std, test_all_std) = tfidf_process((train_all_std,
                                                   test_all_std))
 
+    print('Performing Test/Train split on all campaign data')
     (train_campaign,
      test_campaign,
      y_train_campaign,
      y_test_campaign) = train_test(all_data_campaign)
-    _train_campaign = train_all.copy()
+    _train_campaign = train_campaign.copy()
     (train_campaign,
      test_campaign) = tfidf_process((train_campaign, test_campaign))
 
+    print('Performing Test/Train split on all campaign data, standardized')
     (train_campaign_std,
      test_campaign_std,
      y_train_campaign_std,
      y_test_campaign_std) = train_test(all_data_campaign_std)
-    _train_campaign_std = train_all.copy()
+    _train_campaign_std = train_campaign_std.copy()
     (train_campaign_std,
      test_campaign_std) = tfidf_process((train_campaign_std,
                                         test_campaign_std))
@@ -139,15 +151,18 @@ def main():
         df_dict[df].to_pickle('pickle/{}.pkl'.format(df))
 
     # Perform train/val/test splits on all data sets and save pickles
+    print('Performing Validation/Train split on all data')
     (train_all, val_all,
      y_train_all, y_val_all) = train_val(_train_all, y_train_all)
     (train_all, val_all) = tfidf_process((train_all, val_all))
 
+    print('Performing Validation/Train split on all data, standardized')
     (train_all_std, val_all_std,
      y_train_all_std, y_val_all_std) = train_val(_train_all_std,
                                                  y_train_all_std)
     (train_all_std, val_all_std) = tfidf_process((train_all_std, val_all_std))
 
+    print('Performing Validation/Train split on all campaign data')
     (train_campaign,
      val_campaign,
      y_train_campaign,
@@ -155,6 +170,8 @@ def main():
     (train_campaign,
      val_campaign) = tfidf_process((train_campaign, val_campaign))
 
+    print('Performing Validation/Train split'
+          'on all campaign data, standardized')
     (train_campaign_std,
      val_campaign_std,
      y_train_campaign_std,
@@ -208,7 +225,7 @@ def train_val(df, y):
     X_test, y_train, and y_test
     '''
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2,
+    X_train, X_test, y_train, y_test = train_test_split(df, y, test_size=0.2,
                                                         random_state=1)
 
     return X_train, X_test, y_train, y_test
@@ -222,15 +239,11 @@ def tfidf_data(df, column, vectorizer):
     TF-IDF DataFrames for both.
     '''
 
-    print()
     print('Performing TF-IDF')
     tfidf = vectorizer.fit(df[0][column])
     cols = tfidf.get_feature_names()
     idx0 = df[0].index
     idx1 = df[1].index
-    print(df[0])
-    print('=============================================================')
-    print(df[1])
 
     train = vectorizer.transform(df[0][column])
     df_train = pd.DataFrame(train.todense(), columns=[cols], index=idx0)
@@ -257,9 +270,10 @@ def tfidf_process(pair):
                                  max_df=.99,
                                  min_df=.01)
     (tfidf_labeled_text,
-     tfidf_unlabled_text) = tfidf_data(pair,
-                                       'text',
-                                       tfidf_text)
+     tfidf_unlabeled_text) = tfidf_data(pair,
+                                        'text',
+                                        tfidf_text)
+    print('   on text column')
 
     # Perform TF-IDF on ner column
     tfidf_ner = TfidfVectorizer(ngram_range=(1, 2),
@@ -268,9 +282,10 @@ def tfidf_process(pair):
                                 max_df=.99,
                                 min_df=.01)
     (tfidf_labeled_ner,
-     tfidf_unlabled_ner) = tfidf_data(pair,
-                                      'ner',
-                                      tfidf_ner)
+     tfidf_unlabeled_ner) = tfidf_data(pair,
+                                       'ner',
+                                       tfidf_ner)
+    print('   on ner column')
 
     # Perform TF-IDF on pos column
     tfidf_pos = TfidfVectorizer(ngram_range=(2, 3),
@@ -279,9 +294,10 @@ def tfidf_process(pair):
                                 max_df=.99,
                                 min_df=.01)
     (tfidf_labeled_pos,
-     tfidf_unlabled_pos) = tfidf_data(pair,
-                                      'pos',
-                                      tfidf_pos)
+     tfidf_unlabeled_pos) = tfidf_data(pair,
+                                       'pos',
+                                       tfidf_pos)
+    print('   on pos column')
 
     # Drop ner columns also present in tfidf_text
     columns_to_keep = [x for x in tfidf_labeled_ner
@@ -290,26 +306,27 @@ def tfidf_process(pair):
     tfidf_unlabeled_ner = tfidf_unlabeled_ner[columns_to_keep]
 
     # Drop pos columns also present in ner
-    columns_to_drop = ['LOCATION LOCATION',
-                       'ORGANIZATION ORGANIZATION',
-                       'PERSON PERSON']
-    tfidf_labeled_pos = tfidf_labeled_pos.drop(columns_to_drop, axis=1)
-    tfidf_unlabeled_pos = tfidf_unlabeled_pos.drop(columns_to_drop, axis=1)
+    # columns_to_drop = ['LOCATION LOCATION',
+    #                    'ORGANIZATION ORGANIZATION',
+    #                    'PERSON PERSON']
+    # tfidf_labeled_pos = tfidf_labeled_pos.drop(columns_to_drop, axis=1)
+    # tfidf_unlabeled_pos = tfidf_unlabeled_pos.drop(columns_to_drop, axis=1)
 
-    feat = ['favorite_count', 'is_retweet', 'retweet_count', 'is_reply',
-            'compound', 'v_negative', 'v_neutral', 'v_positive', 'anger',
-            'anticipation', 'disgust', 'fear', 'joy', 'negative', 'positive',
-            'sadness', 'surprise', 'trust', 'tweet_length',
-            'avg_sentence_length', 'avg_word_length', 'commas',
-            'semicolons', 'exclamations', 'periods', 'questions', 'quotes',
-            'ellipses', 'mentions', 'hashtags', 'urls', 'is_quoted_retweet',
-            'all_caps', 'tweetstorm', 'hour', 'hour_20_02', 'hour_14_20',
-            'hour_08_14', 'hour_02_08', 'start_mention', 'source']
+    feat = ['created_at', 'favorite_count', 'is_retweet', 'retweet_count',
+            'source', 'text', 'is_reply', 'compound', 'v_negative',
+            'v_neutral', 'v_positive', 'anger', 'anticipation', 'disgust',
+            'fear', 'joy', 'negative', 'positive', 'sadness', 'surprise',
+            'trust', 'tweet_length', 'avg_sentence_length', 'avg_word_length',
+            'commas', 'semicolons', 'exclamations', 'periods', 'questions',
+            'quotes', 'ellipses', 'mentions', 'hashtags', 'urls',
+            'is_quoted_retweet', 'all_caps', 'tweetstorm', 'hour',
+            'hour_20_02', 'hour_14_20', 'hour_08_14', 'hour_02_08',
+            'start_mention', 'ner', 'pos']
 
-    all_data_labeled = pd.concat([pair[0][feat], tfidf_labeled_text,
+    all_data_labeled = pd.concat([pair[0], tfidf_labeled_text,
                                  tfidf_labeled_pos, tfidf_labeled_ner],
                                  axis=1)
-    all_data_unlabeled = pd.concat([pair[1][feat], tfidf_unlabeled_text,
+    all_data_unlabeled = pd.concat([pair[1], tfidf_unlabeled_text,
                                    tfidf_unlabeled_pos, tfidf_unlabeled_ner],
                                    axis=1)
 
@@ -321,6 +338,7 @@ def data():
     # Load the data
     # =========================================================================
     print('Loading data')
+    print()
     data_list = (['data/condensed_2009.json',
                   'data/condensed_2010.json',
                   'data/condensed_2011.json',
