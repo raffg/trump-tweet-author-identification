@@ -15,7 +15,7 @@ def ridge_grid_scan(X_train, y_train, n=100):
 
 class GridScan(object):
     '''
-    Grid scan object to track alpha levels of logistic regression and features
+    Grid scan object to track alpha levels of ridge regression and features
     which are driven out of the model at each alpha levels
     '''
 

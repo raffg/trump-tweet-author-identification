@@ -15,7 +15,7 @@ def main():
     # Remove non-numeric features
     X_train = X_train.drop(drop, axis=1)
 
-    # Run feature selection iterations
+    # Run feature selection grid scan
     feature_list = ridge_grid_scan(X_train,
                                    np.array(y_train).ravel(),
                                    n=len(X_train.columns))

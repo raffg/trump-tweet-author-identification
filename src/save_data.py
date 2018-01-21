@@ -28,9 +28,9 @@ def main():
     # =========================================================================
 
     # Apply feature engineering
-    # df = feature_engineering(df)
-    # df.to_pickle('pickle/all_data_features.pkl')
-    df = pd.read_pickle('pickle/all_data_features.pkl')
+    df = feature_engineering(df)
+    df.to_pickle('pickle/all_data_features.pkl')
+    # df = pd.read_pickle('pickle/all_data_features.pkl')
 
     eng_feat = list(df.columns)
 

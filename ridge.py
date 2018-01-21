@@ -38,6 +38,8 @@ def run_model_ridge_regression():
 
     ridge_whole = ridge(whole_train, whole_val,
                         y_train, y_val)
+    # ridge_save_pickle(ridge_whole)
+
     print()
 
     top_feat = set(np.load('pickle/top_features.npz')['arr_0'][:100])
