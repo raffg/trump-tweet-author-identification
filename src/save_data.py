@@ -31,15 +31,14 @@ def main():
     # df = feature_engineering(df)
     # df.to_pickle('pickle/all_data_features.pkl')
     df = pd.read_pickle('pickle/all_data_features.pkl')
-    # Standardize
+
+    # Standardize features
     feat = ['favorite_count', 'retweet_count', 'compound', 'anger',
             'anticipation', 'disgust', 'fear', 'joy', 'negative', 'positive',
             'sadness', 'surprise', 'trust', 'tweet_length',
             'avg_sentence_length', 'avg_word_length', 'commas',
             'semicolons', 'exclamations', 'periods', 'questions', 'quotes',
             'ellipses', 'mentions', 'hashtags', 'urls', 'all_caps', 'hour']
-    df_std = standardize(df, feat)
-    df_std.to_pickle('pickle/all_data_features_std.pkl')
 
     # Separate data into labeled time period, unlabed time period, and campaign
     # period only
@@ -47,21 +46,12 @@ def main():
                                               '2009-01-01', '2017-03-26')
     df_feature_data_unlabeled = apply_date_mask(df, 'created_at',
                                                 '2017-03-26', '2018-01-01')
-    df_feature_data_labeled_std = apply_date_mask(df_std, 'created_at',
-                                                  '2009-01-01', '2017-03-26')
-    df_feature_data_unlabeled_std = apply_date_mask(df_std, 'created_at',
-                                                    '2017-03-26', '2018-01-01')
     df_feature_data_campaign = apply_date_mask(df, 'created_at',
                                                '2015-06-01', '2017-03-26')
-    df_feature_data_campaign_std = apply_date_mask(df_std, 'created_at',
-                                                   '2015-06-01', '2017-03-26')
 
     df_dict = {'feature_data_labeled': df_feature_data_labeled,
                'feature_data_unlabeled': df_feature_data_unlabeled,
-               'feature_data_labeled_std': df_feature_data_labeled_std,
-               'feature_data_unlabeled_std': df_feature_data_unlabeled_std,
-               'feature_data_campaign': df_feature_data_campaign,
-               'feature_data_campaign_std': df_feature_data_campaign_std}
+               'feature_data_campaign': df_feature_data_campaign}
 
     for df in list(df_dict):
         df_dict[df].to_pickle('pickle/{}.pkl'.format(df))
@@ -72,27 +62,14 @@ def main():
                                          df_feature_data_unlabeled))
     print('   all data')
 
-    (all_data_labeled_std,
-     all_data_unlabeled_std) = tfidf_process((df_feature_data_labeled_std,
-                                             df_feature_data_unlabeled_std))
-    print('   all data, standardized')
-
     (all_data_campaign,
      all_data_campaign_y) = tfidf_process((df_feature_data_campaign,
                                           df_feature_data_unlabeled))
     print('   all campaign data')
 
-    (all_data_campaign_std,
-     all_data_campaign_y_std) = tfidf_process((df_feature_data_campaign_std,
-                                              df_feature_data_unlabeled_std))
-    print('   all campaign data, standardized')
-
     df_dict = {'all_data_labeled': all_data_labeled,
                'all_data_unlabeled': all_data_unlabeled,
-               'all_data_labeled_std': all_data_labeled_std,
-               'all_data_unlabeled_std': all_data_unlabeled_std,
-               'all_data_campaign': all_data_campaign,
-               'all_data_campaign_std': all_data_campaign_std}
+               'all_data_campaign': all_data_campaign}
 
     for df in list(df_dict):
         df_dict[df].to_pickle('pickle/{}.pkl'.format(df))
@@ -104,13 +81,6 @@ def main():
     _train_all = train_all.copy()
     (train_all, test_all) = tfidf_process((train_all, test_all))
 
-    print('Performing Test/Train split on all data, standardized')
-    (train_all_std, test_all_std,
-     y_train_all_std, y_test_all_std) = train_test(all_data_labeled_std)
-    _train_all_std = train_all.copy()
-    (train_all_std, test_all_std) = tfidf_process((train_all_std,
-                                                  test_all_std))
-
     print('Performing Test/Train split on all campaign data')
     (train_campaign,
      test_campaign,
@@ -120,15 +90,10 @@ def main():
     (train_campaign,
      test_campaign) = tfidf_process((train_campaign, test_campaign))
 
-    print('Performing Test/Train split on all campaign data, standardized')
+    # Standardize the data
+    (train_all_std, test_all_std) = standardize(train_all, test_all, feat)
     (train_campaign_std,
-     test_campaign_std,
-     y_train_campaign_std,
-     y_test_campaign_std) = train_test(all_data_campaign_std)
-    _train_campaign_std = train_campaign_std.copy()
-    (train_campaign_std,
-     test_campaign_std) = tfidf_process((train_campaign_std,
-                                        test_campaign_std))
+     test_campaign_std) = standardize(train_campaign, test_campaign, feat)
 
     df_dict = {'train_all': train_all,
                'test_all': test_all,
@@ -136,16 +101,16 @@ def main():
                'y_test_all': y_test_all,
                'train_all_std': train_all_std,
                'test_all_std': test_all_std,
-               'y_train_all_std': y_train_all_std,
-               'y_test_all_std': y_test_all_std,
+               'y_train_all_std': y_train_all,
+               'y_test_all_std': y_test_all,
                'train_campaign': train_campaign,
                'test_campaign': test_campaign,
                'y_train_campaign': y_train_campaign,
                'y_test_campaign': y_test_campaign,
                'train_campaign_std': train_campaign_std,
-               'test_campaign_std': test_campaign_std,
-               'y_train_campaign_std': y_train_campaign_std,
-               'y_test_campaign_std': y_test_campaign_std}
+               'test_campaign_std': train_campaign_std,
+               'y_train_campaign_std': y_train_campaign,
+               'y_test_campaign_std': y_test_campaign}
 
     for df in list(df_dict):
         df_dict[df].to_pickle('pickle/{}.pkl'.format(df))
@@ -157,9 +122,9 @@ def main():
     (train_all, val_all) = tfidf_process((train_all, val_all))
 
     print('Performing Validation/Train split on all data, standardized')
-    (train_all_std, val_all_std,
-     y_train_all_std, y_val_all_std) = train_val(_train_all_std,
-                                                 y_train_all_std)
+    # Standardize the data
+    (train_all_std,
+     val_all_std) = standardize(train_all, val_all, feat)
     (train_all_std, val_all_std) = tfidf_process((train_all_std, val_all_std))
 
     print('Performing Validation/Train split on all campaign data')
@@ -172,10 +137,10 @@ def main():
 
     print('Performing Validation/Train split'
           'on all campaign data, standardized')
+    # Standardize the data
     (train_campaign_std,
-     val_campaign_std,
-     y_train_campaign_std,
-     y_val_campaign_std) = train_val(_train_campaign_std, y_train_campaign_std)
+     val_campaign_std) = standardize(train_campaign,
+                                     val_campaign, feat)
     (train_campaign_std,
      val_campaign_std) = tfidf_process((train_campaign_std, val_campaign_std))
 
@@ -185,16 +150,16 @@ def main():
                'y_val_all': y_val_all,
                'train_val_all_std': train_all_std,
                'val_all_std': val_all_std,
-               'y_train_val_all_std': y_train_all_std,
-               'y_val_all_std': y_val_all_std,
+               'y_train_val_all_std': y_train_all,
+               'y_val_all_std': y_val_all,
                'train_val_campaign': train_campaign,
                'val_campaign': val_campaign,
                'y_train_val_campaign': y_train_campaign,
                'y_val_campaign': y_val_campaign,
                'train_val_campaign_std': train_campaign_std,
                'val_campaign_std': val_campaign_std,
-               'y_train_val_campaign_std': y_train_campaign_std,
-               'y_val_campaign_std': y_val_campaign_std}
+               'y_train_val_campaign_std': y_train_campaign,
+               'y_val_campaign_std': y_val_campaign}
 
     for df in list(df_dict):
         df_dict[df].to_pickle('pickle/{}.pkl'.format(df))
@@ -460,11 +425,12 @@ def named_entity_recognition(df):
     return df
 
 
-def standardize(df, feature_list):
+def standardize(train, test, feature_list):
     '''
-    Takes DataFrame and a list of numerical features to standardize, and
-    standardizes the feature columns. Outputs the original DataFrame with
-    features in feature_list standardized and other features untouched.
+    Takes test and train DataFrame and a list of numerical features to
+    standardize, and standardizes the feature columns. Outputs the original
+    DataFrames with features in feature_list standardized and other features
+    untouched.
     INPUT:  DataFrame, list
     OUTPUT: DataFrame
     '''
@@ -473,14 +439,18 @@ def standardize(df, feature_list):
     print('Standardizing data')
     scaler = StandardScaler()
 
-    new_df = df.copy()
-    cols = df[feature_list].columns
+    new_train = train.copy()
+    new_test = test.copy()
+    cols = train[feature_list].columns
 
-    scaler.fit(new_df[feature_list])
-    new_df[feature_list] = pd.DataFrame(scaler.transform(
-                                        new_df[feature_list]),
-                                        index=df.index, columns=cols)
-    return new_df
+    scaler.fit(new_train[feature_list])
+    new_train[feature_list] = pd.DataFrame(scaler.transform(
+                                        new_train[feature_list]),
+                                        index=train.index, columns=cols)
+    new_test[feature_list] = pd.DataFrame(scaler.transform(
+                                        new_test[feature_list]),
+                                        index=test.index, columns=cols)
+    return new_train, new_test
 
 
 if __name__ == '__main__':
