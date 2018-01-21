@@ -23,7 +23,7 @@ class GridScan(object):
         self.X_train = X_train
         self.y_train = y_train
         self.n = n
-        alpha_min = 1e-5
+        alpha_min = 1e-8
         alpha_max = 1e24
         self.alpha_levels = {}
         self.feature_importances = []
@@ -32,7 +32,7 @@ class GridScan(object):
         self.ridge(alpha_max)
         while len(self.alpha_levels[alpha_max]) < len(self.X_train.columns):
             print('alpha too low; increasing value')
-            alpha_max *= 1e10
+            alpha_max *= 2
             self.ridge(alpha_max)
 
         self.scan(alpha_min, alpha_max)
@@ -64,8 +64,7 @@ class GridScan(object):
                 print('========')
                 print(len(self.feature_importances), feature)
                 print('{:0.1f}% complete'.format((
-                      len(self.feature_importances) /
-                      len(self.X_train.columns)) * 100))
+                      len(self.feature_importances) / self.n) * 100))
                 print('========')
             return
 

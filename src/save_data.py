@@ -246,8 +246,8 @@ def tfidf_process(pair):
                                  lowercase=False,
                                  token_pattern='\w+|\@\w+',
                                  norm='l2',
-                                 max_df=.975,
-                                 min_df=.025)
+                                 max_df=.99,
+                                 min_df=.01)
     (tfidf_labeled_text,
      tfidf_unlabeled_text) = tfidf_data(pair,
                                         'text',
@@ -258,8 +258,8 @@ def tfidf_process(pair):
     tfidf_ner = TfidfVectorizer(ngram_range=(1, 2),
                                 lowercase=False,
                                 norm='l2',
-                                max_df=.975,
-                                min_df=.025)
+                                max_df=.99,
+                                min_df=.01)
     (tfidf_labeled_ner,
      tfidf_unlabeled_ner) = tfidf_data(pair,
                                        'ner',
@@ -270,8 +270,8 @@ def tfidf_process(pair):
     tfidf_pos = TfidfVectorizer(ngram_range=(2, 3),
                                 lowercase=False,
                                 norm='l2',
-                                max_df=.975,
-                                min_df=.025)
+                                max_df=.99,
+                                min_df=.01)
     (tfidf_labeled_pos,
      tfidf_unlabeled_pos) = tfidf_data(pair,
                                        'pos',

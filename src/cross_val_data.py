@@ -6,7 +6,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 
 def cross_val_data(X_train, X_val, X_test):
     '''
-    Takes training, validation,and test sets, concatenates the training data
+    Takes training, validation, and test sets, concatenates the training data
     and validation sets, and then performs TF-IDF on the ner, text, and pos
     columns. Outputs X_train and X_test sets for features and tf-idf.
     INPUT: DataFrame, DataFrame, DataFrame

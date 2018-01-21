@@ -8,6 +8,7 @@ from src.load_pickle import load_pickle
 from src.cross_val_data import cross_val_data
 from src.standardize import standardize
 from sklearn.linear_model import RidgeClassifier
+from sklearn.model_selection import train_test_split
 
 
 def main():
@@ -16,6 +17,16 @@ def main():
      X_train_pos, X_val_pos, X_test_pos,
      X_train_ner, X_val_ner, X_test_ner,
      y_train, y_val, y_test) = load_pickle('pickle/old_pickle/data.pkl')
+
+    # Recomine all X data, apply date mask, recreate train/test splits
+    X = pd.concat([X_train, X_val, X_test], axis=0).reset_index()
+    mask = (X['created_at'] < '2017-03-26')
+    X = X.loc[mask]
+    y = pd.DataFrame(np.where(X['source'] == 'Twitter for Android', 1, 0))
+    (X_train, X_test,
+     y_train, y_test) = train_test_split(X, y, test_size=0.2, random_state=1)
+    (X_train, X_val, y_train,
+     y_val) = train_test_split(X_train, y_train, test_size=0.2, random_state=1)
 
     feat = ['favorite_count', 'is_retweet', 'retweet_count', 'is_reply',
             'compound', 'v_negative', 'v_neutral', 'v_positive', 'anger',
@@ -40,26 +51,26 @@ def main():
                         X_test_pos, X_test_ner], axis=1)
     y_train = pd.concat([y_train, y_val], axis=0)
 
-    X_train = pd.read_pickle('pickle/train_all_std.pkl')
-    y_train = pd.read_pickle('pickle/y_train_all_std.pkl')
-
-    drop = ['created_at', 'id_str', 'in_reply_to_user_id_str', 'tweetokenize',
-            'source', 'text', 'pos', 'ner']
-
-    # Remove non-numeric features
-    X_train = X_train.drop(drop, axis=1)
+    # X_train = pd.read_pickle('pickle/train_all_std.pkl')
+    # y_train = pd.read_pickle('pickle/y_train_all_std.pkl')
+    #
+    # drop = ['created_at', 'id_str', 'in_reply_to_user_id_str', 'tweetokenize',
+    #         'source', 'text', 'pos', 'ner']
+    #
+    # # Remove non-numeric features
+    # X_train = X_train.drop(drop, axis=1)
 
     # Run feature selection iterations
     feature_list = ridge_grid_scan(X_train,
                                    np.array(y_train).ravel(),
-                                   n=len(X_train.columns))
+                                   n=20)
 
     print(feature_list)
 
     feature_list = [(x[0]) for x in list(feature_list)]
 
     # Save full, sorted feature list
-    np.savez('pickle/top_features.npz', feature_list)
+    # np.savez('pickle/top_features.npz', feature_list)
 
     # Plot accuracies
     # (accuracies, top_accuracies) = ridge_feature_iteration(whole_train,

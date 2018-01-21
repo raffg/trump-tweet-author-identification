@@ -28,10 +28,6 @@ def main():
     np.savez('pickle/top_features.npz', feature_list)
 
     # Save feature list with coefficients
-    ridge_feature_coefficients(X_train, y_train, feature_list)
-
-
-def ridge_feature_coefficients(X_train, y_train, feature_list):
     model = lr(np.array(X_train),
                np.array(y_train).ravel())
 

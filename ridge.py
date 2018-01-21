@@ -1,14 +1,14 @@
 import pandas as pd
 import numpy as np
-from src.load_pickle import load_pickle
+import pickle
 from src.standardize import standardize
 from sklearn.linear_model import RidgeClassifier
-from sklearn.model_selection import KFold
 from sklearn.metrics import accuracy_score, precision_score, recall_score
 
 
 def main():
     run_model_ridge_regression()
+    # ridge_save_pickle()
 
 
 def run_model_ridge_regression():
@@ -30,56 +30,63 @@ def run_model_ridge_regression():
     drop = ['created_at', 'id_str', 'in_reply_to_user_id_str', 'tweetokenize',
             'text', 'pos', 'ner']
 
-    X_train = X_train.drop(drop, axis=1)
-
-    ridge_all_features = ridge(X_train[feat], y_train)
-    print('all features accuracy: ', ridge_all_features[0])
-    print('all features precision: ', ridge_all_features[1])
-    print('all features recall: ', ridge_all_features[2])
+    ridge_all_features = ridge(X_train[feat], X_val[feat], y_train, y_val)
     print()
 
-    whole_train = X_train
-    ridge_whole = ridge(whole_train, y_train)
-    print('whole model accuracy: ', ridge_whole[0])
-    print('whole model precision: ', ridge_whole[1])
-    print('whole model recall: ', ridge_whole[2])
+    whole_train = X_train.drop(drop, axis=1)
+    whole_val = X_val.drop(drop, axis=1)
+
+    ridge_whole = ridge(whole_train, whole_val,
+                        y_train, y_val)
     print()
 
-    # top_feat = np.load('pickle/top_features.npz')['arr_0'][:100]
-    # condensed_train = whole_train[top_feat]
-    # ridge_condensed = ridge(condensed_train, y_train)
-    # print('condensed model accuracy: ', ridge_condensed[0])
-    # print('condensed model precision: ', ridge_condensed[1])
-    # print('condensed model recall: ', ridge_condensed[2])
-    # print()
+    top_feat = set(np.load('pickle/top_features.npz')['arr_0'][:100])
+    train_feat = []
+    val_feat = []
+    for feat in top_feat:
+        if feat in whole_train.columns:
+            train_feat.append(feat)
+        if feat in whole_val.columns:
+            val_feat.append(feat)
+
+    print('condensed model')
+    condensed_train = whole_train[train_feat]
+    condensed_val = whole_val[val_feat]
+
+    ridge_condensed = ridge(condensed_train[train_feat],
+                            condensed_val[val_feat],
+                            y_train, y_val)
+    print()
 
 
-def ridge(X_train, y_train):
+def ridge(X_train, X_val, y_train, y_val):
     # Ridge Logistic Regression
 
-    X = np.array(X_train)
-    y = np.array(y_train).ravel()
+    model = RidgeClassifier(alpha=10)
+    model.fit(X_train, y_train)
+    predicted = model.predict(X_val)
+    print()
+    print('Accuracy: ', accuracy_score(y_val, predicted))
+    print('Precision: ', precision_score(y_val, predicted))
+    print('Recall: ', recall_score(y_val, predicted))
 
-    kfold = KFold(n_splits=5)
+    # Save pickle file
+    output = open('pickle/ridge_model.pkl', 'wb')
+    print('Pickle dump model')
+    pickle.dump(model, output, protocol=4)
+    output.close()
 
-    accuracies = []
-    precisions = []
-    recalls = []
+    return model
 
-    for train_index, test_index in kfold.split(X):
-        model = RidgeClassifier(alpha=10)
-        X_train, X_test = X[train_index], X[test_index]
-        y_train, y_test = y[train_index], y[test_index]
-        model.fit(X_train, y_train)
-        y_predict = model.predict(X_test).round()
-        y_true = y_test
-        accuracies.append(accuracy_score(y_true, y_predict))
-        precisions.append(precision_score(y_true, y_predict,
-                          average='weighted'))
-        recalls.append(recall_score(y_true, y_predict, average='weighted'))
 
-    return (np.average(accuracies), np.average(precisions),
-            np.average(recalls), model.coef_)
+def ridge_save_pickle(model):
+    # Save pickle file
+    output = open('pickle/ridge_model.pkl', 'wb')
+    print('Pickle dump model')
+    pickle.dump(model, output, protocol=4)
+    output.close()
+
+    return
 
 
 if __name__ == '__main__':
