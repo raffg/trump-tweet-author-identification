@@ -9,9 +9,9 @@ def tweet_tokens(tweet):
     OUTPUT: string
     '''
 
-    gettokens = Tokenizer(usernames='<USER>', urls='<URL>',
-                          hashtags='<HASHTAG>', times=',<TIME>',
-                          numbers='<NUMBER>', allcapskeep=True,
+    gettokens = Tokenizer(usernames='USER', urls='URL',
+                          hashtags='HASHTAG', times='TIME',
+                          numbers='NUMBER', allcapskeep=True,
                           lowercase=False)
     tokens = gettokens.tokenize(tweet)
     tweet = ' '.join(tokens)
