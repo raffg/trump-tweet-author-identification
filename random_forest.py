@@ -48,7 +48,7 @@ def run_model_random_forest():
                                         np.array(y_val).ravel())
     # random_forest_save_pickle(random_forest_whole)
     '''
-    top_feat = set(np.load('pickle/top_features.npz')['arr_0'][:50])
+    top_feat = set(np.load('pickle/top_features.npz')['arr_0'][:200])
     train_feat = []
     val_feat = []
     for feat in top_feat:

@@ -33,16 +33,16 @@ def run_model_ridge_regression():
     y_train = np.array(y_train).ravel()
     y_val = np.array(y_val).ravel()
 
+    print('All features')
     ridge_all_features = ridge(X_train[feat], X_val[feat], y_train, y_val)
     print()
 
     whole_train = X_train.drop(drop, axis=1)
     whole_val = X_val.drop(drop, axis=1)
 
+    print('Whole model')
     ridge_whole = ridge(whole_train, whole_val,
                         y_train, y_val)
-    ridge_save_pickle(ridge_whole)
-
     print()
 
     top_feat = set(np.load('pickle/top_features.npz')['arr_0'][:200])
@@ -61,6 +61,8 @@ def run_model_ridge_regression():
     ridge_condensed = ridge(condensed_train[train_feat],
                             condensed_val[val_feat],
                             y_train, y_val)
+
+    ridge_save_pickle(ridge_condensed)
     print()
 
 
@@ -70,7 +72,6 @@ def ridge(X_train, X_val, y_train, y_val):
     model = RidgeClassifier(alpha=10)
     model.fit(X_train, y_train)
     predicted = model.predict(X_val)
-    print()
     print('Accuracy: ', accuracy_score(y_val, predicted))
     print('Precision: ', precision_score(y_val, predicted))
     print('Recall: ', recall_score(y_val, predicted))
