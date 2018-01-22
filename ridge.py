@@ -41,7 +41,7 @@ def run_model_ridge_regression():
 
     ridge_whole = ridge(whole_train, whole_val,
                         y_train, y_val)
-    # ridge_save_pickle(ridge_whole)
+    ridge_save_pickle(ridge_whole)
 
     print()
 
@@ -74,12 +74,6 @@ def ridge(X_train, X_val, y_train, y_val):
     print('Accuracy: ', accuracy_score(y_val, predicted))
     print('Precision: ', precision_score(y_val, predicted))
     print('Recall: ', recall_score(y_val, predicted))
-
-    # Save pickle file
-    output = open('pickle/ridge_model.pkl', 'wb')
-    print('Pickle dump model')
-    pickle.dump(model, output, protocol=4)
-    output.close()
 
     return model
 

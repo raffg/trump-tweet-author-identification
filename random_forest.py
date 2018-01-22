@@ -40,15 +40,15 @@ def run_model_random_forest():
 
     whole_train = X_train.drop(drop, axis=1)
     whole_val = X_val.drop(drop, axis=1)
-
+    '''
     print('whole model')
     random_forest_whole = random_forest(np.array(whole_train),
                                         np.array(whole_val),
                                         np.array(y_train).ravel(),
                                         np.array(y_val).ravel())
-    random_forest_save_pickle(random_forest_whole)
-
-    top_feat = set(np.load('pickle/top_features.npz')['arr_0'][:100])
+    # random_forest_save_pickle(random_forest_whole)
+    '''
+    top_feat = set(np.load('pickle/top_features.npz')['arr_0'][:50])
     train_feat = []
     val_feat = []
     for feat in top_feat:
@@ -64,6 +64,7 @@ def run_model_random_forest():
                                             np.array(condensed_val),
                                             np.array(y_train).ravel(),
                                             np.array(y_val).ravel())
+    random_forest_save_pickle(random_forest_condensed)
 
 
 def random_forest(X_train, X_val, y_train, y_val):
@@ -79,10 +80,10 @@ def random_forest(X_train, X_val, y_train, y_val):
     accuracy_train = np.mean(rf.predict(X_train) == y_train)
     accuracy_test = np.mean(predicted == y_val)
 
-    print()
     print('Accuracy: ', accuracy_score(y_val, predicted))
     print('Precision: ', precision_score(y_val, predicted))
     print('Recall: ', recall_score(y_val, predicted))
+    print()
 
     return rf
 
