@@ -84,8 +84,15 @@ def run_model_ridge_regression():
 
     X_train = X_train.drop(drop, axis=1)
 
+    top_feat = set(np.load('pickle/top_features.npz')['arr_0'][:200])
+    train_feat = []
+    for feat in top_feat:
+        if feat in X_train.columns:
+            train_feat.append(feat)
+
     print('Running ridge regression')
-    ridge_model = ridge(np.array(X_train), np.array(y_train).ravel())
+    ridge_model = ridge(np.array(X_train[train_feat]),
+                        np.array(y_train).ravel())
     ridge_save_pickle(ridge_model)
 
 

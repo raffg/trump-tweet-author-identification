@@ -45,7 +45,7 @@ def run_model_ridge_regression():
 
     print()
 
-    top_feat = set(np.load('pickle/top_features.npz')['arr_0'][:100])
+    top_feat = set(np.load('pickle/top_features.npz')['arr_0'][:200])
     train_feat = []
     val_feat = []
     for feat in top_feat:
