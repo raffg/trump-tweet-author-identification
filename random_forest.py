@@ -14,10 +14,10 @@ def main():
 
 
 def run_model_random_forest():
-    X_train = pd.read_pickle('pickle/train_val_all.pkl')
-    X_val = pd.read_pickle('pickle/val_all.pkl')
-    y_train = pd.read_pickle('pickle/y_train_val_all.pkl')
-    y_val = pd.read_pickle('pickle/y_val_all.pkl')
+    X_train = pd.read_pickle('pickle/train_all.pkl')
+    X_val = pd.read_pickle('pickle/test_all.pkl')
+    y_train = pd.read_pickle('pickle/y_train_all.pkl')
+    y_val = pd.read_pickle('pickle/y_test_all.pkl')
 
     feat = ['favorite_count', 'is_retweet', 'retweet_count', 'is_reply',
             'compound', 'v_negative', 'v_neutral', 'v_positive', 'anger',
