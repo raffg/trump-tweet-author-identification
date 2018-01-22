@@ -28,9 +28,9 @@ def main():
     # =========================================================================
 
     # Apply feature engineering
-    df = feature_engineering(df)
-    df.to_pickle('pickle/all_data_features.pkl')
-    # df = pd.read_pickle('pickle/all_data_features.pkl')
+    # df = feature_engineering(df)
+    # df.to_pickle('pickle/all_data_features.pkl')
+    df = pd.read_pickle('pickle/all_data_features.pkl')
 
     eng_feat = list(df.columns)
 
@@ -62,6 +62,30 @@ def main():
     (all_data_labeled,
      all_data_unlabeled) = tfidf_process((df_feature_data_labeled[eng_feat],
                                          df_feature_data_unlabeled[eng_feat]))
+
+    # Save data for final model
+    y = pd.DataFrame(np.where(all_data_labeled['source'] ==
+                              'Twitter for Android', 1, 0))
+    X_labeled = all_data_labeled.drop(['source'], axis=1)
+    X_labeled.to_pickle('pickle/X_labeled.pkl')
+    X_unlabeled = all_data_unlabeled.drop(['source'], axis=1)
+    X_unlabeled.to_pickle('pickle/X_unlabeled.pkl')
+    y.to_pickle('pickle/y.pkl')
+    scaler = StandardScaler()
+
+    X_labeled_std = X_labeled.copy()
+    X_unlabeled_std = X_unlabeled.copy()
+    cols = X_labeled[feat].columns
+    scaler.fit(X_labeled[feat])
+    X_labeled_std[feat] = pd.DataFrame(scaler.transform(
+                                       X_labeled[feat]),
+                                       index=X_labeled.index, columns=cols)
+    X_unlabeled_std[feat] = pd.DataFrame(scaler.transform(
+                                         X_unlabeled[feat]),
+                                         index=X_unlabeled.index, columns=cols)
+    X_labeled_std.to_pickle('pickle/X_labeled_std.pkl')
+    X_unlabeled_std.to_pickle('pickle/X_unlabeled_std.pkl')
+
     print('   all data')
 
     (all_data_campaign,
