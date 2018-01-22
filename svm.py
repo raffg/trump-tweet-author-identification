@@ -1,53 +1,19 @@
 import pandas as pd
 import numpy as np
-import operator
-from src.load_pickle import load_pickle
-from ridge_feature_selection import plot_accuracies
+import pickle
 from sklearn.linear_model import SGDClassifier
+from sklearn.metrics import accuracy_score, precision_score, recall_score
 
 
 def main():
-    run_model_svm('pickle/data.pkl')
-    # svm_grid_search('pickle/data.pkl')
+    run_model_svm()
 
 
-def svm_grid_search(file):
-    (X_train, X_val, X_test,
-     X_train_tfidf, X_val_tfidf, X_test_tfidf,
-     X_train_pos, X_val_pos, X_test_pos,
-     X_train_ner, X_val_ner, X_test_ner,
-     y_train, y_val, y_test) = load_pickle(file)
-
-    whole_train = pd.concat([X_train, X_train_pos,
-                             X_train_tfidf, X_train_ner], axis=1)
-    whole_val = pd.concat([X_val, X_val_pos,
-                           X_val_tfidf, X_val_ner], axis=1)
-
-    feat = np.load('pickle/top_features.npz')['arr_0']
-
-    accuracies = []
-
-    for n in range(1, len(feat) // 3):
-        accuracy = svm(np.array(whole_train[feat[:n]]),
-                       np.array(whole_val[feat[:n]]),
-                       np.array(y_train).ravel(),
-                       np.array(y_val).ravel())
-        accuracies.append(accuracy[1])
-        print(n, accuracy[1])
-
-    plot_accuracies(accuracies, "SVM")
-
-    (max_index, max_value) = (max(enumerate(accuracies),
-                              key=operator.itemgetter(1)))
-    print(max_value, max_index)
-
-
-def run_model_svm(file):
-    (X_train, X_val, X_test,
-     X_train_tfidf, X_val_tfidf, X_test_tfidf,
-     X_train_pos, X_val_pos, X_test_pos,
-     X_train_ner, X_val_ner, X_test_ner,
-     y_train, y_val, y_test) = load_pickle(file)
+def run_model_svm():
+    X_train = pd.read_pickle('pickle/train_all_std.pkl')
+    X_val = pd.read_pickle('pickle/test_all_std.pkl')
+    y_train = pd.read_pickle('pickle/y_train_all_std.pkl')
+    y_val = pd.read_pickle('pickle/y_test_all_std.pkl')
 
     feat = ['favorite_count', 'is_retweet', 'retweet_count', 'is_reply',
             'compound', 'v_negative', 'v_neutral', 'v_positive', 'anger',
@@ -59,69 +25,26 @@ def run_model_svm(file):
             'all_caps', 'tweetstorm', 'hour', 'hour_20_02', 'hour_14_20',
             'hour_08_14', 'hour_02_08', 'start_mention']
 
+    drop = ['created_at', 'id_str', 'in_reply_to_user_id_str', 'tweetokenize',
+            'text', 'pos', 'ner']
+
+    print('all features')
     svm_all_features = svm(np.array(X_train[feat]),
                            np.array(X_val[feat]),
                            np.array(y_train).ravel(),
                            np.array(y_val).ravel())
-    print('all features accuracy: ', svm_all_features)
 
-    svm_text_accuracy = svm(np.array(X_train_tfidf),
-                            np.array(X_val_tfidf),
-                            np.array(y_train).ravel(),
-                            np.array(y_val).ravel())
-    print('text accuracy: ', svm_text_accuracy)
+    whole_train = X_train.drop(drop, axis=1)
+    whole_val = X_val.drop(drop, axis=1)
 
-    svm_pos = svm(np.array(X_train_pos),
-                  np.array(X_val_pos),
-                  np.array(y_train).ravel(),
-                  np.array(y_val).ravel())
-    print('pos accuracy: ', svm_pos)
-
-    svm_ner = svm(np.array(X_train_ner),
-                  np.array(X_val_ner),
-                  np.array(y_train).ravel(),
-                  np.array(y_val).ravel())
-    print('ner accuracy: ', svm_ner)
-
-    feat_text_train = pd.concat([X_train[feat], X_train_tfidf], axis=1)
-    feat_text_val = pd.concat([X_val[feat], X_val_tfidf], axis=1)
-
-    svm_all_features_text = svm(np.array(feat_text_train),
-                                np.array(feat_text_val),
-                                np.array(y_train).ravel(),
-                                np.array(y_val).ravel())
-    print('all features with text tf-idf accuracy: ',
-          svm_all_features_text)
-
-    feat_pos_train = pd.concat([X_train[feat], X_train_pos], axis=1)
-    feat_pos_val = pd.concat([X_val[feat], X_val_pos], axis=1)
-    svm_all_features_pos = svm(np.array(feat_pos_train),
-                               np.array(feat_pos_val),
-                               np.array(y_train).ravel(),
-                               np.array(y_val).ravel())
-    print('all features with pos tf-idf accuracy: ',
-          svm_all_features_pos)
-
-    feat_ner_train = pd.concat([X_train[feat], X_train_ner], axis=1)
-    feat_ner_val = pd.concat([X_val[feat], X_val_ner], axis=1)
-    svm_all_features_ner = svm(np.array(feat_ner_train),
-                               np.array(feat_ner_val),
-                               np.array(y_train).ravel(),
-                               np.array(y_val).ravel())
-    print('all features with ner tf-idf accuracy: ',
-          svm_all_features_ner)
-
-    whole_train = pd.concat([X_train[feat], X_train_pos,
-                             X_train_tfidf, X_train_ner], axis=1)
-    whole_val = pd.concat([X_val[feat], X_val_pos,
-                           X_val_tfidf, X_val_ner], axis=1)
+    print('whole model')
     svm_whole = svm(np.array(whole_train),
                     np.array(whole_val),
                     np.array(y_train).ravel(),
                     np.array(y_val).ravel())
-    print('whole model accuracy: ', svm_whole)
+    # svm_save_pickle(svm_whole)
 
-    top_feat = set(np.load('pickle/top_features.npz')['arr_0'][:10])
+    top_feat = set(np.load('pickle/top_features.npz')['arr_0'][:300])
     train_feat = []
     val_feat = []
     for feat in top_feat:
@@ -130,24 +53,40 @@ def run_model_svm(file):
         if feat in whole_val.columns:
             val_feat.append(feat)
 
+    print('condensed model')
     condensed_train = whole_train[train_feat]
     condensed_val = whole_val[val_feat]
-
     svm_condensed = svm(np.array(condensed_train),
                         np.array(condensed_val),
                         np.array(y_train).ravel(),
                         np.array(y_val).ravel())
-    print('condensed model accuracy: ', svm_condensed)
+    # svm_save_pickle(svm_condensed)
 
 
-def svm(X_train, X_val, y_train, y_val, alpha=0.0001):
-    # Basic SVM
-    clf = SGDClassifier(loss='hinge', penalty='l2',
-                        alpha=alpha, max_iter=50).fit(X_train, y_train)
-    predicted = clf.predict(X_val)
-    accuracy_train = np.mean(clf.predict(X_train) == y_train)
+def svm(X_train, X_val, y_train, y_val):
+    # Basic svm
+    svm = SGDClassifier(loss='hinge', penalty='l2',
+                        alpha=0.0001, max_iter=50).fit(X_train, y_train)
+    predicted = svm.predict(X_val)
+    accuracy_train = np.mean(svm.predict(X_train) == y_train)
     accuracy_test = np.mean(predicted == y_val)
-    return accuracy_train, accuracy_test
+
+    print('Accuracy: ', accuracy_score(y_val, predicted))
+    print('Precision: ', precision_score(y_val, predicted))
+    print('Recall: ', recall_score(y_val, predicted))
+    print()
+
+    return svm
+
+
+def svm_save_pickle(model):
+    # Save pickle file
+    output = open('pickle/svm_model.pkl', 'wb')
+    print('Pickle dump model')
+    pickle.dump(model, output, protocol=4)
+    output.close()
+
+    return
 
 
 if __name__ == '__main__':

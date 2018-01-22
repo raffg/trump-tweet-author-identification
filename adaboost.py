@@ -1,19 +1,19 @@
 import pandas as pd
 import numpy as np
-from src.load_pickle import load_pickle
+import pickle
 from sklearn.ensemble import AdaBoostClassifier
+from sklearn.metrics import accuracy_score, precision_score, recall_score
 
 
 def main():
-    run_model_random_forest('pickle/data.pkl')
+    run_model_adaboost()
 
 
-def run_model_random_forest(file):
-    (X_train, X_val, X_test,
-     X_train_tfidf, X_val_tfidf, X_test_tfidf,
-     X_train_pos, X_val_pos, X_test_pos,
-     X_train_ner, X_val_ner, X_test_ner,
-     y_train, y_val, y_test) = load_pickle(file)
+def run_model_adaboost():
+    X_train = pd.read_pickle('pickle/train_all_std.pkl')
+    X_val = pd.read_pickle('pickle/test_all_std.pkl')
+    y_train = pd.read_pickle('pickle/y_train_all_std.pkl')
+    y_val = pd.read_pickle('pickle/y_test_all_std.pkl')
 
     feat = ['favorite_count', 'is_retweet', 'retweet_count', 'is_reply',
             'compound', 'v_negative', 'v_neutral', 'v_positive', 'anger',
@@ -25,68 +25,26 @@ def run_model_random_forest(file):
             'all_caps', 'tweetstorm', 'hour', 'hour_20_02', 'hour_14_20',
             'hour_08_14', 'hour_02_08', 'start_mention']
 
+    drop = ['created_at', 'id_str', 'in_reply_to_user_id_str', 'tweetokenize',
+            'text', 'pos', 'ner']
+
+    print('all features')
     adaboost_all_features = adaboost(np.array(X_train[feat]),
                                      np.array(X_val[feat]),
                                      np.array(y_train).ravel(),
                                      np.array(y_val).ravel())
-    print('all features accuracy: ', adaboost_all_features)
 
-    adaboost_text_accuracy = adaboost(np.array(X_train_tfidf),
-                                      np.array(X_val_tfidf),
-                                      np.array(y_train).ravel(),
-                                      np.array(y_val).ravel())
-    print('text accuracy: ', adaboost_text_accuracy)
-
-    adaboost_pos = adaboost(np.array(X_train_pos),
-                            np.array(X_val_pos),
-                            np.array(y_train).ravel(),
-                            np.array(y_val).ravel())
-    print('pos accuracy: ', adaboost_pos)
-
-    adaboost_ner = adaboost(np.array(X_train_ner),
-                            np.array(X_val_ner),
-                            np.array(y_train).ravel(),
-                            np.array(y_val).ravel())
-    print('ner accuracy: ', adaboost_ner)
-
-    feat_text_train = pd.concat([X_train[feat], X_train_tfidf], axis=1)
-    feat_text_val = pd.concat([X_val[feat], X_val_tfidf], axis=1)
-    adaboost_all_features_text = adaboost(np.array(feat_text_train),
-                                          np.array(feat_text_val),
-                                          np.array(y_train).ravel(),
-                                          np.array(y_val).ravel())
-    print('all features with text tf-idf accuracy: ',
-          adaboost_all_features_text)
-
-    feat_pos_train = pd.concat([X_train[feat], X_train_pos], axis=1)
-    feat_pos_val = pd.concat([X_val[feat], X_val_pos], axis=1)
-    adaboost_all_features_pos = adaboost(np.array(feat_pos_train),
-                                         np.array(feat_pos_val),
-                                         np.array(y_train).ravel(),
-                                         np.array(y_val).ravel())
-    print('all features with pos tf-idf accuracy: ',
-          adaboost_all_features_pos)
-
-    feat_ner_train = pd.concat([X_train[feat], X_train_ner], axis=1)
-    feat_ner_val = pd.concat([X_val[feat], X_val_ner], axis=1)
-    adaboost_all_features_ner = adaboost(np.array(feat_ner_train),
-                                         np.array(feat_ner_val),
-                                         np.array(y_train).ravel(),
-                                         np.array(y_val).ravel())
-    print('all features with ner tf-idf accuracy: ',
-          adaboost_all_features_ner)
-
-    whole_train = pd.concat([X_train, X_train_pos,
-                             X_train_tfidf, X_train_ner], axis=1)
-    whole_val = pd.concat([X_val, X_val_pos,
-                           X_val_tfidf, X_val_ner], axis=1)
-    adaboost_whole = adaboost(np.array(whole_train[feat]),
-                              np.array(whole_val[feat]),
-                              np.array(y_train).ravel(),
-                              np.array(y_val).ravel())
-    print('whole model accuracy: ', adaboost_whole)
-
-    top_feat = set(np.load('pickle/top_features.npz')['arr_0'][:20])
+    whole_train = X_train.drop(drop, axis=1)
+    whole_val = X_val.drop(drop, axis=1)
+    '''
+    print('whole model')
+    random_forest_whole = random_forest(np.array(whole_train),
+                                        np.array(whole_val),
+                                        np.array(y_train).ravel(),
+                                        np.array(y_val).ravel())
+    # random_forest_save_pickle(random_forest_whole)
+    '''
+    top_feat = set(np.load('pickle/top_features.npz')['arr_0'][:300])
     train_feat = []
     val_feat = []
     for feat in top_feat:
@@ -95,24 +53,40 @@ def run_model_random_forest(file):
         if feat in whole_val.columns:
             val_feat.append(feat)
 
+    print('condensed model')
     condensed_train = whole_train[train_feat]
     condensed_val = whole_val[val_feat]
-
     adaboost_condensed = adaboost(np.array(condensed_train),
                                   np.array(condensed_val),
                                   np.array(y_train).ravel(),
                                   np.array(y_val).ravel())
-    print('condensed model accuracy: ', adaboost_condensed)
+    # adaboost_save_pickle(adaboost_condensed)
 
 
 def adaboost(X_train, X_val, y_train, y_val):
-    # Basic AdaBoost classifier
+    # Basic adaboost
     ab = AdaBoostClassifier(learning_rate=1.25,
                             n_estimators=40).fit(X_train, y_train)
     predicted = ab.predict(X_val)
     accuracy_train = np.mean(ab.predict(X_train) == y_train)
     accuracy_test = np.mean(predicted == y_val)
-    return accuracy_train, accuracy_test
+
+    print('Accuracy: ', accuracy_score(y_val, predicted))
+    print('Precision: ', precision_score(y_val, predicted))
+    print('Recall: ', recall_score(y_val, predicted))
+    print()
+
+    return ab
+
+
+def adaboost_save_pickle(model):
+    # Save pickle file
+    output = open('pickle/adaboost_model.pkl', 'wb')
+    print('Pickle dump model')
+    pickle.dump(model, output, protocol=4)
+    output.close()
+
+    return
 
 
 if __name__ == '__main__':

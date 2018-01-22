@@ -25,6 +25,15 @@ def predict_tweet(created_at):
     with open('pickle/lr_model.pkl', 'rb') as lr_f:
         lr = pickle.load(lr_f)
 
+    with open('pickle/adaboost_model.pkl', 'rb') as ab_f:
+        ab = pickle.load(ab_f)
+
+    with open('pickle/naive_bayes_model.pkl', 'rb') as nb_f:
+        nb = pickle.load(nb_f)
+
+    with open('pickle/svm_model.pkl', 'rb') as svm_f:
+        svm = pickle.load(svm_f)
+
     with open('pickle/X_labeled.pkl', 'rb') as data_labeled:
         X_labeled = pickle.load(data_labeled)
 
@@ -42,6 +51,9 @@ def predict_tweet(created_at):
 
     rf_feat = np.load('pickle/top_features.npz')['arr_0'][:200]
     lr_feat = np.load('pickle/top_features.npz')['arr_0'][:200]
+    nb_feat = np.load('pickle/top_features.npz')['arr_0'][:5]
+    svm_feat = np.load('pickle/top_features.npz')['arr_0'][:300]
+    ab_feat = np.load('pickle/top_features.npz')['arr_0'][:300]
 
     X = pd.concat([X_labeled, X_unlabeled], axis=0).fillna(0)
     X_std = pd.concat([X_labeled_std, X_unlabeled_std], axis=0).fillna(0)
@@ -56,19 +68,30 @@ def predict_tweet(created_at):
     tweet_std = tweet_std.drop(drop, axis=1)
 
     tweet_rf = rf.predict(tweet[rf_feat])
+    tweet_ab = ab.predict(tweet_std[ab_feat])
+    tweet_nb = nb.predict(tweet[nb_feat])
+    tweet_svm = svm.predict(tweet_std[svm_feat])
     tweet_lr = lr.predict(tweet_std[lr_feat])
     proba_lr = lr.predict_proba(tweet_std[lr_feat])
 
+    majority = 1 if sum([tweet_rf[0], tweet_svm[0], tweet_lr[0],
+                         tweet_ab[0], tweet_nb[0]]) >= 3 else 0
+
     print('Random Forest prediction:', tweet_rf)
+    print('AdaBoost prediction:', tweet_ab)
+    print('Naive Bayes prediction:', tweet_nb)
+    print('SVM prediction:', tweet_svm)
     print('Logistic Regression prediction:', tweet_lr)
     print('Logistic Regression probabilities:', proba_lr)
+    print()
+    print('Majority class:', majority)
     try:
         label = y.iat[X.index[X['created_at'] == created_at].tolist()[0], 0]
         print('True label:', label)
     except Exception:
         pass
 
-    return tweet_rf, tweet_lr
+    return tweet_rf, tweet_ab, tweet_nb, tweet_svm, tweet_lr, majority
 
 
 if __name__ == '__main__':

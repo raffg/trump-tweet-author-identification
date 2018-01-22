@@ -1,16 +1,12 @@
 import pandas as pd
 import numpy as np
 import pickle
-from src.load_pickle import load_pickle
-from src.standardize import standardize
-from src.cross_val_data import cross_val_data
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score
 
 
 def main():
     run_model_random_forest()
-    # random_forest_save_pickle()
 
 
 def run_model_random_forest():
@@ -64,7 +60,7 @@ def run_model_random_forest():
                                             np.array(condensed_val),
                                             np.array(y_train).ravel(),
                                             np.array(y_val).ravel())
-    random_forest_save_pickle(random_forest_condensed)
+    # random_forest_save_pickle(random_forest_condensed)
 
 
 def random_forest(X_train, X_val, y_train, y_val):

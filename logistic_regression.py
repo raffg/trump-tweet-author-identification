@@ -61,8 +61,7 @@ def run_model_logistic_regression():
                       condensed_val[val_feat],
                       y_train, y_val)
 
-    logistic_regression_save_pickle(lr_condensed)
-    print()
+    # logistic_regression_save_pickle(lr_condensed)
 
 
 def lr(X_train, X_val, y_train, y_val):
