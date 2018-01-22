@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import pickle
+from sklearn.decomposition import PCA
 
 
 def main():
@@ -25,11 +26,14 @@ def predict_tweet(created_at):
     with open('pickle/lr_model.pkl', 'rb') as lr_f:
         lr = pickle.load(lr_f)
 
+    with open('pickle/naive_bayes_model.pkl', 'rb') as nb_f:
+        nb = pickle.load(nb_f)
+
     with open('pickle/adaboost_model.pkl', 'rb') as ab_f:
         ab = pickle.load(ab_f)
 
-    with open('pickle/naive_bayes_model.pkl', 'rb') as nb_f:
-        nb = pickle.load(nb_f)
+    with open('pickle/knn_model.pkl', 'rb') as knn_f:
+        knn = pickle.load(knn_f)
 
     with open('pickle/svm_model.pkl', 'rb') as svm_f:
         svm = pickle.load(svm_f)
@@ -52,6 +56,7 @@ def predict_tweet(created_at):
     rf_feat = np.load('pickle/top_features.npz')['arr_0'][:200]
     lr_feat = np.load('pickle/top_features.npz')['arr_0'][:200]
     nb_feat = np.load('pickle/top_features.npz')['arr_0'][:5]
+    knn_feat = np.load('pickle/top_features.npz')['arr_0'][:13]
     svm_feat = np.load('pickle/top_features.npz')['arr_0'][:300]
     ab_feat = np.load('pickle/top_features.npz')['arr_0'][:300]
 
@@ -66,19 +71,31 @@ def predict_tweet(created_at):
 
     tweet = tweet.drop(drop, axis=1)
     tweet_std = tweet_std.drop(drop, axis=1)
+    tweet_knn = tweet_std
+
+    knn_train = pd.read_pickle('pickle/train_all_std.pkl')
+    knn_train = knn_train.drop(drop, axis=1)
+    pca = PCA(n_components=12)
+    pca.fit(knn_train[knn_feat])
+
+    tweet_knn = pca.transform(tweet_knn[knn_feat])
 
     tweet_rf = rf.predict(tweet[rf_feat])
     tweet_ab = ab.predict(tweet_std[ab_feat])
-    tweet_nb = nb.predict(tweet[nb_feat])
+    tweet_knn = knn.predict(tweet_knn)
+    tweet_nb = nb.predict(tweet_std[nb_feat])
     tweet_svm = svm.predict(tweet_std[svm_feat])
     tweet_lr = lr.predict(tweet_std[lr_feat])
     proba_lr = lr.predict_proba(tweet_std[lr_feat])
 
-    majority = 1 if sum([tweet_rf[0], tweet_svm[0], tweet_lr[0],
-                         tweet_ab[0], tweet_nb[0]]) >= 3 else 0
+    maj_list = [2 * tweet_rf[0], tweet_svm[0], tweet_lr[0],
+                tweet_nb[0], tweet_ab[0], tweet_knn[0]]
+
+    majority = 1 if sum(maj_list) >= 4 else 0
 
     print('Random Forest prediction:', tweet_rf)
     print('AdaBoost prediction:', tweet_ab)
+    print('KNN prediction:', tweet_knn)
     print('Naive Bayes prediction:', tweet_nb)
     print('SVM prediction:', tweet_svm)
     print('Logistic Regression prediction:', tweet_lr)
@@ -91,7 +108,7 @@ def predict_tweet(created_at):
     except Exception:
         pass
 
-    return tweet_rf, tweet_ab, tweet_nb, tweet_svm, tweet_lr, majority
+    return tweet_rf, tweet_ab, tweet_knn, tweet_svm, tweet_lr, majority
 
 
 if __name__ == '__main__':
