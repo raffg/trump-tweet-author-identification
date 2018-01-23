@@ -3,6 +3,7 @@
 This project is an attempt to build a model which can identify if Trump is truly the author of any given tweet on his account. It is widely reported in the news that many of his tweets are actually written by staff. With particularly controversial tweets, and especially given that he sometimes makes presidential decrees through his Twitter account, it can be enlightening to have greater certainty in the authorship of his tweets.
 
 ![Did Trump Tweet It?](images/trump_ticker.gif)
+
 Did Trump tweet it? Or an aide in Trump clothing?
 
 ## Background
