@@ -3,7 +3,7 @@
 ## Background
 In early December, Trump’s personal Twitter account tweeted:
 
-<blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr">I had to fire General Flynn because he lied to the Vice President and the FBI. He has pled guilty to those lies. It is a shame because his actions during the transition were lawful. There was nothing to hide!</p>&mdash; Donald J. Trump (@realDonaldTrump) <a href="https://twitter.com/realDonaldTrump/status/937007006526959618?ref_src=twsrc%5Etfw">December 2, 2017</a></blockquote>
+(images/flynn_tweet.png)
 
 Several legal experts argued that this tweet provided evidence that Trump obstructed justice. Trump defended himself by claiming that his lawyer John Dowd wrote and posted the tweet. But did he really?
 
@@ -64,12 +64,12 @@ Additionally, I used the Ridge Regularization to iteratively drive each of the r
 One of the most interesting results from my analysis is the characteristics which identify a tweet as coming from Trump or from someone else. From my Ridge analysis, the top Trump features are:
 
 * Quoted retweet
-* /@mentions
+* @mentions
 * Between 10pm and 10am
 * Exclamations!!!
 * ALL CAPS
 * Tweet length: 114 characters
-* /@realDonaldTrump
+* @realDonaldTrump
 
 The top features of non-Trump tweets are:
 
@@ -79,7 +79,7 @@ The top features of non-Trump tweets are:
 * Semicolons
 * Periods
 * Tweet length: 103 characters
-* /@BarackObama
+* @BarackObama
 
 Trump's tweets are in general more emotive than his aides' tweets, exhibiting high scores for the emotions surprise, anger, negativity, disgust, joy, sadness, and fear. Non-Trump tweets, in contrast, are relatively unemotional, and feature many URLs, hashtags, and organization names.
 
@@ -87,8 +87,7 @@ Trump's tweets are in general more emotive than his aides' tweets, exhibiting hi
 
 And as for that Flynn Tweet? My analysis strongly indicates it was written by Trump himself, not by his lawyer and they both claim. The Logistic Regression outputs a probability estimate of 97% that it came from Trump. Interestingly the [/@RPMMAS](https://twitter.com/RPMMAS) twitter account performed an informal poll of its users and received almost 2000 responses, with 96% indicating they believed the tweet to have come from Trump:
 
-<blockquote class="twitter-tweet" data-conversation="none" data-lang="en"><p lang="en" dir="ltr">🗣WH claims his lawyer wrote this tweet: &quot;I had to fire General Flynn because he lied to the Vice President and the FBI. He has pled guilty to those lies. It is a shame because his actions during the transition were lawful. There was nothing to hide!&quot;<br><br>Do you believe that&#39;s true?</p>&mdash; 🆁🅿🅼🅼🅰🆂 (@RPMMAS) <a href="https://twitter.com/RPMMAS/status/937349606568091648?ref_src=twsrc%5Etfw">December 3, 2017</a></blockquote>
-<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+(images/flynn_tweet_poll.png)
 
 A word of caution though: not all of my models individually agreed that Trump wrote it. Specifically, AdaBoost, KNN, and SVM indicated that it is a non-Trump tweet. Random Forest, Naive Bayes, and Logistic Regression all output Trump as the author. In my opinion, after reviewing thousands of Trump tweets throughout this project and evaluating all features which describe his tweets, I find the topic, sentiment, and emotion very much to be Trumpish, while the phrasing, grammar, and punctuation all indicate another author. I believe the tweet was written collaboratively, with Trump feeding someone the gist of the tweet and that unknown author actually composing it.
 
