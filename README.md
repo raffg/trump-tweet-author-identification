@@ -92,8 +92,16 @@ And as for that Flynn Tweet? My analysis strongly indicates it was written by Tr
 A word of caution though: not all of my models individually agreed that Trump wrote it. Specifically, AdaBoost, KNN, and SVM indicated that it is a non-Trump tweet. Random Forest, Naive Bayes, and Logistic Regression all output Trump as the author. In my opinion, after reviewing thousands of Trump tweets throughout this project and evaluating all features which describe his tweets, I find the topic, sentiment, and emotion very much to be Trumpish, while the phrasing, grammar, and punctuation all indicate another author. I believe the tweet was written collaboratively, with Trump feeding someone the gist of the tweet and that unknown author actually composing it.
 
 
-### Sources
+## Sources
 
-Trump data (Master and Condensed) is from Brendan Brown's [Trump Tweet Data Archive](https://github.com/bpb27/trump_tweet_data_archive)
+*Many thanks to the following packages and lexicons!*
+
+Trump's tweet data is from Brendan Brown's [Trump Tweet Data Archive](https://github.com/bpb27/trump_tweet_data_archive)
 
 Trump aide data was scraped from Twitter using Ahmet Taspinar's [twitterscraper](https://github.com/taspinar/twitterscraper) with the query "twitterscraper 'from:twitter_handle since:2009-01-01 until:2017-12-31' -o scraped_tweets.json"
+
+VADER sentiment analysis was performed using [C.J. Hutto's repo](https://github.com/cjhutto/vaderSentiment)
+
+The National Research Institute of Canada kindly gave me access to the [NRC Word-Emotion Association Lexicon](http://saifmohammad.com/WebPages/NRC-Emotion-Lexicon.htm). Contact: Saif Mohammad (saif.mohammad@nrc-cnrc.gc.ca)
+
+Lastly, I used Jared Suttles' [Tweetokenize](https://github.com/jaredks/tweetokenize) to aid in my part-of-speech analysis
