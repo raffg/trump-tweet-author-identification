@@ -4,16 +4,16 @@ This project is an attempt to build a model which can identify if Trump is truly
 
 ![Did Trump Tweet It?](images/trump_ticker.gif)
 
-Did Trump tweet it? Or an aide in Trump clothing?
+Did Trump tweet it? Or just an aide in Trump clothing?
 
 ## Background
-In early December, Trump’s personal Twitter account tweeted:
+On December 1st, 2017, Michael Flynn pleaded guilty to lying to the FBI. The next day, Trump’s personal Twitter account tweeted:
 
 ![I had to fire General Flynn because he lied to the Vice President and the FBI. He has pled guilty to those lies. It is a shame because his actions during the transition were lawful. There was nothing to hide!](images/flynn_tweet.png)
 
-Several legal experts argued that this tweet provided evidence that Trump obstructed justice. Trump defended himself by claiming that his lawyer John Dowd wrote and posted the tweet. But did he really?
-
-Forensic text analysis was an early field in machine learning and has been used in cases as varied as identifying the unabomber to discovering J.K. Rowling as the true identity of the author Robert Galbraith to determining the specific authors of each of the Federalist Papers. This project is an effort to identify tweets on [@realDonaldTrump](https://twitter.com/realdonaldtrump) as written by Trump himself or by his staff when using his account.
+The trouble is that on February 14th of that year, the day after Flynn resigned, Trump had asked James Comey, then the director of the FBI, to back off the investigation. If Trump knew at the time of his request to Comey that Flynn had indeed lied to the FBI, then Trump's tweet could be seen as evidence that Trump attempted to obstruct justice. After several legal experts argued this point, Trump defended himself by claiming that his lawyer John Dowd wrote and posted the tweet. But did he really?
+---
+Forensic text analysis was an early field in machine learning and has been used in cases as varied as identifying the Unabomber to discovering J.K. Rowling as the true identity of the author Robert Galbraith to determining the specific authors of each of the Federalist Papers. This project is an effort to use machine learning and these same techniques to identify tweets on [@realDonaldTrump](https://twitter.com/realdonaldtrump) as written by Trump himself or by his staff when using his account. This task, however, is particularly challenging due to the short nature of a tweet--there just isn't much signal to pick up in such a short text.
 
 Prior to March 26, 2017, Trump was tweeting using a Samsung Galaxy device while his staff were tweeting using an iPhone. From this information provided in the metadata of each tweet, we know whether it was Trump himself or his staff tweeting. After March however, Trump switched to using an iPhone as well, so identification of the tweeter cannot come from the metadata alone and must be deduced from the content of the tweet.
 
