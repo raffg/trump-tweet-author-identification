@@ -59,7 +59,7 @@ I knew the phrasing of Trump's tweets would stand out from that of his staff, so
 
 I created models for Naive Bayes, SVM, Logistic Regression with Ridge Regularization, KNN, and the ensemble methods of Random Forest and AdaBoost. All models achieved accuracy, precision, and recall rates in the low 90%s, except for Naive Bayes which was in the mid 80%s. For my final model, I found that an ensemble of these individual models worked best.
 
-Additionally, I used the Ridge Regularization to iteratively drive each of the roughly 900 feature coefficients to zero with ever increasing alpha values. This allowed me to rank each feature in order of its importance to the logistic regression model. At an alpha-level of 3e22, the first feature dropped out when its regression coefficient was driven to zero. Slowly, more feature dropped out until an alpha-level of about 10e25, when the feature dropout rapidly increased. Above an alpha-level of 10e26, the dropout rate slowed down, and these features still left are the most influential features in the model.
+Additionally, I used the Ridge Regularization to iteratively drive each of the roughly 900 feature coefficients to zero with ever increasing alpha values. This allowed me to rank each feature in order of its importance to the logistic regression model. At an alpha-level of 3e22, the first feature dropped out when its regression coefficient was driven to zero. Slowly, more features dropped out until an alpha-level of about 10e25, when the feature dropout rapidly increased. Above an alpha-level of 10e26, the dropout rate slowed down, and these features still left are the most influential features in the model.
 
 ![Ridge Regularization](images/ridge.png)
 
