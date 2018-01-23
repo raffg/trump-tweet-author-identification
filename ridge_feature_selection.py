@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 from src.ridge_grid_scan import ridge_grid_scan
-from sklearn.linear_model import RidgeClassifier
 from logistic_regression import lr
 
 
@@ -21,6 +20,8 @@ def main():
                                    n=len(X_train.columns))
 
     print(feature_list)
+
+    np.savez('pickle/features_alphas.npz', feature_list)
 
     feature_list = [(x[0]) for x in list(feature_list)]
 

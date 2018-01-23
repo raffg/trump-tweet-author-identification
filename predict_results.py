@@ -1,22 +1,17 @@
 import pandas as pd
 import numpy as np
 import pickle
+from itertools import combinations
+from collections import defaultdict
 from sklearn.decomposition import PCA
+from sklearn.metrics import accuracy_score, precision_score, recall_score
 
 
 def main():
-    print('Flynn tweet')
-    flynn = predict_tweet('2017-12-02 17:14:13')
-    print()
-    tweet1 = predict_tweet('2016-10-21 22:46:37')
-    print()
-    tweet2 = predict_tweet('2013-03-15 23:33:34')
-    print()
-    tweet3 = predict_tweet('2015-05-13 17:50:05')
-    print()
-    tweet4 = predict_tweet('2013-06-17 18:13:52')
-    print()
-    tweet5 = predict_tweet('2017-01-12 04:01:38')
+    flynn()
+    example_tweets()
+    # samples = run_samples()
+    # accuracies(samples)
 
 
 def predict_tweet(created_at):
@@ -97,10 +92,12 @@ def predict_tweet(created_at):
     tweet_lr = lr.predict(tweet_std[lr_feat])
     proba_lr = lr.predict_proba(tweet_std[lr_feat])
 
-    maj_list = [tweet_rf[0], tweet_svm[0], tweet_lr[0], tweet_gnb[0],
+    maj_list = [tweet_rf[0], tweet_svm[0], tweet_lr[0],  tweet_gnb[0],
                 tweet_nb[0], tweet_ab[0], tweet_knn[0]]
 
-    majority = 1 if sum(maj_list) >= 4 else 0
+    maj_list = [tweet_rf[0], tweet_knn[0], tweet_lr[0]]
+
+    majority = 1 if sum(maj_list) >= len(maj_list) / 2 else 0
 
     print('Random Forest prediction:         ', tweet_rf)
     print('AdaBoost prediction:              ', tweet_ab)
@@ -115,10 +112,69 @@ def predict_tweet(created_at):
     try:
         label = y.iat[X.index[X['created_at'] == created_at].tolist()[0], 0]
         print('True label:', label)
+        return label, (tweet_rf, tweet_ab, tweet_knn, tweet_nb, tweet_gnb,
+                       tweet_svm, tweet_lr)
     except Exception:
         pass
+    print()
 
-    return tweet_rf, tweet_ab, tweet_knn, tweet_svm, tweet_lr, majority
+    return (tweet_rf, tweet_ab, tweet_knn, tweet_nb, tweet_gnb,
+            tweet_svm, tweet_lr)
+
+
+def run_samples():
+    with open('pickle/X_labeled.pkl', 'rb') as data_labeled:
+        X_labeled = pickle.load(data_labeled)
+
+    with open('pickle/X_unlabeled.pkl', 'rb') as data_unlabeled:
+        X_unlabeled = pickle.load(data_unlabeled)
+
+    with open('pickle/y.pkl', 'rb') as labels:
+        y = pickle.load(labels)
+
+    X = pd.concat([X_labeled, X_unlabeled], axis=0).fillna(0)
+
+    X = X[(X['created_at'] >= '2015-06-01') & (X['created_at'] < '2017-03-26')]
+
+    sample = X.sample(n=10)
+
+    results = []
+    for index, row in sample.iterrows():
+        result = predict_tweet(row['created_at'])
+        results.append(result)
+    return results
+
+
+def accuracies(sample_results):
+    models = [0, 1, 2, 3, 4, 5, 6]
+    combos = (models + list(combinations(models, 3)) +
+              list(combinations(models, 5)))
+    y_true = [x[0] for x in sample_results]
+    y_pred = defaultdict(list)
+
+    for model in combos:
+        model_pred = []
+        for sample in sample_results:
+            y_pred[model].append(1 if sum(maj_list) >=
+                                 len(maj_list) / 2. else 0)
+
+
+def flynn():
+    print('Flynn tweet')
+    flynn = predict_tweet('2017-12-02 17:14:13')
+
+
+def example_tweets():
+    print()
+    tweet1 = predict_tweet('2016-10-21 22:46:37')
+    print()
+    tweet2 = predict_tweet('2013-03-15 23:33:34')
+    print()
+    tweet3 = predict_tweet('2015-05-13 17:50:05')
+    print()
+    tweet4 = predict_tweet('2013-06-17 18:13:52')
+    print()
+    tweet5 = predict_tweet('2017-01-12 04:01:38')
 
 
 if __name__ == '__main__':
