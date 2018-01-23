@@ -3,7 +3,7 @@
 ## Background
 In early December, Trump’s personal Twitter account tweeted:
 
-(images/flynn_tweet.png)
+![I had to fire General Flynn because he lied to the Vice President and the FBI. He has pled guilty to those lies. It is a shame because his actions during the transition were lawful. There was nothing to hide!](images/flynn_tweet.png)
 
 Several legal experts argued that this tweet provided evidence that Trump obstructed justice. Trump defended himself by claiming that his lawyer John Dowd wrote and posted the tweet. But did he really?
 
@@ -87,7 +87,7 @@ Trump's tweets are in general more emotive than his aides' tweets, exhibiting hi
 
 And as for that Flynn Tweet? My analysis strongly indicates it was written by Trump himself, not by his lawyer and they both claim. The Logistic Regression outputs a probability estimate of 97% that it came from Trump. Interestingly the [/@RPMMAS](https://twitter.com/RPMMAS) twitter account performed an informal poll of its users and received almost 2000 responses, with 96% indicating they believed the tweet to have come from Trump:
 
-(images/flynn_tweet_poll.png)
+![WH claims his lawyer wrote this tweet: "I had to fire General Flynn because he lied to the Vice President and the FBI. He has pled guilty to those lies. It is a shame because his actions during the transition were lawful. There was nothing to hide!" Do you believe that's true?](images/flynn_tweet_poll.png)
 
 A word of caution though: not all of my models individually agreed that Trump wrote it. Specifically, AdaBoost, KNN, and SVM indicated that it is a non-Trump tweet. Random Forest, Naive Bayes, and Logistic Regression all output Trump as the author. In my opinion, after reviewing thousands of Trump tweets throughout this project and evaluating all features which describe his tweets, I find the topic, sentiment, and emotion very much to be Trumpish, while the phrasing, grammar, and punctuation all indicate another author. I believe the tweet was written collaboratively, with Trump feeding someone the gist of the tweet and that unknown author actually composing it.
 
