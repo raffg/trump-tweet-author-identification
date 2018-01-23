@@ -53,7 +53,7 @@ def run_model_gaussian_nb():
                                         np.array(condensed_val),
                                         np.array(y_train).ravel(),
                                         np.array(y_val).ravel())
-    gaussian_nb_save_pickle(gaussian_nb_condensed)
+    # gaussian_nb_save_pickle(gaussian_nb_condensed)
 
 
 def gaussian_nb(X_train, X_val, y_train, y_val):
