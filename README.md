@@ -42,7 +42,7 @@ I looked at the style of each tweet by counting various punctuation marks (the n
 I also created features for what I have recognized as Trump's rather unique Twitter behavior. These features include the "quoted retweet" (where Trump copies and pastes a another user's tweet onto his own timeline and surrounds it in quote marks), words written in ALL CAPS, and also middle-of-the-night tweeting.
 
 ### Sentiment
-I used C.J. Hutto's [VADER](https://github.com/cjhutto/vaderSentiment) package to extract the sentiment of each tweet.VADER, which stands for Valence Aware Dictionary and sEntiment Reasoner, is a lexicon and rule-based tool that is specifically tuned to social media. Given a string of text, it outputs a number between 0 and 1 for negativity, positivity, and neutrality
+I used C.J. Hutto's [VADER](https://github.com/cjhutto/vaderSentiment) package to extract the sentiment of each tweet. VADER, which stands for Valence Aware Dictionary and sEntiment Reasoner, is a lexicon and rule-based tool that is specifically tuned to social media. Given a string of text, it outputs a number between 0 and 1 for negativity, positivity, and neutrality
 for the text, as well as a compound score from -1 to 1 which is an aggregate measure.
 
 ### Emotion
@@ -87,7 +87,7 @@ Trump's tweets are in general more emotive than his aides' tweets, exhibiting hi
 
 ## The Flynn Tweet
 
-And as for that Flynn Tweet? My analysis strongly indicates it was written by Trump himself, not by his lawyer and they both claim. The Logistic Regression outputs a probability estimate of 97% that it came from Trump. Interestingly the [/@RPMMAS](https://twitter.com/RPMMAS) twitter account performed an informal poll of its users and received almost 2000 responses, with 96% indicating they believed the tweet to have come from Trump:
+And as for that Flynn Tweet? My analysis strongly indicates it was written by Trump himself, and not by his lawyer, as they both claim. The Logistic Regression outputs a probability estimate of 97% that it came from Trump. Fittingly, the [/@RPMMAS](https://twitter.com/RPMMAS) twitter account performed an informal poll of its users and received almost 2000 responses, with 96% indicating they believed the tweet to have come from Trump:
 
 ![WH claims his lawyer wrote this tweet: "I had to fire General Flynn because he lied to the Vice President and the FBI. He has pled guilty to those lies. It is a shame because his actions during the transition were lawful. There was nothing to hide!" Do you believe that's true?](images/flynn_tweet_poll.png)
 
