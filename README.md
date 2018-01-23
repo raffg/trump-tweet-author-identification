@@ -112,3 +112,12 @@ VADER sentiment analysis was performed using [C.J. Hutto's repo](https://github.
 The National Research Institute of Canada kindly gave me access to the [NRC Word-Emotion Association Lexicon](http://saifmohammad.com/WebPages/NRC-Emotion-Lexicon.htm). Contact: Saif Mohammad (saif.mohammad@nrc-cnrc.gc.ca)
 
 Lastly, I used Jared Suttles' [Tweetokenize](https://github.com/jaredks/tweetokenize) to aid in my part-of-speech analysis
+
+
+## Further Reading
+
+* [Text analysis of Trump's tweets confirms he writes only the (angrier) Android half](http://varianceexplained.org/r/trump-tweets/)
+* [How to tell when someone else tweets from @realDonaldTrump](https://www.wired.com/story/tell-when-someone-else-tweets-from-realdonaldtrump/)
+* [All the president’s tweets: Fox News enjoys considerable influence over the world’s most important Twitter account](https://www.economist.com/blogs/graphicdetail/2018/01/daily-chart-9)
+* [Is Trump's Campaign Locking Him Out of Twitter?](https://www.theatlantic.com/politics/archive/2016/08/donald-trump-twitter-iphone-android/495239/)
+* [Timestamp analysis confirms Trump is the author of Android tweets](http://didtrumptweetit.com/timestamp-analysis-trump-android-phone/)
