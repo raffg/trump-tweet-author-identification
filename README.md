@@ -96,7 +96,7 @@ Trump's tweets are in general more emotive than his aides' tweets, exhibiting hi
 As for the models, Random Forest performed the best on its own, with AdaBoost a close second. Naive Bayes performed most poorly of the models tested.
 
 |   |Random Forest|AdaBoost|Logistic Regression|KNN|SVM|Naive Bayes|
-|----|-----------|---------|------------------|---|---|---------|
+|---|:-----------:|:------:|:-------------:|:---:|:---::|---------:|
 |Accuracy|94%|92%|90%|90%|90%|83%|
 |Precision|94%|92%|90%|91%|90%|86%|
 |Recall|95%|90%|88%|89%|90%|75%|
