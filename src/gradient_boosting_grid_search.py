@@ -40,11 +40,19 @@ def main():
 
     (X_train, X_test) = standardize(feature, X_train, X_test)
 
-    feat = np.load('pickle/top_features.npz')['arr_0']
+    top_feat = np.load('pickle/top_features.npz')['arr_0']
+
+    train_feat = []
+    test_feat = []
+    for feat in top_feat:
+        if feat in X_train.columns:
+            train_feat.append(feat)
+        if feat in X_test.columns:
+            test_feat.append(feat)
 
     results = []
-    for n in range(1, len(feat) + 1, 100):
-        result = gb_grid_search(np.array(X_train[feat[:n]]),
+    for n in range(len(train_feat), len(train_feat) + 1, 100):
+        result = gb_grid_search(np.array(X_train[train_feat[:n]]),
                                 np.array(y_train).ravel())
         results.append((n, result.best_params_, result.best_score_))
         print(n, result.best_params_, result.best_score_)
@@ -54,7 +62,7 @@ def main():
 
 
 def gb_grid_search(X, y):
-    parameters = {'n_estimators': [50, 100, 150],
+    parameters = {'n_estimators': [100, 150],
                   'learning_rate': [.01, .1, 1],
                   'max_depth': [2, 3, 4, 5],
                   'min_samples_split': [2, 3],
@@ -62,8 +70,16 @@ def gb_grid_search(X, y):
                   'subsample': [.5, 1],
                   'max_features': [None, 'sqrt', 'log2']}
 
+    parameters2 = {'n_estimators': [100],
+                   'learning_rate': [.1, 1, 10],
+                   'max_depth': [3, 4, 5],
+                   'min_samples_split': [2, 3],
+                   'min_samples_leaf': [1, 2],
+                   'subsample': [.75, 1],
+                   'max_features': [None, 'sqrt', 'log2']}
+
     gb = GradientBoostingClassifier()
-    clf = GridSearchCV(gb, parameters, cv=5, verbose=True)
+    clf = GridSearchCV(gb, parameters2, cv=5, verbose=True)
     clf.fit(X, y)
 
     return clf
