@@ -184,7 +184,7 @@ def example_tweets():
     print()
 
     print("Thanks for all of the accolades on my speech today - it's all about"
-          'the truth!"')
+          ' the truth!"')
     tweet2 = predict_tweet('2013-03-15 23:33:34')
     print()
 
