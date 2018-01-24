@@ -90,12 +90,18 @@ def predict_tweet(created_at):
     tweet_gnb = gnb.predict(tweet_gnb)
     tweet_svm = svm.predict(tweet_std[svm_feat])
     tweet_lr = lr.predict(tweet_std[lr_feat])
+
     proba_lr = lr.predict_proba(tweet_std[lr_feat])
+    proba_rf = rf.predict_proba(tweet[rf_feat])
+    # proba_knn = knn.predict_proba(tweet_knn.reshape(1, -1))
+    proba_ab = ab.predict_proba(tweet_std[ab_feat])
+    proba_nb = nb.predict_proba(tweet_std[nb_feat])
 
     maj_list = [tweet_rf[0], tweet_svm[0], tweet_lr[0],  tweet_gnb[0],
                 tweet_nb[0], tweet_ab[0], tweet_knn[0]]
 
-    maj_list = [tweet_rf[0], tweet_knn[0], tweet_lr[0]]
+    maj_list = [tweet_rf[0], tweet_knn[0], tweet_lr[0], tweet_ab[0],
+                tweet_svm[0]]
 
     majority = 1 if sum(maj_list) >= len(maj_list) / 2 else 0
 
@@ -106,6 +112,11 @@ def predict_tweet(created_at):
     print('Gaussian Naive Bayes prediction:  ', tweet_gnb)
     print('SVM prediction:                   ', tweet_svm)
     print('Logistic Regression prediction:   ', tweet_lr)
+
+    print('Random Forest Probabilities:      ', proba_rf)
+    print('AdaBoost Probabilities:           ', proba_ab)
+    # print('KNN Probabilities:                ', proba_knn)
+    print('Naive Bayes Probabilities:        ', proba_nb)
     print('Logistic Regression probabilities:', proba_lr)
     print()
     print('Majority class:', majority)
@@ -166,15 +177,70 @@ def flynn():
 
 def example_tweets():
     print()
+    print('WikiLeaks reveals Clinton camp’s work with ‘VERY friendly and '
+          'malleable reporters’ #DrainTheSwamp #CrookedHillary '
+          'https://t.co/bcYLslrxi0')
     tweet1 = predict_tweet('2016-10-21 22:46:37')
     print()
+
+    print("Thanks for all of the accolades on my speech today - it's all about"
+          'the truth!"')
     tweet2 = predict_tweet('2013-03-15 23:33:34')
     print()
+
+    print('Via @swan_investor by @Forbes: “The Trump Card: Make America Great'
+          'Again” http://t.co/kWvbk5HtDr')
     tweet3 = predict_tweet('2015-05-13 17:50:05')
     print()
+
+    print('Congratulations to Connecticut’s Erin Brady on being crowned the '
+          '2013 @MissUSA! America will be well-represented in @MissUniverse!')
     tweet4 = predict_tweet('2013-06-17 18:13:52')
     print()
+
+    print('We had a great News Conference at Trump Tower today. A couple of '
+          "FAKE NEWS organizations were there but the people truly get what's"
+          ' going on')
     tweet5 = predict_tweet('2017-01-12 04:01:38')
+    print()
+
+    print('According to a @gallupnews poll, over 60% think ObamaCare will make'
+          ' things worse for taxpayers http://t.co/J375jNf1 ObamaCare is a '
+          'T-A-X.')
+    tweet6 = predict_tweet('2012-07-18 13:27:52')
+    print()
+
+    print('Thank you, Arizona! #Trump2016 #MakeAmericaGreatAgain #TrumpTrain')
+    tweet7 = predict_tweet('2016-03-23 18:35:50')
+    print()
+
+    print("Lyin' Ted Cruz denied that he had anything to do with the G.Q. "
+          "model photo post of Melania. That's why we call him Lyin' Ted!")
+    tweet8 = predict_tweet('2016-03-23 14:22:51')
+    print()
+
+    print('I was relentless because, more often than you would think, sheer '
+          'persistence is the difference between success and failure. NEVER '
+          'GIVE UP!')
+    tweet9 = predict_tweet('2014-10-08 12:09:04')
+    print()
+
+    print('"@MikeVega4: I have to say I fave no idea who @DannyZuker is but I'
+          'know @realDonaldTrump is and he has great hotels #whoiszucker" '
+          'TRUE.')
+    tweet10 = predict_tweet('2013-06-13 01:48:07')
+    print()
+
+    print('Just tried watching Modern Family - written by a moron, really '
+          'boring. Writer has the mind of a very dumb and backward child.'
+          'Sorry Danny!')
+    tweet11 = predict_tweet('2013-06-13 01:46:43')
+    print()
+
+    print('Whitey Bulger’s prosecution starts today.  Will be one of the most '
+          'interesting and intriguing trials.')
+    tweet12 = predict_tweet('2013-06-04 17:47:39')
+    print()
 
 
 if __name__ == '__main__':
