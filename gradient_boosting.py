@@ -60,7 +60,7 @@ def run_model_gb():
                       np.array(condensed_val),
                       np.array(y_train).ravel(),
                       np.array(y_val).ravel())
-    # adaboost_save_pickle(gb_condensed)
+    # gb_save_pickle(gb_condensed)
 
 
 def gb(X_train, X_val, y_train, y_val):
@@ -80,7 +80,7 @@ def gb(X_train, X_val, y_train, y_val):
 
 def gb_save_pickle(model):
     # Save pickle file
-    output = open('pickle/gb_model.pkl', 'wb')
+    output = open('pickle/gradient_boosting_model.pkl', 'wb')
     print('Pickle dump model')
     pickle.dump(model, output, protocol=4)
     output.close()

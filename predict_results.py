@@ -30,6 +30,9 @@ def predict_tweet(created_at):
     with open('pickle/adaboost_model.pkl', 'rb') as ab_f:
         ab = pickle.load(ab_f)
 
+    # with open('pickle/gradient_boosting_model.pkl', 'rb') as gb_f:
+    #     gb = pickle.load(gb_f)
+
     with open('pickle/knn_model.pkl', 'rb') as knn_f:
         knn = pickle.load(knn_f)
 
@@ -58,6 +61,7 @@ def predict_tweet(created_at):
     knn_feat = np.load('pickle/top_features.npz')['arr_0'][:13]
     svm_feat = np.load('pickle/top_features.npz')['arr_0'][:300]
     ab_feat = np.load('pickle/top_features.npz')['arr_0'][:300]
+    # gb_feat = np.load('pickle/top_features.npz')['arr_0'][:300]
 
     X = pd.concat([X_labeled, X_unlabeled], axis=0).fillna(0)
     X_std = pd.concat([X_labeled_std, X_unlabeled_std], axis=0).fillna(0)
@@ -90,23 +94,26 @@ def predict_tweet(created_at):
     tweet_gnb = gnb.predict(tweet_gnb)
     tweet_svm = svm.predict(tweet_std[svm_feat])
     tweet_lr = lr.predict(tweet_std[lr_feat])
+    # tweet_gb = gb.predict(tweet_std[gb_feat])
 
     proba_lr = lr.predict_proba(tweet_std[lr_feat])
     proba_rf = rf.predict_proba(tweet[rf_feat])
     # proba_knn = knn.predict_proba(tweet_knn.reshape(1, -1))
     proba_ab = ab.predict_proba(tweet_std[ab_feat])
+    # proba_gb = gb.predict_proba(tweet_std[gb_feat])
     proba_nb = nb.predict_proba(tweet_std[nb_feat])
 
     maj_list = [tweet_rf[0], tweet_svm[0], tweet_lr[0],  tweet_gnb[0],
                 tweet_nb[0], tweet_ab[0], tweet_knn[0]]
 
     maj_list = [tweet_rf[0], tweet_knn[0], tweet_lr[0], tweet_ab[0],
-                tweet_svm[0]]
+                tweet_svm[0]]  # , tweet_nb[0], tweet_gb[0]]
 
     majority = 1 if sum(maj_list) >= len(maj_list) / 2 else 0
 
     print('Random Forest prediction:         ', tweet_rf)
     print('AdaBoost prediction:              ', tweet_ab)
+    # print('Gradient Boosting prediction:     ', tweet_gb)
     print('KNN prediction:                   ', tweet_knn)
     print('Naive Bayes prediction:           ', tweet_nb)
     print('Gaussian Naive Bayes prediction:  ', tweet_gnb)
@@ -115,6 +122,7 @@ def predict_tweet(created_at):
 
     print('Random Forest Probabilities:      ', proba_rf)
     print('AdaBoost Probabilities:           ', proba_ab)
+    # print('Gradient Boosting Probabilities:  ', proba_gb)
     # print('KNN Probabilities:                ', proba_knn)
     print('Naive Bayes Probabilities:        ', proba_nb)
     print('Logistic Regression probabilities:', proba_lr)
@@ -188,7 +196,7 @@ def example_tweets():
     tweet2 = predict_tweet('2013-03-15 23:33:34')
     print()
 
-    print('Via @swan_investor by @Forbes: “The Trump Card: Make America Great'
+    print('Via @swan_investor by @Forbes: “The Trump Card: Make America Great '
           'Again” http://t.co/kWvbk5HtDr')
     tweet3 = predict_tweet('2015-05-13 17:50:05')
     print()
@@ -225,7 +233,7 @@ def example_tweets():
     tweet9 = predict_tweet('2014-10-08 12:09:04')
     print()
 
-    print('"@MikeVega4: I have to say I fave no idea who @DannyZuker is but I'
+    print('"@MikeVega4: I have to say I fave no idea who @DannyZuker is but I '
           'know @realDonaldTrump is and he has great hotels #whoiszucker" '
           'TRUE.')
     tweet10 = predict_tweet('2013-06-13 01:48:07')
