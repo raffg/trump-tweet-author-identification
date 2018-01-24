@@ -60,12 +60,19 @@ def run_model_gb():
                       np.array(condensed_val),
                       np.array(y_train).ravel(),
                       np.array(y_val).ravel())
-    # gb_save_pickle(gb_condensed)
+    # b_save_pickle(gb_condensed)
 
 
 def gb(X_train, X_val, y_train, y_val):
     # Basic Gradient Boosting
-    gb = GradientBoostingClassifier().fit(X_train, y_train)
+    gb = GradientBoostingClassifier(n_estimators=200,
+                                    learning_rate=.1,
+                                    max_depth=6,
+                                    min_samples_split=2,
+                                    min_samples_leaf=1,
+                                    subsample=1,
+                                    max_features=None
+                                    ).fit(X_train, y_train)
     predicted = gb.predict(X_val)
     accuracy_train = np.mean(gb.predict(X_train) == y_train)
     accuracy_test = np.mean(predicted == y_val)
