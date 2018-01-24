@@ -52,7 +52,7 @@ I used C.J. Hutto's [VADER](https://github.com/cjhutto/vaderSentiment) package t
 for the text, as well as a compound score from -1 to 1 which is an aggregate measure.
 
 ### Emotion
-The National Research Institute of Canada created a [lexicon](http://saifmohammad.com/WebPages/NRC-Emotion-Lexicon.htm) of over 14,000 words, each rated as belong to any of 10 emotion classes. For each tweet, I counted the number of words for each emotion class and assigned the tweet that count score for each emotion.
+The National Research Council of Canada created a [lexicon](http://saifmohammad.com/WebPages/NRC-Emotion-Lexicon.htm) of over 14,000 words, each rated as belong to any of 10 emotion classes. For each tweet, I counted the number of words for each emotion class and assigned the tweet that count score for each emotion.
 
 ### Word choice
 I performed TF-IDF on the text of each tweet in order to pick up vocabulary unique to Trump or his staff.
