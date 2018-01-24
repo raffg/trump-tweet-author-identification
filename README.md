@@ -17,7 +17,7 @@ The controversy arises because on February 14th of that year, the day after Flyn
 
 Forensic text analysis was an early field in machine learning and has been used in cases as varied as identifying the Unabomber to discovering J.K. Rowling as the true identity of the author Robert Galbraith to determining the specific authors of each of the Federalist Papers. This project is an effort to use machine learning and these same techniques to identify tweets on [@realDonaldTrump](https://twitter.com/realdonaldtrump) as written by Trump himself or by his staff when using his account. This task, however, is particularly challenging due to the short nature of a tweet--there just isn't much signal to pick up in such a short text.
 
-Prior to March 26, 2017, Trump was tweeting using a Samsung Galaxy device while his staff were tweeting using an iPhone. From this information provided in the metadata of each tweet, we know whether it was Trump himself or his staff tweeting. After March however, Trump switched to using an iPhone as well, so identification of the tweeter cannot come from the metadata alone and must be deduced from the content of the tweet.
+Prior to March 26, 2017, Trump was tweeting using a Samsung Galaxy device while his staff were tweeting using an iPhone. From this information provided in the metadata of each tweet, we know whether it was Trump himself or his staff tweeting (see [Further Reading](#Further-Reading) below for some articles discussing this assumption). After March however, Trump switched to using an iPhone as well, so identification of the tweeter cannot come from the metadata alone and must be deduced from the content of the tweet.
 
 ### Potential Tweeters
 
@@ -42,28 +42,28 @@ I used Brendan Brown's [Trump Tweet Data Archive](https://github.com/bpb27/trump
 ## Feature engineering
 
 ### Style
-I looked at the style of each tweet by counting various punctuation marks (the number of exclamation marks, for example), the number of /@mentions and #hashtags, and average tweet/sentence/word length.
+I looked at the style of each tweet by counting various punctuation marks (the number of exclamation marks, for example), the number of @mentions and #hashtags, and average tweet/sentence/word length.
 
 ### Trump quirks
-I also created features for what I have recognized as Trump's rather unique Twitter behavior. These features include the "quoted retweet" (where Trump copies and pastes a another user's tweet onto his own timeline and surrounds it in quote marks), words written in ALL CAPS, and also middle-of-the-night tweeting.
+I also created features for what I have recognized as Trump's rather unique Twitter behavior. These features include the "quoted retweet" (where Trump copies and pastes a another user's tweet onto his own timeline and surrounds it in quotation marks), words written in ALL CAPS or followed by several exclamation points!!!, and also middle-of-the-night tweeting.
 
 ### Sentiment
 I used C.J. Hutto's [VADER](https://github.com/cjhutto/vaderSentiment) package to extract the sentiment of each tweet. VADER, which stands for Valence Aware Dictionary and sEntiment Reasoner, is a lexicon and rule-based tool that is specifically tuned to social media. Given a string of text, it outputs a number between 0 and 1 for negativity, positivity, and neutrality
 for the text, as well as a compound score from -1 to 1 which is an aggregate measure.
 
 ### Emotion
-The National Research Institute of Canada created a lexicon of over 14,000 words, each rated as belong to any of 10 emotion classes. For each tweet, I counted the number of words for each emotion class and assigned the tweet that count score for each emotion.
+The National Research Institute of Canada created a [lexicon](http://saifmohammad.com/WebPages/NRC-Emotion-Lexicon.htm) of over 14,000 words, each rated as belong to any of 10 emotion classes. For each tweet, I counted the number of words for each emotion class and assigned the tweet that count score for each emotion.
 
 ### Word choice
 I performed TF-IDF on the text of each tweet in order to pick up vocabulary unique to Trump or his staff.
 
 ### Grammatical structure
-I knew the phrasing of Trump's tweets would stand out from that of his staff, so in order to capture this I performed part-of-speech replacment on each tweet, reducing it to a string of its parts of speech. For example, the phrase "Hello. This is a tweet which has been parsed for parts of speech" would be replaced with "UH . DT BZ DT NN WDT VBZ VBN VBN IN NNS IN NN ", using the [Penn part of speech tags](https://cs.nyu.edu/grishman/jet/guide/PennPOS.html).
+I knew the phrasing of Trump's tweets would stand out from that of his staff, so in order to capture this I performed part-of-speech replacement on each tweet, reducing it to a string of its parts of speech. For example, the phrase "Hello. This is a tweet which has been parsed for parts of speech" would be replaced with "UH . DT BZ DT NN WDT VBZ VBN VBN IN NNS IN NN ", using the [Penn part of speech tags](https://cs.nyu.edu/grishman/jet/guide/PennPOS.html).
 
 
 ## Models
 
-I created models for Naive Bayes, SVM, Logistic Regression with Ridge Regularization, KNN, and the ensemble methods of Random Forest and AdaBoost. All models achieved accuracy, precision, and recall rates in the low 90%s, except for Naive Bayes which was in the mid 80%s. For my final model, I found that an ensemble of these individual models worked best.
+I created models for Naive Bayes, SVM, Logistic Regression with Ridge Regularization, KNN, and the ensemble methods of Random Forest, Gradient Boosting, and AdaBoost. All models achieved accuracy, precision, and recall rates in the low 90%s, except for Naive Bayes which was in the mid 80%s. For my final model, I found that an ensemble of these individual models worked best.
 
 Additionally, I used the Ridge Regularization to iteratively drive each of the roughly 900 feature coefficients to zero with ever increasing alpha values. This allowed me to rank each feature in order of its importance to the logistic regression model. At an alpha-level of 3e22, the first feature dropped out when its regression coefficient was driven to zero. Slowly, more features dropped out until an alpha-level of about 10e25, when the feature dropout rapidly increased. Above an alpha-level of 10e26, the dropout rate slowed down, and these features still left are the most influential features in the model.
 
@@ -101,15 +101,15 @@ As for the models, Random Forest performed the best on its own, with AdaBoost a 
 |Precision|94%|92%|90%|91%|90%|86%|
 |Recall|95%|90%|88%|89%|90%|75%|
 
-For my final model, I assembled an ensemble of Random Forest, AdaBoost, Logistic Regression, KNN, and SVM.
+For my final model, I created an ensemble of Random Forest, AdaBoost, Logistic Regression, KNN, and SVM.
 
 ## The Flynn Tweet
 
-And as for that Flynn Tweet? My analysis indicates it was written by Trump himself, and not by his lawyer, as they both claim. However, my models are split evenly. Some predict Trump, others not Trump. The Logistic Regression outputs a probability estimate of 97% that it came from Trump. Fittingly, the [/@RPMMAS](https://twitter.com/RPMMAS) twitter account performed an informal poll of its users and received almost 2000 responses, with 96% indicating they believed the tweet to have come from Trump:
+And as for that Flynn Tweet? My analysis indicates it was written by Trump himself, and not by his lawyer, as they both claim. However, my models are split evenly on this one. Some predict Trump, others not Trump. The Logistic Regression outputs a probability estimate of 97% and Naive Bayes of 94% that it came from Trump. Correspondingly, the [/@RPMMAS](https://twitter.com/RPMMAS) twitter account performed an informal poll of its users and received almost 2000 responses, with 96% indicating they believed the tweet to have come from Trump:
 
 ![WH claims his lawyer wrote this tweet: "I had to fire General Flynn because he lied to the Vice President and the FBI. He has pled guilty to those lies. It is a shame because his actions during the transition were lawful. There was nothing to hide!" Do you believe that's true?](images/flynn_tweet_poll.png)
 
-A word of caution though: not all of my models individually agreed that Trump wrote it. Specifically, AdaBoost, KNN, and SVM indicated that it is a non-Trump tweet. Random Forest, Naive Bayes, and Logistic Regression all output Trump as the author. In my opinion, after reviewing thousands of Trump tweets throughout this project and evaluating all features which describe his tweets, I find the topic, sentiment, and emotion very much to be Trumpish, while the phrasing, grammar, and punctuation all indicate another author. I believe the tweet was written collaboratively, with Trump feeding someone the gist of the tweet and that unknown author actually composing it.
+A word of caution though: not all of my models individually agreed that Trump wrote it. Specifically, AdaBoost, KNN, and SVM indicated that it is a non-Trump tweet. Random Forest, Naive Bayes, and Logistic Regression all output Trump as the author. In my opinion, after reviewing thousands of Trump tweets throughout this project and evaluating all features which describe his tweets, I find the topic, sentiment, and emotion very much to be Trumpian, while the phrasing, grammar, and style all indicate another author. I believe the tweet was written collaboratively, with Trump providing the topical features of the tweet and an unknown author actually composing it.
 
 
 ## Sources
