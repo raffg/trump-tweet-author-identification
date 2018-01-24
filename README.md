@@ -93,6 +93,16 @@ The top features of non-Trump tweets are:
 
 Trump's tweets are in general more emotive than his aides' tweets, exhibiting high scores for the emotions surprise, anger, negativity, disgust, joy, sadness, and fear. Non-Trump tweets, in contrast, are relatively unemotional, and feature many URLs, hashtags, and organization names.
 
+As for the models, Random Forest performed the best on its own, with AdaBoost a close second. Naive Bayes performed most poorly of the models tested.
+
+|   |Random Forest|AdaBoost|Logistic Regression|KNN|SVM|Naive Bayes|
+|----|-----------|---------|------------------|---|---|---------|
+|Accuracy|94%|92%|90%|90%|90%|83%|
+|Precision|94%|92%|90%|91%|90%|86%|
+|Recall|95%|90%|88%|89%|90%|75%|
+
+For my final model, I assembled an ensemble of Random Forest, AdaBoost, Logistic Regression, KNN, and SVM.
+
 ## The Flynn Tweet
 
 And as for that Flynn Tweet? My analysis strongly indicates it was written by Trump himself, and not by his lawyer, as they both claim. The Logistic Regression outputs a probability estimate of 97% that it came from Trump. Fittingly, the [/@RPMMAS](https://twitter.com/RPMMAS) twitter account performed an informal poll of its users and received almost 2000 responses, with 96% indicating they believed the tweet to have come from Trump:
