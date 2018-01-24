@@ -120,11 +120,11 @@ Trump's tweet data is from Brendan Brown's [Trump Tweet Data Archive](https://gi
 
 Trump aide data was scraped from Twitter using Ahmet Taspinar's [twitterscraper](https://github.com/taspinar/twitterscraper) with the query "twitterscraper 'from:twitter_handle since:2009-01-01 until:2017-12-31' -o scraped_tweets.json"
 
-VADER sentiment analysis was performed using [C.J. Hutto's repo](https://github.com/cjhutto/vaderSentiment)
+VADER sentiment analysis was performed using [C.J. Hutto's VADER package](https://github.com/cjhutto/vaderSentiment)
 
-The National Research Institute of Canada kindly gave me access to the [NRC Word-Emotion Association Lexicon](http://saifmohammad.com/WebPages/NRC-Emotion-Lexicon.htm). Contact: Saif Mohammad (saif.mohammad@nrc-cnrc.gc.ca)
+The National Research Council of Canada kindly gave me access to the [NRC Word-Emotion Association Lexicon](http://saifmohammad.com/WebPages/NRC-Emotion-Lexicon.htm). Contact: Saif Mohammad (saif.mohammad@nrc-cnrc.gc.ca)
 
-Lastly, I used Jared Suttles' [Tweetokenize](https://github.com/jaredks/tweetokenize) to aid in my part-of-speech analysis
+Lastly, I used Jared Suttles' [Tweetokenize](https://github.com/jaredks/tweetokenize) to aid in my part-of-speech analysis. An updated version of the package which works with Python 3 can be found in my fork [here](https://github.com/raffg/tweetokenize/tree/Python-3).
 
 
 ## Further Reading
