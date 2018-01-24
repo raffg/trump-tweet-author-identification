@@ -105,7 +105,7 @@ For my final model, I assembled an ensemble of Random Forest, AdaBoost, Logistic
 
 ## The Flynn Tweet
 
-And as for that Flynn Tweet? My analysis strongly indicates it was written by Trump himself, and not by his lawyer, as they both claim. The Logistic Regression outputs a probability estimate of 97% that it came from Trump. Fittingly, the [/@RPMMAS](https://twitter.com/RPMMAS) twitter account performed an informal poll of its users and received almost 2000 responses, with 96% indicating they believed the tweet to have come from Trump:
+And as for that Flynn Tweet? My analysis indicates it was written by Trump himself, and not by his lawyer, as they both claim. However, my models are split evenly. Some predict Trump, others not Trump. The Logistic Regression outputs a probability estimate of 97% that it came from Trump. Fittingly, the [/@RPMMAS](https://twitter.com/RPMMAS) twitter account performed an informal poll of its users and received almost 2000 responses, with 96% indicating they believed the tweet to have come from Trump:
 
 ![WH claims his lawyer wrote this tweet: "I had to fire General Flynn because he lied to the Vice President and the FBI. He has pled guilty to those lies. It is a shame because his actions during the transition were lawful. There was nothing to hide!" Do you believe that's true?](images/flynn_tweet_poll.png)
 
