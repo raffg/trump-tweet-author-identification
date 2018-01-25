@@ -17,16 +17,13 @@ def main():
     result = random_forest_grid_search(X_train, y_train)
     print(result.best_params_, result.best_score_)
 
-    # model = run_model_random_forest()
+    # model = run_model_random_forest(X_train, y_train)
     # random_forest_save_pickle(model)
 
-    # test_results = ensemble_test_results(model)
+    # test_results = ensemble_test_results(model, X_test, y_test)
 
 
-def run_model_random_forest():
-    X = np.load('pickle/ensemble_predictions_X_train.npz')['arr_0']
-    y = np.load('pickle/ensemble_predictions_y_train.npz')['arr_0']
-
+def run_model_random_forest(X, y):
     ensemble = random_forest(np.array(X), np.array(y).ravel())
 
     # ensemble_save_pickle(ensemble)
@@ -83,10 +80,7 @@ def random_forest_grid_search(X, y):
     return clf
 
 
-def ensemble_test_results(model):
-    X_test = np.load('pickle/ensemble_predictions_X_test.npz')
-    y_test = np.load('pickle/ensemble_predictions_y_test.npz')
-
+def ensemble_test_results(model, X_test, y_test):
     y_predict = model.predict(X_test)
 
     print('Accuracy: ', accuracy_score(y_test, y_predict))

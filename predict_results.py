@@ -14,9 +14,7 @@ def main():
     # flynn()
     # example_tweets()
     sample_results = run_samples()
-
-    # save_data(sample_results)
-
+    save_data(sample_results)
     accuracies(sample_results[0])
 
 
