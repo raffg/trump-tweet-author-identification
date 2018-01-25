@@ -2,7 +2,8 @@ import pandas as pd
 import numpy as np
 import pickle
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, precision_score, recall_score
+from sklearn.metrics import accuracy_score, precision_score, recall_score, \
+                            f1_score
 
 
 def main():
@@ -84,6 +85,7 @@ def random_forest(X_train, X_val, y_train, y_val):
     print('Accuracy: ', accuracy_score(y_val, predicted))
     print('Precision: ', precision_score(y_val, predicted))
     print('Recall: ', recall_score(y_val, predicted))
+    print('F1 score: ', f1_score(y_val, predicted))
     print()
 
     return rf

@@ -2,7 +2,8 @@ import pandas as pd
 import numpy as np
 import pickle
 from sklearn.ensemble import GradientBoostingClassifier
-from sklearn.metrics import accuracy_score, precision_score, recall_score
+from sklearn.metrics import accuracy_score, precision_score, recall_score, \
+                            f1_score
 
 
 def main():
@@ -60,6 +61,12 @@ def run_model_gb():
                       np.array(condensed_val),
                       np.array(y_train).ravel(),
                       np.array(y_val).ravel())
+
+    feats = list(zip(top_feat, gb_condensed.feature_importances_))
+    feats = sorted(feats, key=lambda x: x[1])
+    feats = [x[0] for x in feats][::-1]
+    print(feats)
+
     # b_save_pickle(gb_condensed)
 
 
@@ -80,6 +87,7 @@ def gb(X_train, X_val, y_train, y_val):
     print('Accuracy: ', accuracy_score(y_val, predicted))
     print('Precision: ', precision_score(y_val, predicted))
     print('Recall: ', recall_score(y_val, predicted))
+    print('F1 score: ', f1_score(y_val, predicted))
     print()
 
     return gb
