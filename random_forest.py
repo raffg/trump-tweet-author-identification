@@ -60,6 +60,11 @@ def run_model_random_forest():
                                             np.array(condensed_val),
                                             np.array(y_train).ravel(),
                                             np.array(y_val).ravel())
+
+    feats = list(zip(top_feat, random_forest_condensed.feature_importances_))
+    feats = sorted(feats, key=lambda x: x[1])
+    feats = [x[0] for x in feats][::-1]
+    print(feats)
     # random_forest_save_pickle(random_forest_condensed)
 
 
