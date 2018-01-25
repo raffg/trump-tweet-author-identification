@@ -3,16 +3,17 @@ import numpy as np
 import pickle
 from itertools import combinations
 from collections import defaultdict
+from operator import itemgetter
 from sklearn.decomposition import PCA
 from sklearn.metrics import accuracy_score, precision_score, recall_score, \
                             f1_score
 
 
 def main():
-    flynn()
-    example_tweets()
-    # samples = run_samples()
-    # accuracies(samples)
+    # flynn()
+    # example_tweets()
+    sample_results = run_samples()
+    accuracies(sample_results)
 
 
 def predict_tweet(created_at):
@@ -132,51 +133,68 @@ def predict_tweet(created_at):
     try:
         label = y.iat[X.index[X['created_at'] == created_at].tolist()[0], 0]
         print('True label:', label)
-        return label, (tweet_rf, tweet_ab, tweet_knn, tweet_nb, tweet_gnb,
-                       tweet_svm, tweet_lr)
+        return label, (tweet_rf[0], tweet_ab[0], tweet_gb[0], tweet_knn[0],
+                       tweet_nb[0], tweet_gnb[0], tweet_svm[0], tweet_lr[0])
     except Exception:
         pass
     print()
 
-    return (tweet_rf, tweet_ab, tweet_knn, tweet_nb, tweet_gnb,
-            tweet_svm, tweet_lr)
+    return (tweet_rf[0], tweet_ab[0], tweet_gb[0], tweet_knn[0],
+            tweet_nb[0], tweet_gnb[0], tweet_svm[0], tweet_lr[0])
 
 
 def run_samples():
     with open('pickle/X_labeled.pkl', 'rb') as data_labeled:
-        X_labeled = pickle.load(data_labeled)
-
-    with open('pickle/X_unlabeled.pkl', 'rb') as data_unlabeled:
-        X_unlabeled = pickle.load(data_unlabeled)
+        X = pickle.load(data_labeled)
 
     with open('pickle/y.pkl', 'rb') as labels:
         y = pickle.load(labels)
 
-    X = pd.concat([X_labeled, X_unlabeled], axis=0).fillna(0)
-
     X = X[(X['created_at'] >= '2015-06-01') & (X['created_at'] < '2017-03-26')]
 
-    sample = X.sample(n=10)
+    sample = X.sample(n=5000)
 
     results = []
+    n = 0
     for index, row in sample.iterrows():
+        n += 1
+        print('Tweet #{}'.format(n))
+        print(row['text'])
+        print()
         result = predict_tweet(row['created_at'])
+        print('-----------------------------------------------------------')
         results.append(result)
     return results
 
 
 def accuracies(sample_results):
-    models = [0, 1, 2, 3, 4, 5, 6]
+    models = [0, 1, 2, 3, 4, 5, 6, 7]
     combos = (models + list(combinations(models, 3)) +
-              list(combinations(models, 5)))
+              list(combinations(models, 5)) + list(combinations(models, 7)))
     y_true = [x[0] for x in sample_results]
     y_pred = defaultdict(list)
 
     for model in combos:
         model_pred = []
         for sample in sample_results:
-            y_pred[model].append(1 if sum(maj_list) >=
-                                 len(maj_list) / 2. else 0)
+            ensemble = np.array(sample[1])[[model]]
+            pred = 1 if sum(ensemble) > len(ensemble) / 2 else 0
+            model_pred.append(pred)
+        y_pred[(model)] = model_pred
+
+    model_results = defaultdict(list)
+    for key, value in y_pred.items():
+        accuracy = accuracy_score(y_true, value)
+        precision = precision_score(y_true, value)
+        recall = recall_score(y_true, value)
+        f1 = f1_score(y_true, value)
+        model_results[key] = (accuracy, precision, recall, f1)
+
+    sorted_results = [(v, k) for k, v in model_results.items()]
+    sorted_results = sorted(model_results.items(), key=itemgetter(1),
+                            reverse=True)
+    for v, k in sorted_results[:10]:
+        print(v, k)
 
 
 def flynn():
