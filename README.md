@@ -95,13 +95,13 @@ Trump's tweets are in general more emotive than his aides' tweets, exhibiting hi
 
 As for the models, Random Forest performed the best on its own, with AdaBoost a close second. Naive Bayes performed most poorly of the models tested.
 
-|   |Random Forest|AdaBoost|Logistic Regression|KNN|SVM|Naive Bayes|
-|---:|:-----------:|:------:|:-------------:|:---:|:---:|:---------:|
-|Accuracy|94%|92%|90%|90%|90%|83%|
-|Precision|94%|92%|90%|91%|90%|86%|
-|Recall|95%|90%|88%|89%|90%|75%|
+|   |Gradient Boosting|Random Forest|AdaBoost|Logistic Regression|KNN|SVM|Naive Bayes|
+|---:|:--------------:|:-----------:|:------:|:-------------:|:---:|:---:|:---------:|
+|Accuracy|95%|94%|92%|90%|90%|90%|84%|
+|Precision|95%|94%|92%|90%|91%|90%|83%|
+|Recall|95%|95%|90%|88%|89%|90%|82%|
 
-For my final model, I created an ensemble of Random Forest, AdaBoost, Logistic Regression, KNN, and SVM.
+For my final model, I created an ensemble of all seven models, using the majority class as my predictor.
 
 ## The Flynn Tweet
 
