@@ -147,12 +147,14 @@ def run_samples():
     with open('pickle/X_labeled.pkl', 'rb') as data_labeled:
         X = pickle.load(data_labeled)
 
+    print(len(X))
+
     with open('pickle/y.pkl', 'rb') as labels:
         y = pickle.load(labels)
 
-    X = X[(X['created_at'] >= '2015-06-01') & (X['created_at'] < '2017-03-26')]
+    # X = X[(X['created_at'] >= '2015-06-01') & (X['created_at'] < '2017-03-26')]
 
-    sample = X.sample(n=5000)
+    sample = X.sample(n=10000)
 
     results = []
     n = 0
@@ -172,6 +174,11 @@ def accuracies(sample_results):
     combos = (models + list(combinations(models, 3)) +
               list(combinations(models, 5)) + list(combinations(models, 7)))
     y_true = [x[0] for x in sample_results]
+    np.savez('pickle/ensemble_predictions_y.npz', y_true)
+
+    X = [x[1] for x in sample_results]
+    np.savez('pickle/ensemble_predictions_X.npz', X)
+
     y_pred = defaultdict(list)
 
     for model in combos:
