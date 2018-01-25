@@ -180,7 +180,9 @@ def accuracies(sample_results):
 
 def flynn():
     print('Flynn tweet')
+    print()
     flynn = predict_tweet('2017-12-02 17:14:13')
+    print('-----------------------------------------------------------')
 
 
 def example_tweets():
@@ -188,66 +190,87 @@ def example_tweets():
     print('WikiLeaks reveals Clinton camp’s work with ‘VERY friendly and '
           'malleable reporters’ #DrainTheSwamp #CrookedHillary '
           'https://t.co/bcYLslrxi0')
+    print()
     tweet1 = predict_tweet('2016-10-21 22:46:37')
+    print('-----------------------------------------------------------')
     print()
 
     print("Thanks for all of the accolades on my speech today - it's all about"
           ' the truth!"')
     tweet2 = predict_tweet('2013-03-15 23:33:34')
+    print('-----------------------------------------------------------')
     print()
 
     print('Via @swan_investor by @Forbes: “The Trump Card: Make America Great '
           'Again” http://t.co/kWvbk5HtDr')
     tweet3 = predict_tweet('2015-05-13 17:50:05')
+    print('-----------------------------------------------------------')
     print()
 
     print('Congratulations to Connecticut’s Erin Brady on being crowned the '
           '2013 @MissUSA! America will be well-represented in @MissUniverse!')
     tweet4 = predict_tweet('2013-06-17 18:13:52')
+    print('-----------------------------------------------------------')
     print()
 
     print('We had a great News Conference at Trump Tower today. A couple of '
           "FAKE NEWS organizations were there but the people truly get what's"
           ' going on')
+    print()
     tweet5 = predict_tweet('2017-01-12 04:01:38')
+    print('-----------------------------------------------------------')
     print()
 
     print('According to a @gallupnews poll, over 60% think ObamaCare will make'
           ' things worse for taxpayers http://t.co/J375jNf1 ObamaCare is a '
           'T-A-X.')
+    print()
     tweet6 = predict_tweet('2012-07-18 13:27:52')
+    print('-----------------------------------------------------------')
     print()
 
     print('Thank you, Arizona! #Trump2016 #MakeAmericaGreatAgain #TrumpTrain')
+    print()
     tweet7 = predict_tweet('2016-03-23 18:35:50')
+    print('-----------------------------------------------------------')
     print()
 
     print("Lyin' Ted Cruz denied that he had anything to do with the G.Q. "
           "model photo post of Melania. That's why we call him Lyin' Ted!")
+    print()
     tweet8 = predict_tweet('2016-03-23 14:22:51')
+    print('-----------------------------------------------------------')
     print()
 
     print('I was relentless because, more often than you would think, sheer '
           'persistence is the difference between success and failure. NEVER '
           'GIVE UP!')
+    print()
     tweet9 = predict_tweet('2014-10-08 12:09:04')
+    print('-----------------------------------------------------------')
     print()
 
     print('"@MikeVega4: I have to say I fave no idea who @DannyZuker is but I '
           'know @realDonaldTrump is and he has great hotels #whoiszucker" '
           'TRUE.')
+    print()
     tweet10 = predict_tweet('2013-06-13 01:48:07')
+    print('-----------------------------------------------------------')
     print()
 
     print('Just tried watching Modern Family - written by a moron, really '
           'boring. Writer has the mind of a very dumb and backward child.'
           'Sorry Danny!')
+    print()
     tweet11 = predict_tweet('2013-06-13 01:46:43')
+    print('-----------------------------------------------------------')
     print()
 
     print('Whitey Bulger’s prosecution starts today.  Will be one of the most '
           'interesting and intriguing trials.')
+    print()
     tweet12 = predict_tweet('2013-06-04 17:47:39')
+    print('-----------------------------------------------------------')
     print()
 
 
