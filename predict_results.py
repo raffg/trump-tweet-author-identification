@@ -5,6 +5,7 @@ from itertools import combinations
 from collections import defaultdict
 from operator import itemgetter
 from sklearn.decomposition import PCA
+from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, precision_score, recall_score, \
                             f1_score
 
@@ -13,7 +14,10 @@ def main():
     # flynn()
     # example_tweets()
     sample_results = run_samples()
-    accuracies(sample_results)
+
+    # save_data(sample_results)
+
+    accuracies(sample_results[0])
 
 
 def predict_tweet(created_at):
@@ -147,18 +151,15 @@ def run_samples():
     with open('pickle/X_labeled.pkl', 'rb') as data_labeled:
         X = pickle.load(data_labeled)
 
-    print(len(X))
-
     with open('pickle/y.pkl', 'rb') as labels:
         y = pickle.load(labels)
 
-    # X = X[(X['created_at'] >= '2015-06-01') & (X['created_at'] < '2017-03-26')]
-
-    sample = X.sample(n=10000)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+    # sample = X.sample(n=10000)
 
     results = []
     n = 0
-    for index, row in sample.iterrows():
+    for index, row in X_train.iterrows():
         n += 1
         print('Tweet #{}'.format(n))
         print(row['text'])
@@ -166,7 +167,19 @@ def run_samples():
         result = predict_tweet(row['created_at'])
         print('-----------------------------------------------------------')
         results.append(result)
-    return results
+
+    results_test = []
+    n = 0
+    for index, row in X_test.iterrows():
+        n += 1
+        print('Tweet #{}'.format(n))
+        print(row['text'])
+        print()
+        result = predict_tweet(row['created_at'])
+        print('-----------------------------------------------------------')
+        results_test.append(result)
+
+    return results, results_test
 
 
 def accuracies(sample_results):
@@ -174,10 +187,6 @@ def accuracies(sample_results):
     combos = (models + list(combinations(models, 3)) +
               list(combinations(models, 5)) + list(combinations(models, 7)))
     y_true = [x[0] for x in sample_results]
-    np.savez('pickle/ensemble_predictions_y.npz', y_true)
-
-    X = [x[1] for x in sample_results]
-    np.savez('pickle/ensemble_predictions_X.npz', X)
 
     y_pred = defaultdict(list)
 
@@ -298,6 +307,17 @@ def example_tweets():
     tweet12 = predict_tweet('2013-06-04 17:47:39')
     print('-----------------------------------------------------------')
     print()
+
+
+def save_data(sample_results):
+    X_train = [x[1] for x in sample_results[0]]
+    y_train = [x[0] for x in sample_results[0]]
+    X_test = [x[1] for x in sample_results[1]]
+    y_test = [x[0] for x in sample_results[1]]
+    np.savez('pickle/ensemble_predictions_X_train.npz', X_train)
+    np.savez('pickle/ensemble_predictions_y_train.npz', y_train)
+    np.savez('pickle/ensemble_predictions_X_test.npz', X_test)
+    np.savez('pickle/ensemble_predictions_y_test.npz', y_test)
 
 
 if __name__ == '__main__':

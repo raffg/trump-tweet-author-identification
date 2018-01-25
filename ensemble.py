@@ -3,17 +3,29 @@ import numpy as np
 import pickle
 from sklearn.model_selection import KFold
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import accuracy_score, precision_score, recall_score, \
                             f1_score
 
 
 def main():
-    run_model_random_forest()
+    X_train = np.load('pickle/ensemble_predictions_X_train.npz')
+    y_train = np.load('pickle/ensemble_predictions_y_train.npz')
+    X_test = np.load('pickle/ensemble_predictions_X_test.npz')
+    y_test = np.load('pickle/ensemble_predictions_y_test.npz')
+
+    result = random_forest_grid_search(X_train, y_train)
+    print(result.best_params_, result.best_score_)
+
+    # model = run_model_random_forest()
+    # random_forest_save_pickle(model)
+
+    # test_results = ensemble_test_results(model)
 
 
 def run_model_random_forest():
-    X = np.load('pickle/ensemble_predictions_X.npz')['arr_0']
-    y = np.load('pickle/ensemble_predictions_y.npz')['arr_0']
+    X = np.load('pickle/ensemble_predictions_X_train.npz')['arr_0']
+    y = np.load('pickle/ensemble_predictions_y_train.npz')['arr_0']
 
     ensemble = random_forest(np.array(X), np.array(y).ravel())
 
@@ -23,7 +35,7 @@ def run_model_random_forest():
 def random_forest(X, y):
     # Basic random forest for ensemble
 
-    kfold = KFold(n_splits=5)
+    kfold = KFold(n_splits=10)
 
     accuracies = []
     precisions = []
@@ -53,6 +65,34 @@ def random_forest(X, y):
     print('F1 score: ', f1)
 
     return accuracy, precision, recall, f1
+
+
+def random_forest_grid_search(X, y):
+    parameters = {'n_estimators': [8, 10, 15, 20, 30],
+                  'max_features': [None, 'sqrt', 'log2'],
+                  'max_depth': [None, 3, 5, 10, 20],
+                  'min_samples_split': [2, 5],
+                  'min_samples_leaf': [1, 2, 5],
+                  'max_leaf_nodes': [10, 25, 50, 100, None],
+                  'n_jobs': [-1]}
+
+    rf = RandomForestClassifier()
+    clf = GridSearchCV(rf, parameters, cv=10, verbose=True)
+    clf.fit(X, y)
+
+    return clf
+
+
+def ensemble_test_results(model):
+    X_test = np.load('pickle/ensemble_predictions_X_test.npz')
+    y_test = np.load('pickle/ensemble_predictions_y_test.npz')
+
+    y_predict = model.predict(X_test)
+
+    print('Accuracy: ', accuracy_score(y_test, y_predict))
+    print('Precision: ', precision_score(y_test, y_predict))
+    print('Recall: ', recall_score(y_test, y_predict))
+    print('F1 score: ', f1_score(y_test, y_predict))
 
 
 def random_forest_save_pickle(model):
