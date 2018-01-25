@@ -5,7 +5,7 @@ from sklearn.tree import DecisionTreeClassifier
 
 
 def main():
-    run_model_decision_tree('pickle/data.pkl')
+    run_model_decision_tree('pickle/old_pickle/data.pkl')
 
 
 def run_model_decision_tree(file):
@@ -109,11 +109,11 @@ def run_model_decision_tree(file):
 
 def decision_tree(X_train, X_val, y_train, y_val):
     # Basic decision tree
-    dt = DecisionTreeClassifier('max_depth': 20,
-                                'max_features': 'sqrt',
-                                'max_leaf_nodes': 100,
-                                'min_samples_leaf': 2,
-                                'min_samples_split': 2).fit(X_train, y_train)
+    dt = DecisionTreeClassifier(max_depth=20,
+                                max_features='sqrt',
+                                max_leaf_nodes=100,
+                                min_samples_leaf=2,
+                                min_samples_split=2).fit(X_train, y_train)
     predicted = dt.predict(X_val)
     accuracy_train = np.mean(dt.predict(X_train) == y_train)
     accuracy_test = np.mean(predicted == y_val)
