@@ -11,14 +11,6 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, \
 
 
 def main():
-    # flynn()
-    # example_tweets()
-    sample_results = run_samples()
-    save_data(sample_results)
-    accuracies(sample_results[0])
-
-
-def predict_tweet(created_at):
     with open('pickle/random_forest_model.pkl', 'rb') as rf_f:
         rf = pickle.load(rf_f)
 
@@ -69,6 +61,20 @@ def predict_tweet(created_at):
 
     X = pd.concat([X_labeled, X_unlabeled], axis=0).fillna(0)
     X_std = pd.concat([X_labeled_std, X_unlabeled_std], axis=0).fillna(0)
+
+    params = (rf, lr, nb, gnb, ab, gb, knn, svm, X, X_std, y, rf_feat, lr_feat,
+              nb_feat, gnb_feat, knn_feat, svm_feat, ab_feat, gb_feat)
+
+    flynn(params)
+    example_tweets(params)
+    # sample_results = run_samples(params)
+    # save_data(sample_results, params)
+    # accuracies(sample_results[0], params)
+
+
+def predict_tweet(params, created_at):
+    (rf, lr, nb, gnb, ab, gb, knn, svm, X, X_std, y, rf_feat, lr_feat,
+     nb_feat, gnb_feat, knn_feat, svm_feat, ab_feat, gb_feat) = params
 
     drop = ['created_at', 'id_str', 'in_reply_to_user_id_str', 'tweetokenize',
             'text', 'pos', 'ner']
@@ -145,7 +151,7 @@ def predict_tweet(created_at):
             tweet_nb[0], tweet_gnb[0], tweet_svm[0], tweet_lr[0])
 
 
-def run_samples():
+def run_samples(params):
     with open('pickle/X_labeled.pkl', 'rb') as data_labeled:
         X = pickle.load(data_labeled)
 
@@ -162,7 +168,7 @@ def run_samples():
         print('Tweet #{}'.format(n))
         print(row['text'])
         print()
-        result = predict_tweet(row['created_at'])
+        result = predict_tweet(params, row['created_at'])
         print('-----------------------------------------------------------')
         results.append(result)
 
@@ -173,7 +179,7 @@ def run_samples():
         print('Tweet #{}'.format(n))
         print(row['text'])
         print()
-        result = predict_tweet(row['created_at'])
+        result = predict_tweet(params, row['created_at'])
         print('-----------------------------------------------------------')
         results_test.append(result)
 
@@ -211,38 +217,39 @@ def accuracies(sample_results):
         print(v, k)
 
 
-def flynn():
+def flynn(params):
+    print()
     print('Flynn tweet')
     print()
-    flynn = predict_tweet('2017-12-02 17:14:13')
+    flynn = predict_tweet(params, '2017-12-02 17:14:13')
     print('-----------------------------------------------------------')
 
 
-def example_tweets():
+def example_tweets(params):
     print()
     print('WikiLeaks reveals Clinton camp’s work with ‘VERY friendly and '
           'malleable reporters’ #DrainTheSwamp #CrookedHillary '
           'https://t.co/bcYLslrxi0')
     print()
-    tweet1 = predict_tweet('2016-10-21 22:46:37')
+    tweet1 = predict_tweet(params, '2016-10-21 22:46:37')
     print('-----------------------------------------------------------')
     print()
 
     print("Thanks for all of the accolades on my speech today - it's all about"
           ' the truth!"')
-    tweet2 = predict_tweet('2013-03-15 23:33:34')
+    tweet2 = predict_tweet(params, '2013-03-15 23:33:34')
     print('-----------------------------------------------------------')
     print()
 
     print('Via @swan_investor by @Forbes: “The Trump Card: Make America Great '
           'Again” http://t.co/kWvbk5HtDr')
-    tweet3 = predict_tweet('2015-05-13 17:50:05')
+    tweet3 = predict_tweet(params, '2015-05-13 17:50:05')
     print('-----------------------------------------------------------')
     print()
 
     print('Congratulations to Connecticut’s Erin Brady on being crowned the '
           '2013 @MissUSA! America will be well-represented in @MissUniverse!')
-    tweet4 = predict_tweet('2013-06-17 18:13:52')
+    tweet4 = predict_tweet(params, '2013-06-17 18:13:52')
     print('-----------------------------------------------------------')
     print()
 
@@ -250,7 +257,7 @@ def example_tweets():
           "FAKE NEWS organizations were there but the people truly get what's"
           ' going on')
     print()
-    tweet5 = predict_tweet('2017-01-12 04:01:38')
+    tweet5 = predict_tweet(params, '2017-01-12 04:01:38')
     print('-----------------------------------------------------------')
     print()
 
@@ -258,20 +265,20 @@ def example_tweets():
           ' things worse for taxpayers http://t.co/J375jNf1 ObamaCare is a '
           'T-A-X.')
     print()
-    tweet6 = predict_tweet('2012-07-18 13:27:52')
+    tweet6 = predict_tweet(params, '2012-07-18 13:27:52')
     print('-----------------------------------------------------------')
     print()
 
     print('Thank you, Arizona! #Trump2016 #MakeAmericaGreatAgain #TrumpTrain')
     print()
-    tweet7 = predict_tweet('2016-03-23 18:35:50')
+    tweet7 = predict_tweet(params, '2016-03-23 18:35:50')
     print('-----------------------------------------------------------')
     print()
 
     print("Lyin' Ted Cruz denied that he had anything to do with the G.Q. "
           "model photo post of Melania. That's why we call him Lyin' Ted!")
     print()
-    tweet8 = predict_tweet('2016-03-23 14:22:51')
+    tweet8 = predict_tweet(params, '2016-03-23 14:22:51')
     print('-----------------------------------------------------------')
     print()
 
@@ -279,7 +286,7 @@ def example_tweets():
           'persistence is the difference between success and failure. NEVER '
           'GIVE UP!')
     print()
-    tweet9 = predict_tweet('2014-10-08 12:09:04')
+    tweet9 = predict_tweet(params, '2014-10-08 12:09:04')
     print('-----------------------------------------------------------')
     print()
 
@@ -287,7 +294,7 @@ def example_tweets():
           'know @realDonaldTrump is and he has great hotels #whoiszucker" '
           'TRUE.')
     print()
-    tweet10 = predict_tweet('2013-06-13 01:48:07')
+    tweet10 = predict_tweet(params, '2013-06-13 01:48:07')
     print('-----------------------------------------------------------')
     print()
 
@@ -295,14 +302,14 @@ def example_tweets():
           'boring. Writer has the mind of a very dumb and backward child.'
           'Sorry Danny!')
     print()
-    tweet11 = predict_tweet('2013-06-13 01:46:43')
+    tweet11 = predict_tweet(params, '2013-06-13 01:46:43')
     print('-----------------------------------------------------------')
     print()
 
     print('Whitey Bulger’s prosecution starts today.  Will be one of the most '
           'interesting and intriguing trials.')
     print()
-    tweet12 = predict_tweet('2013-06-04 17:47:39')
+    tweet12 = predict_tweet(params, '2013-06-04 17:47:39')
     print('-----------------------------------------------------------')
     print()
 
