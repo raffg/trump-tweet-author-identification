@@ -65,11 +65,11 @@ def main():
     params = (rf, lr, nb, gnb, ab, gb, knn, svm, X, X_std, y, rf_feat, lr_feat,
               nb_feat, gnb_feat, knn_feat, svm_feat, ab_feat, gb_feat)
 
-    flynn(params)
-    example_tweets(params)
-    # sample_results = run_samples(params)
-    # save_data(sample_results, params)
-    # accuracies(sample_results[0], params)
+    # flynn(params)
+    # example_tweets(params)
+    sample_results = run_samples(params)
+    save_data(sample_results, params)
+    accuracies(sample_results[0], params)
 
 
 def predict_tweet(params, created_at):
@@ -108,7 +108,6 @@ def predict_tweet(params, created_at):
 
     proba_lr = lr.predict_proba(tweet_std[lr_feat])
     proba_rf = rf.predict_proba(tweet[rf_feat])
-    # proba_knn = knn.predict_proba(tweet_knn.reshape(1, -1))
     proba_ab = ab.predict_proba(tweet_std[ab_feat])
     proba_gb = gb.predict_proba(tweet_std[gb_feat])
     proba_nb = nb.predict_proba(tweet_std[nb_feat])
@@ -133,7 +132,6 @@ def predict_tweet(params, created_at):
     print('Random Forest Probabilities:      ', proba_rf)
     print('AdaBoost Probabilities:           ', proba_ab)
     print('Gradient Boosting Probabilities:  ', proba_gb)
-    # print('KNN Probabilities:                ', proba_knn)
     print('Naive Bayes Probabilities:        ', proba_nb)
     print('Logistic Regression probabilities:', proba_lr)
     print()
@@ -163,9 +161,10 @@ def run_samples(params):
 
     results = []
     n = 0
+    N = len(X_train)
     for index, row in X_train.iterrows():
         n += 1
-        print('Tweet #{}'.format(n))
+        print('Tweet #{} out of {}'.format(n, N))
         print(row['text'])
         print()
         result = predict_tweet(params, row['created_at'])
@@ -174,9 +173,10 @@ def run_samples(params):
 
     results_test = []
     n = 0
+    N = len(X_test)
     for index, row in X_test.iterrows():
         n += 1
-        print('Tweet #{}'.format(n))
+        print('Tweet #{} out of {}'.format(n, N))
         print(row['text'])
         print()
         result = predict_tweet(params, row['created_at'])
