@@ -68,8 +68,8 @@ def main():
     # flynn(params)
     # example_tweets(params)
     sample_results = run_samples(params)
-    save_data(sample_results, params)
-    accuracies(sample_results[0], params)
+    save_data(sample_results)
+    accuracies(sample_results[0])
 
 
 def predict_tweet(params, created_at):
