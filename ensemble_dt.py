@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import pickle
 from sklearn.model_selection import KFold
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import accuracy_score, precision_score, recall_score, \
                             f1_score
@@ -14,23 +14,23 @@ def main():
     X_test = np.load('pickle/ensemble_predictions_X_test.npz')['arr_0']
     y_test = np.load('pickle/ensemble_predictions_y_test.npz')['arr_0']
 
-    result = random_forest_grid_search(X_train, y_train)
+    result = decision_tree_grid_search(X_train, y_train)
     print(result.best_params_, result.best_score_)
 
-    # model = run_model_random_forest(X_train, y_train)
+    # model = run_model_decision_tree(X_train, y_train)
     # ensemble_save_pickle(model)
 
     # test_results = ensemble_test_results(model, X_test, y_test)
 
 
-def run_model_random_forest(X, y):
-    ensemble = random_forest(np.array(X), np.array(y).ravel())
+def run_model_decision_tree(X, y):
+    ensemble = decision_tree(np.array(X), np.array(y).ravel())
 
     # ensemble_save_pickle(ensemble)
 
 
-def random_forest(X, y):
-    # Basic random forest for ensemble
+def decision_tree(X, y):
+    # Basic decision tree for ensemble
 
     kfold = KFold(n_splits=10)
 
@@ -40,13 +40,7 @@ def random_forest(X, y):
     f1_scores = []
 
     for train_index, test_index in kfold.split(X):
-        model = RandomForestClassifier(max_depth=None,
-                                       max_features='sqrt',
-                                       max_leaf_nodes=None,
-                                       min_samples_leaf=2,
-                                       min_samples_split=7,
-                                       n_estimators=1000,
-                                       n_jobs=-1)
+        model = DecisionTreeClassifier()
         X_train, X_test = X[train_index], X[test_index]
         y_train, y_test = y[train_index], y[test_index]
         model.fit(X_train, y_train)
@@ -70,17 +64,17 @@ def random_forest(X, y):
     return accuracy, precision, recall, f1
 
 
-def random_forest_grid_search(X, y):
-    parameters = {'n_estimators': [1000],
-                  'max_features': ['sqrt', 'log2'],
-                  'max_depth': [None],
-                  'min_samples_split': [5, 6, 7, 8, 10],
+def decision_tree_grid_search(X, y):
+    parameters = {'criterion': ['gini', 'entropy'],
+                  'splitter': ['best', 'random'],
+                  'max_depth': [None, 2, 3, 4, 5, 6, 10],
+                  'min_samples_split': [2, 3, 4],
                   'min_samples_leaf': [1, 2, 3],
-                  'max_leaf_nodes': [None],
-                  'n_jobs': [-1]}
+                  'min_weight_fraction_leaf': [0., .001, .01, .1, .25, .5],
+                  'max_features': [None, 'sqrt', 'log2']}
 
-    rf = RandomForestClassifier()
-    clf = GridSearchCV(rf, parameters, cv=10, verbose=True)
+    dt = DecisionTreeClassifier()
+    clf = GridSearchCV(dt, parameters, cv=10, verbose=True)
     clf.fit(X, y)
 
     return clf
@@ -97,7 +91,7 @@ def ensemble_test_results(model, X_test, y_test):
 
 def ensemble_save_pickle(model):
     # Save pickle file
-    output = open('pickle/ensemble_rf.pkl', 'wb')
+    output = open('pickle/ensemble_dt.pkl', 'wb')
     print('Pickle dump model')
     pickle.dump(model, output, protocol=4)
     output.close()
