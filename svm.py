@@ -43,7 +43,6 @@ def run_model_svm():
                     np.array(whole_val),
                     np.array(y_train).ravel(),
                     np.array(y_val).ravel())
-    # svm_save_pickle(svm_whole)
 
     top_feat = set(np.load('pickle/top_features.npz')['arr_0'][:300])
     train_feat = []

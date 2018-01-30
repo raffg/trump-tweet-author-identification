@@ -79,7 +79,7 @@ def main():
     # flynn(params)
     # example_tweets(params)
     sample_results = run_samples(params)
-    accuracies(sample_results[0])
+    accuracies(sample_results)
     # save_data(sample_results)
 
 
@@ -100,8 +100,8 @@ def predict_tweet(params, created_at):
 
     tweet = tweet.drop(drop, axis=1)
     tweet_std = tweet_std.drop(drop, axis=1)
-    tweet_knn = tweet_std
-    tweet_gnb = tweet_std
+    tweet_knn = tweet_std.copy()
+    tweet_gnb = tweet_std.copy()
 
     knn_train = pd.read_pickle('pickle/train_all_std.pkl')
     knn_train = knn_train.drop(drop, axis=1)
@@ -129,9 +129,6 @@ def predict_tweet(params, created_at):
     proba_ab = ab.predict_proba(tweet_std[ab_feat])
     proba_gb = gb.predict_proba(tweet_std[gb_feat])
     proba_nb = nb.predict_proba(tweet_std[nb_feat])
-
-    maj_list = [tweet_rf[0], tweet_svm[0], tweet_lr[0],  tweet_gnb[0],
-                tweet_nb[0], tweet_ab[0], tweet_knn[0]]
 
     maj_list = [tweet_rf[0], tweet_knn[0], tweet_lr[0], tweet_ab[0],
                 tweet_svm[0], tweet_gnb[0], tweet_gb[0]]
@@ -174,32 +171,20 @@ def run_samples(params):
     with open('pickle/y.pkl', 'rb') as labels:
         y = pickle.load(labels)
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
-    # sample = X.sample(n=10000)
+    sample = X.sample(n=50)
 
     results = []
     n = 0
-    for index, row in X_train[:50].iterrows():
+    for index, row in sample.iterrows():
         n += 1
-        print('Tweet #{} out of {}'.format(n, len(X_train)))
+        print('Tweet #{} out of {}'.format(n, len(sample)))
         print(row['text'])
         print()
         result = predict_tweet(params, row['created_at'])
         print('-----------------------------------------------------------')
         results.append(result)
 
-    results_test = []
-    n = 0
-    for index, row in X_test[:50].iterrows():
-        n += 1
-        print('Tweet #{} out of {}'.format(n, len(X_test)))
-        print(row['text'])
-        print()
-        result = predict_tweet(params, row['created_at'])
-        print('-----------------------------------------------------------')
-        results_test.append(result)
-
-    return results, results_test
+    return results
 
 
 def accuracies(sample_results):
@@ -219,6 +204,17 @@ def accuracies(sample_results):
         y_pred[(model)] = model_pred
 
     model_results = defaultdict(list)
+
+    # print model results
+    for model in models:
+        value = [x[1][model] for x in sample_results]
+        accuracy = accuracy_score(y_true, value)
+        precision = precision_score(y_true, value)
+        recall = recall_score(y_true, value)
+        f1 = f1_score(y_true, value)
+        print(model, (accuracy, precision, recall, f1))
+
+    # print ensemble results
     for key, value in y_pred.items():
         accuracy = accuracy_score(y_true, value)
         precision = precision_score(y_true, value)

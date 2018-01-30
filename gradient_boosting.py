@@ -67,7 +67,7 @@ def run_model_gb():
     feats = [x[0] for x in feats][::-1]
     print(feats)
 
-    # b_save_pickle(gb_condensed)
+    # gb_save_pickle(gb_condensed)
 
 
 def gb(X_train, X_val, y_train, y_val):

@@ -88,7 +88,7 @@ def knn_save_pca(pca):
     # Save pickle file
     output = open('pickle/knn_pca.pkl', 'wb')
     print('Pickle dump model')
-    pickle.dump(model, output, protocol=4)
+    pickle.dump(pca, output, protocol=4)
     output.close()
 
     return
