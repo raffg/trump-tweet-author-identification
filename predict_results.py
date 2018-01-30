@@ -14,7 +14,7 @@ def main():
     with open('pickle/random_forest_model.pkl', 'rb') as rf_f:
         rf = pickle.load(rf_f)
 
-    with open('pickle/lr_model.pkl', 'rb') as lr_f:
+    with open('pickle/logistic_regression_model.pkl', 'rb') as lr_f:
         lr = pickle.load(lr_f)
 
     with open('pickle/naive_bayes_model.pkl', 'rb') as nb_f:
@@ -50,37 +50,56 @@ def main():
     with open('pickle/y.pkl', 'rb') as labels:
         y = pickle.load(labels)
 
-    rf_feat = np.load('pickle/top_features.npz')['arr_0'][:200]
-    lr_feat = np.load('pickle/top_features.npz')['arr_0'][:200]
-    nb_feat = np.load('pickle/top_features.npz')['arr_0'][:5]
-    gnb_feat = np.load('pickle/top_features.npz')['arr_0'][:13]
-    knn_feat = np.load('pickle/top_features.npz')['arr_0'][:13]
-    svm_feat = np.load('pickle/top_features.npz')['arr_0'][:300]
-    ab_feat = np.load('pickle/top_features.npz')['arr_0'][:300]
-    gb_feat = np.load('pickle/top_features.npz')['arr_0'][:300]
+    with open('pickle/knn_pca.pkl', 'rb') as knn_pca:
+        knn_pca = pickle.load(knn_pca)
 
-    X = pd.concat([X_labeled, X_unlabeled], axis=0).fillna(0)
-    X_std = pd.concat([X_labeled_std, X_unlabeled_std], axis=0).fillna(0)
+    with open('pickle/gnb_pca.pkl', 'rb') as gnb_pca:
+        gnb_pca = pickle.load(gnb_pca)
 
-    params = (rf, lr, nb, gnb, ab, gb, knn, svm, X, X_std, y, rf_feat, lr_feat,
-              nb_feat, gnb_feat, knn_feat, svm_feat, ab_feat, gb_feat)
+    top_feats = np.load('pickle/top_features.npz')['arr_0']
+    rf_feat = top_feats[:200]
+    lr_feat = top_feats[:200]
+    nb_feat = top_feats[:5]
+    gnb_feat = top_feats[:13]
+    knn_feat = top_feats[:13]
+    svm_feat = top_feats[:300]
+    ab_feat = top_feats[:300]
+    gb_feat = top_feats[:300]
 
-    # flynn(params)
-    # example_tweets(params)
-    sample_results = run_samples(params)
-    save_data(sample_results)
-    accuracies(sample_results[0])
+    # X = pd.concat([X_labeled, X_unlabeled], axis=0).fillna(0)
+    # X_std = pd.concat([X_labeled_std, X_unlabeled_std], axis=0).fillna(0)
+
+    X = X_labeled
+    X_std = X_labeled_std
+
+    X_unl = X_unlabeled
+    X_unl_std = X_unlabeled_std
+
+    params = (rf, lr, nb, gnb, ab, gb, knn, svm, X, X_std, X_unl, X_unl_std, y,
+              rf_feat, lr_feat, nb_feat, gnb_feat, knn_feat, svm_feat, ab_feat,
+              gb_feat, knn_pca, gnb_pca)
+
+    flynn(params)
+    example_tweets(params)
+    # sample_results = run_samples(params)
+    # accuracies(sample_results[0])
+    # save_data(sample_results)
 
 
 def predict_tweet(params, created_at):
-    (rf, lr, nb, gnb, ab, gb, knn, svm, X, X_std, y, rf_feat, lr_feat,
-     nb_feat, gnb_feat, knn_feat, svm_feat, ab_feat, gb_feat) = params
+    (rf, lr, nb, gnb, ab, gb, knn, svm, X, X_std, X_unl, X_unl_std, y,
+     rf_feat, lr_feat, nb_feat, gnb_feat, knn_feat, svm_feat, ab_feat,
+     gb_feat, knn_pca, gnb_pca) = params
 
     drop = ['created_at', 'id_str', 'in_reply_to_user_id_str', 'tweetokenize',
             'text', 'pos', 'ner']
 
-    tweet = X[X['created_at'] == created_at]
-    tweet_std = X_std[X_std['created_at'] == created_at]
+    if not X[X['created_at'] == created_at].empty:
+        tweet = X[X['created_at'] == created_at]
+        tweet_std = X_std[X_std['created_at'] == created_at]
+    else:
+        tweet = X_unl[X_unl['created_at'] == created_at]
+        tweet_std = X_unl_std[X_unl_std['created_at'] == created_at]
 
     tweet = tweet.drop(drop, axis=1)
     tweet_std = tweet_std.drop(drop, axis=1)
@@ -96,6 +115,8 @@ def predict_tweet(params, created_at):
     pca = PCA(n_components=10)
     pca.fit(knn_train[gnb_feat])
     tweet_gnb = pca.transform(tweet_gnb[gnb_feat])
+    # tweet_knn = knn_pca.transform(tweet_knn[knn_feat])
+    # tweet_gnb = gnb_pca.transform(tweet_gnb[gnb_feat])
 
     tweet_rf = rf.predict(tweet[rf_feat])
     tweet_ab = ab.predict(tweet_std[ab_feat])
@@ -161,10 +182,9 @@ def run_samples(params):
 
     results = []
     n = 0
-    N = len(X_train)
-    for index, row in X_train.iterrows():
+    for index, row in X_train[:50].iterrows():
         n += 1
-        print('Tweet #{} out of {}'.format(n, N))
+        print('Tweet #{} out of {}'.format(n, len(X_train)))
         print(row['text'])
         print()
         result = predict_tweet(params, row['created_at'])
@@ -173,10 +193,9 @@ def run_samples(params):
 
     results_test = []
     n = 0
-    N = len(X_test)
-    for index, row in X_test.iterrows():
+    for index, row in X_test[:50].iterrows():
         n += 1
-        print('Tweet #{} out of {}'.format(n, N))
+        print('Tweet #{} out of {}'.format(n, len(X_test)))
         print(row['text'])
         print()
         result = predict_tweet(params, row['created_at'])
@@ -213,7 +232,7 @@ def accuracies(sample_results):
     sorted_results = [(v, k) for k, v in model_results.items()]
     sorted_results = sorted(model_results.items(), key=itemgetter(1),
                             reverse=True)
-    for v, k in sorted_results[:10]:
+    for v, k in sorted_results:
         print(v, k)
 
 

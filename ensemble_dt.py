@@ -67,10 +67,10 @@ def decision_tree(X, y):
 def decision_tree_grid_search(X, y):
     parameters = {'criterion': ['gini', 'entropy'],
                   'splitter': ['best', 'random'],
-                  'max_depth': [None, 2, 3, 4, 5, 6, 10],
+                  'max_depth': [None, 2, 3, 4, 5, 6],
                   'min_samples_split': [2, 3, 4],
                   'min_samples_leaf': [1, 2, 3],
-                  'min_weight_fraction_leaf': [0., .001, .01, .1, .25, .5],
+                  'min_weight_fraction_leaf': [0., .001, .01, .1, .25],
                   'max_features': [None, 'sqrt', 'log2']}
 
     dt = DecisionTreeClassifier()
