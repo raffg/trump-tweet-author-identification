@@ -55,6 +55,7 @@ def run_model_knn():
                         np.array(y_train).ravel(),
                         np.array(y_val).ravel())
     # knn_save_pickle(knn_condensed)
+    # knn_save_pca(pca)
 
 
 def knn(X_train, X_val, y_train, y_val):
@@ -76,6 +77,16 @@ def knn(X_train, X_val, y_train, y_val):
 def knn_save_pickle(model):
     # Save pickle file
     output = open('pickle/knn_model.pkl', 'wb')
+    print('Pickle dump model')
+    pickle.dump(model, output, protocol=4)
+    output.close()
+
+    return
+
+
+def knn_save_pca(pca):
+    # Save pickle file
+    output = open('pickle/knn_pca.pkl', 'wb')
     print('Pickle dump model')
     pickle.dump(model, output, protocol=4)
     output.close()

@@ -50,11 +50,11 @@ def main():
     with open('pickle/y.pkl', 'rb') as labels:
         y = pickle.load(labels)
 
-    with open('pickle/knn_pca.pkl', 'rb') as knn_pca:
-        knn_pca = pickle.load(knn_pca)
+    with open('pickle/knn_pca.pkl', 'rb') as knn_pca_object:
+        knn_pca = pickle.load(knn_pca_object)
 
-    with open('pickle/gnb_pca.pkl', 'rb') as gnb_pca:
-        gnb_pca = pickle.load(gnb_pca)
+    with open('pickle/gnb_pca.pkl', 'rb') as gnb_pca_object:
+        gnb_pca = pickle.load(gnb_pca_object)
 
     top_feats = np.load('pickle/top_features.npz')['arr_0']
     rf_feat = top_feats[:200]
@@ -66,9 +66,6 @@ def main():
     ab_feat = top_feats[:300]
     gb_feat = top_feats[:300]
 
-    # X = pd.concat([X_labeled, X_unlabeled], axis=0).fillna(0)
-    # X_std = pd.concat([X_labeled_std, X_unlabeled_std], axis=0).fillna(0)
-
     X = X_labeled
     X_std = X_labeled_std
 
@@ -79,10 +76,10 @@ def main():
               rf_feat, lr_feat, nb_feat, gnb_feat, knn_feat, svm_feat, ab_feat,
               gb_feat, knn_pca, gnb_pca)
 
-    flynn(params)
-    example_tweets(params)
-    # sample_results = run_samples(params)
-    # accuracies(sample_results[0])
+    # flynn(params)
+    # example_tweets(params)
+    sample_results = run_samples(params)
+    accuracies(sample_results[0])
     # save_data(sample_results)
 
 

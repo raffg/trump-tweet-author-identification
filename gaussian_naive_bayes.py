@@ -55,6 +55,7 @@ def run_model_gaussian_nb():
                                         np.array(y_train).ravel(),
                                         np.array(y_val).ravel())
     # gaussian_nb_save_pickle(gaussian_nb_condensed)
+    # gnb_save_pca(pca)
 
 
 def gaussian_nb(X_train, X_val, y_train, y_val):
@@ -76,6 +77,16 @@ def gaussian_nb(X_train, X_val, y_train, y_val):
 def gaussian_nb_save_pickle(model):
     # Save pickle file
     output = open('pickle/gaussian_nb_model.pkl', 'wb')
+    print('Pickle dump model')
+    pickle.dump(model, output, protocol=4)
+    output.close()
+
+    return
+
+
+def gnb_save_pca(pca):
+    # Save pickle file
+    output = open('pickle/knn_pca.pkl', 'wb')
     print('Pickle dump model')
     pickle.dump(model, output, protocol=4)
     output.close()
