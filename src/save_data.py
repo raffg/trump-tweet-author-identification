@@ -71,8 +71,9 @@ def main():
     X_unlabeled = all_data_unlabeled.drop(['source'], axis=1)
     X_unlabeled.to_pickle('pickle/X_unlabeled.pkl')
     y.to_pickle('pickle/y.pkl')
-    scaler = StandardScaler()
 
+    # Standardize data
+    scaler = StandardScaler()
     X_labeled_std = X_labeled.copy()
     X_unlabeled_std = X_unlabeled.copy()
     cols = X_labeled[feat].columns
