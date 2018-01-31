@@ -28,10 +28,12 @@ def main():
     X_std = standardize(X)
 
     # Split test and train data
-    (X_train, X_test, y_train, y_test) = train_test_split(X, y, test_size=0.2,
+    (X_train, X_test, y_train, y_test) = train_test_split(X, y,
+                                                          test_size=0.2,
                                                           random_state=1)
     (X_std_train, X_std_test,
-     y_std_train, y_std_test) = train_test_split(X_std, y, test_size=0.2,
+     y_std_train, y_std_test) = train_test_split(X_std, y,
+                                                 test_size=0.2,
                                                  random_state=1)
 
     # Load the feature sets
@@ -63,15 +65,21 @@ def main():
     lr_results = logistic_regression(X_std_train[lr_feat], y_std_train,
                                      X_std_test[lr_feat], y_std_test)
 
+    print('Saving all models')
+    save_pickle([rf_results, ab_results, gb_results, knn_results, nb_results,
+                 gnb_results, svm_results, lr_results, y_train],
+                'pickle/ensemble_results.pkl')
 
-def save_pickle(object, filename):
+
+def save_pickle(objects, filename):
     # Save pickle file
     output = open(filename, 'wb')
     print('Pickle dump')
-    pickle.dump(object, output, protocol=4)
+    for item in objects:
+        pickle.dump(item, output, protocol=4)
     output.close()
-    print()
     print('-------------------------------')
+    print()
     return
 
 
@@ -93,7 +101,7 @@ def standardize(X):
                                X[feat]),
                                index=X.index,
                                columns=cols)
-    save_pickle(scaler, 'pickle/ensemble_scaler.pkl')
+    save_pickle([scaler], 'pickle/ensemble_scaler.pkl')
     return X_std
 
 
@@ -114,7 +122,7 @@ def random_forest(X_train, y_train, X_test, y_test):
     print('F1 score: ', f1_score(y_test, predicted))
     print()
 
-    save_pickle(rf, 'pickle/ensemble_rf.pkl')
+    save_pickle([rf], 'pickle/ensemble_rf.pkl')
 
     return predicted
 
@@ -131,7 +139,7 @@ def adaboost(X_train, y_train, X_test, y_test):
     print('F1 score: ', f1_score(y_test, predicted))
     print()
 
-    save_pickle(ab, 'pickle/ensemble_ab.pkl')
+    save_pickle([ab], 'pickle/ensemble_ab.pkl')
 
     return predicted
 
@@ -154,7 +162,7 @@ def gradient_boosting(X_train, y_train, X_test, y_test):
     print('F1 score: ', f1_score(y_test, predicted))
     print()
 
-    save_pickle(gb, 'pickle/ensemble_gb.pkl')
+    save_pickle([gb], 'pickle/ensemble_gb.pkl')
 
     return predicted
 
@@ -166,7 +174,7 @@ def knn(X_train, y_train, X_test, y_test):
     pca = PCA(n_components=12)
     pca.fit(X_train)
 
-    save_pickle(pca, 'pickle/ensemble_knn_pca.pkl')
+    save_pickle([pca], 'pickle/ensemble_knn_pca.pkl')
 
     X_train = pca.transform(X_train)
     X_test = pca.transform(X_test)
@@ -180,7 +188,7 @@ def knn(X_train, y_train, X_test, y_test):
     print('F1 score: ', f1_score(y_test, predicted))
     print()
 
-    save_pickle(knn, 'pickle/ensemble_knn.pkl')
+    save_pickle([knn], 'pickle/ensemble_knn.pkl')
 
     return predicted
 
@@ -196,7 +204,7 @@ def naive_bayes(X_train, y_train, X_test, y_test):
     print('F1 score: ', f1_score(y_test, predicted))
     print()
 
-    save_pickle(nb, 'pickle/ensemble_nb.pkl')
+    save_pickle([nb], 'pickle/ensemble_nb.pkl')
 
     return predicted
 
@@ -208,7 +216,7 @@ def gaussian_naive_bayes(X_train, y_train, X_test, y_test):
     pca = PCA(n_components=10)
     pca.fit(X_train)
 
-    save_pickle(pca, 'pickle/ensemble_gnb_pca.pkl')
+    save_pickle([pca], 'pickle/ensemble_gnb_pca.pkl')
 
     X_train = pca.transform(X_train)
     X_test = pca.transform(X_test)
@@ -222,7 +230,7 @@ def gaussian_naive_bayes(X_train, y_train, X_test, y_test):
     print('F1 score: ', f1_score(y_test, predicted))
     print()
 
-    save_pickle(gnb, 'pickle/ensemble_gnb.pkl')
+    save_pickle([gnb], 'pickle/ensemble_gnb.pkl')
 
     return predicted
 
@@ -239,7 +247,7 @@ def svm(X_train, y_train, X_test, y_test):
     print('F1 score: ', f1_score(y_test, predicted))
     print()
 
-    save_pickle(svm, 'pickle/ensemble_svm.pkl')
+    save_pickle([svm], 'pickle/ensemble_svm.pkl')
 
     return predicted
 
@@ -255,7 +263,7 @@ def logistic_regression(X_train, y_train, X_test, y_test):
     print('F1 score: ', f1_score(y_test, predicted))
     print()
 
-    save_pickle(lr, 'pickle/ensemble_lr.pkl')
+    save_pickle([lr], 'pickle/ensemble_lr.pkl')
 
     return predicted
 

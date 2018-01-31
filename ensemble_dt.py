@@ -9,12 +9,27 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, \
 
 
 def main():
-    X_train = np.load('pickle/ensemble_predictions_X_train.npz')['arr_0']
-    y_train = np.load('pickle/ensemble_predictions_y_train.npz')['arr_0']
-    X_test = np.load('pickle/ensemble_predictions_X_test.npz')['arr_0']
-    y_test = np.load('pickle/ensemble_predictions_y_test.npz')['arr_0']
+    # Load the data
+    pkl = open('pickle/ensemble_results.pkl', 'rb')
+    rf_results = pickle.load(pkl)
+    ab_results = pickle.load(pkl)
+    gb_results = pickle.load(pkl)
+    knn_results = pickle.load(pkl)
+    nb_results = pickle.load(pkl)
+    gnb_results = pickle.load(pkl)
+    svm_results = pickle.load(pkl)
+    lr_results = pickle.load(pkl)
+    y_train = pickle.load(pkl)
+    pkl.close()
 
-    result = decision_tree_grid_search(X_train, y_train)
+    data = {'rf': rf_results, 'ab': ab_results, 'gb': gb_results,
+            'knn': knn_results, 'nb': nb_results, 'gnb': gnb_results,
+            'svm': svm_results, 'lr': lr_results}
+
+    X = pd.DataFrame(data)
+    y = y_train
+
+    result = decision_tree_grid_search(X, y)
     print(result.best_params_, result.best_score_)
 
     # model = run_model_decision_tree(X_train, y_train)
@@ -97,6 +112,11 @@ def ensemble_save_pickle(model):
     output.close()
 
     return
+
+
+def open_pickle(filename):
+    with open(filename, 'rb') as pickle:
+        return pickle.load(pickle)
 
 
 if __name__ == '__main__':
