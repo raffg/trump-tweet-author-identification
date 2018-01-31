@@ -31,10 +31,10 @@ def main():
 
     X['majority'] = X.apply(majority, axis=1)
 
-    result = decision_tree_grid_search(X, y)
-    print(result.best_params_, result.best_score_)
+    # result = decision_tree_grid_search(X, y)
+    # print(result.best_params_, result.best_score_)
 
-    # model = run_model_decision_tree(X, y)
+    model = run_model_decision_tree(X, y)
     # ensemble_save_pickle(model)
 
     # test_results = ensemble_test_results(model, X_test, y_test)
