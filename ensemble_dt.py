@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import pickle
+from ensemble import save_pickle
 from sklearn.model_selection import KFold
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import GridSearchCV
@@ -43,7 +44,7 @@ def main():
 def run_model_decision_tree(X, y):
     ensemble = decision_tree(np.array(X), np.array(y).ravel())
 
-    # ensemble_save_pickle(ensemble)
+    save_pickle(ensemble, 'pickle/ensemble_decision_tree.pkl')
 
 
 def decision_tree(X, y):
@@ -113,21 +114,6 @@ def ensemble_test_results(model, X_test, y_test):
     print('Precision: ', precision_score(y_test, y_predict))
     print('Recall: ', recall_score(y_test, y_predict))
     print('F1 score: ', f1_score(y_test, y_predict))
-
-
-def ensemble_save_pickle(model):
-    # Save pickle file
-    output = open('pickle/ensemble_dt.pkl', 'wb')
-    print('Pickle dump model')
-    pickle.dump(model, output, protocol=4)
-    output.close()
-
-    return
-
-
-def open_pickle(filename):
-    with open(filename, 'rb') as pickle:
-        return pickle.load(pickle)
 
 
 if __name__ == '__main__':
