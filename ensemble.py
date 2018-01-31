@@ -67,7 +67,7 @@ def main():
 
     print('Saving all models')
     save_pickle([rf_results, ab_results, gb_results, knn_results, nb_results,
-                 gnb_results, svm_results, lr_results, y_train],
+                 gnb_results, svm_results, lr_results, y_test],
                 'pickle/ensemble_results.pkl')
 
 
@@ -78,9 +78,6 @@ def save_pickle(objects, filename):
     for item in objects:
         pickle.dump(item, output, protocol=4)
     output.close()
-    print('-------------------------------')
-    print()
-    return
 
 
 def standardize(X):
@@ -106,6 +103,8 @@ def standardize(X):
 
 
 def random_forest(X_train, y_train, X_test, y_test):
+    print('-------------------------------')
+    print()
     print('Training Random Forest')
     rf = RandomForestClassifier(max_depth=20,
                                 max_features='sqrt',
@@ -128,6 +127,8 @@ def random_forest(X_train, y_train, X_test, y_test):
 
 
 def adaboost(X_train, y_train, X_test, y_test):
+    print('-------------------------------')
+    print()
     print('Training AdaBoost')
     ab = AdaBoostClassifier(learning_rate=1.25,
                             n_estimators=40).fit(X_train, y_train)
@@ -145,6 +146,8 @@ def adaboost(X_train, y_train, X_test, y_test):
 
 
 def gradient_boosting(X_train, y_train, X_test, y_test):
+    print('-------------------------------')
+    print()
     print('Training Gradient Boosting')
     gb = GradientBoostingClassifier(n_estimators=200,
                                     learning_rate=.1,
@@ -168,6 +171,8 @@ def gradient_boosting(X_train, y_train, X_test, y_test):
 
 
 def knn(X_train, y_train, X_test, y_test):
+    print('-------------------------------')
+    print()
     print('Training K Nearest Neighbors')
 
     # Perform Principle Component Analysis
@@ -175,7 +180,6 @@ def knn(X_train, y_train, X_test, y_test):
     pca.fit(X_train)
 
     save_pickle([pca], 'pickle/ensemble_knn_pca.pkl')
-
     X_train = pca.transform(X_train)
     X_test = pca.transform(X_test)
 
@@ -194,6 +198,8 @@ def knn(X_train, y_train, X_test, y_test):
 
 
 def naive_bayes(X_train, y_train, X_test, y_test):
+    print('-------------------------------')
+    print()
     print('Training Multnomial Naive Bayes')
     nb = MultinomialNB(alpha=10).fit(X_train, y_train)
     predicted = nb.predict(X_test)
@@ -210,6 +216,8 @@ def naive_bayes(X_train, y_train, X_test, y_test):
 
 
 def gaussian_naive_bayes(X_train, y_train, X_test, y_test):
+    print('-------------------------------')
+    print()
     print('Training Gaussian Naive Bayes')
 
     # Perform Principle Component Analysis
@@ -236,6 +244,8 @@ def gaussian_naive_bayes(X_train, y_train, X_test, y_test):
 
 
 def svm(X_train, y_train, X_test, y_test):
+    print('-------------------------------')
+    print()
     print('Training SVM')
     svm = SGDClassifier(loss='hinge', penalty='l2',
                         alpha=0.0001, max_iter=10).fit(X_train, y_train)
@@ -253,6 +263,8 @@ def svm(X_train, y_train, X_test, y_test):
 
 
 def logistic_regression(X_train, y_train, X_test, y_test):
+    print('-------------------------------')
+    print()
     print('Training Logistic Regression')
     lr = LogisticRegression(C=.05).fit(X_train, y_train)
     predicted = lr.predict(X_test)

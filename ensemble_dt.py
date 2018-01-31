@@ -29,10 +29,12 @@ def main():
     X = pd.DataFrame(data)
     y = y_train
 
+    X['majority'] = X.apply(majority, axis=1)
+
     result = decision_tree_grid_search(X, y)
     print(result.best_params_, result.best_score_)
 
-    # model = run_model_decision_tree(X_train, y_train)
+    # model = run_model_decision_tree(X, y)
     # ensemble_save_pickle(model)
 
     # test_results = ensemble_test_results(model, X_test, y_test)
@@ -55,7 +57,10 @@ def decision_tree(X, y):
     f1_scores = []
 
     for train_index, test_index in kfold.split(X):
-        model = DecisionTreeClassifier()
+        model = DecisionTreeClassifier(criterion='gini',
+                                       max_depth=None,
+                                       min_weight_fraction_leaf=0.001,
+                                       splitter='best')
         X_train, X_test = X[train_index], X[test_index]
         y_train, y_test = y[train_index], y[test_index]
         model.fit(X_train, y_train)
@@ -93,6 +98,12 @@ def decision_tree_grid_search(X, y):
     clf.fit(X, y)
 
     return clf
+
+
+def majority(row):
+    val = 1 if (row['rf'] + row['ab'] + row['gb'] + row['knn'] + row['gnb'] +
+                row['svm'] + row['lr']) > 3 else 0
+    return val
 
 
 def ensemble_test_results(model, X_test, y_test):
