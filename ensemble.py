@@ -29,12 +29,17 @@ def main():
 
     # Split test and train data
     (X_train, X_test, y_train, y_test) = train_test_split(X, y,
-                                                          test_size=0.2,
+                                                          test_size=0.001,
                                                           random_state=1)
     (X_std_train, X_std_test,
      y_std_train, y_std_test) = train_test_split(X_std, y,
-                                                 test_size=0.2,
+                                                 test_size=0.001,
                                                  random_state=1)
+
+    X_test = X_train
+    y_test = y_train
+    X_std_test = X_std_train
+    y_std_test = y_std_train
 
     # Load the feature sets
     top_feats = np.load('pickle/top_features.npz')['arr_0']

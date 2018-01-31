@@ -35,16 +35,14 @@ def main():
     # result = decision_tree_grid_search(X, y)
     # print(result.best_params_, result.best_score_)
 
-    model = run_model_decision_tree(X, y)
-    # ensemble_save_pickle(model)
+    ensemble = run_model_decision_tree(X, y)
+    save_pickle([ensemble], 'pickle/ensemble_decision_tree.pkl')
 
     # test_results = ensemble_test_results(model, X_test, y_test)
 
 
 def run_model_decision_tree(X, y):
     ensemble = decision_tree(np.array(X), np.array(y).ravel())
-
-    save_pickle(ensemble, 'pickle/ensemble_decision_tree.pkl')
 
 
 def decision_tree(X, y):
