@@ -3,6 +3,7 @@ import numpy as np
 import pickle
 from ensemble import save_pickle
 from sklearn.model_selection import KFold
+from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import accuracy_score, precision_score, recall_score, \
@@ -32,17 +33,23 @@ def main():
 
     X['majority'] = X.apply(majority, axis=1)
 
+    # Split test and train data
+    (X_train, X_test, y_train, y_test) = train_test_split(X, y,
+                                                          test_size=0.2,
+                                                          random_state=1)
+
     # result = decision_tree_grid_search(X, y)
     # print(result.best_params_, result.best_score_)
 
-    ensemble = run_model_decision_tree(X, y)
-    save_pickle([ensemble], 'pickle/ensemble_decision_tree.pkl')
+    ensemble = run_model_decision_tree(X_train, y_train)
+    # save_pickle([ensemble], 'pickle/ensemble_decision_tree.pkl')
 
-    # test_results = ensemble_test_results(model, X_test, y_test)
+    test_results = ensemble_test_results(ensemble, X_test, y_test)
 
 
 def run_model_decision_tree(X, y):
-    ensemble = decision_tree(np.array(X), np.array(y).ravel())
+    model = decision_tree(np.array(X), np.array(y).ravel())
+    return model
 
 
 def decision_tree(X, y):
@@ -80,7 +87,7 @@ def decision_tree(X, y):
     print('Recall: ', recall)
     print('F1 score: ', f1)
 
-    return accuracy, precision, recall, f1
+    return model
 
 
 def decision_tree_grid_search(X, y):
@@ -108,6 +115,7 @@ def majority(row):
 def ensemble_test_results(model, X_test, y_test):
     y_predict = model.predict(X_test)
 
+    print()
     print('Accuracy: ', accuracy_score(y_test, y_predict))
     print('Precision: ', precision_score(y_test, y_predict))
     print('Recall: ', recall_score(y_test, y_predict))
