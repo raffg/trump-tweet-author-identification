@@ -10,6 +10,7 @@ from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.naive_bayes import GaussianNB
+from sklearn.svm import SVC
 from sklearn.linear_model import SGDClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, precision_score, recall_score, \
@@ -53,6 +54,7 @@ def main():
     knn_feat = top_feats[:13]
     nb_feat = top_feats[:5]
     gnb_feat = top_feats[:13]
+    svc_feat = top_feats[:50]
     svm_feat = top_feats[:300]
     lr_feat = top_feats[:200]
 
@@ -69,6 +71,8 @@ def main():
                              X_test[nb_feat], y_test)
     gnb_results = gaussian_naive_bayes(X_std_train[gnb_feat], y_std_train,
                                        X_std_test[gnb_feat], y_std_test)
+    svc_results = svc(X_std_train[svc_feat], y_std_train,
+                      X_std_test[svc_feat], y_std_test)
     svm_results = svm(X_std_train[svm_feat], y_std_train,
                       X_std_test[svm_feat], y_std_test)
     lr_results = logistic_regression(X_std_train[lr_feat], y_std_train,
@@ -76,7 +80,7 @@ def main():
 
     print('Saving all models')
     save_pickle([rf_results, ab_results, gb_results, knn_results, nb_results,
-                 gnb_results, svm_results, lr_results, y_test],
+                 gnb_results, svm_results, svc_results, lr_results, y_test],
                 'pickle/ensemble_results.pkl')
 
 
@@ -209,7 +213,7 @@ def knn(X_train, y_train, X_test, y_test):
 def naive_bayes(X_train, y_train, X_test, y_test):
     print('-------------------------------')
     print()
-    print('Training Multnomial Naive Bayes')
+    print('Training Multinomial Naive Bayes')
     nb = MultinomialNB(alpha=10).fit(X_train, y_train)
     predicted = nb.predict(X_test)
 
@@ -248,6 +252,29 @@ def gaussian_naive_bayes(X_train, y_train, X_test, y_test):
     print()
 
     save_pickle([gnb], 'pickle/ensemble_gnb.pkl')
+
+    return predicted
+
+
+def svc(X_train, y_train, X_test, y_test):
+    print('-------------------------------')
+    print()
+    print('Training SVC')
+    svc = SVC(C=100,
+              coef0=1,
+              degree=2,
+              gamma='auto',
+              kernel='poly',
+              shrinking=False).fit(X_train, y_train)
+    predicted = svc.predict(X_test)
+
+    print('Accuracy: ', accuracy_score(y_test, predicted))
+    print('Precision: ', precision_score(y_test, predicted))
+    print('Recall: ', recall_score(y_test, predicted))
+    print('F1 score: ', f1_score(y_test, predicted))
+    print()
+
+    save_pickle([svc], 'pickle/ensemble_svc.pkl')
 
     return predicted
 

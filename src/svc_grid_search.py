@@ -55,6 +55,14 @@ def svc_grid_search(X, y):
                   'shrinking': [True, False],
                   'coef0': [0., .1, 1]}
 
+    '''
+    Results:
+    Fitting 3 folds for each of 270 candidates, totalling 810 fits
+    [Parallel(n_jobs=1)]: Done 810 out of 810 | elapsed: 407.4min finished
+    {'C': 100, 'coef0': 1, 'degree': 2, 'gamma': 'auto', 'kernel': 'poly',
+    'shrinking': False} 0.892531737257
+    '''
+
     svc = SVC()
     clf = GridSearchCV(svc, parameters, verbose=True)
     clf.fit(X, y)

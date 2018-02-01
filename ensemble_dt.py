@@ -19,6 +19,7 @@ def main():
     knn_results = pickle.load(pkl)
     nb_results = pickle.load(pkl)
     gnb_results = pickle.load(pkl)
+    svc_results = pickle.load(pkl)
     svm_results = pickle.load(pkl)
     lr_results = pickle.load(pkl)
     y_train = pickle.load(pkl)
@@ -26,7 +27,7 @@ def main():
 
     data = {'rf': rf_results, 'ab': ab_results, 'gb': gb_results,
             'knn': knn_results, 'nb': nb_results, 'gnb': gnb_results,
-            'svm': svm_results, 'lr': lr_results}
+            'svc': svc_results, 'svm': svm_results, 'lr': lr_results}
 
     X = pd.DataFrame(data)
     y = y_train
@@ -107,8 +108,8 @@ def decision_tree_grid_search(X, y):
 
 
 def majority(row):
-    val = 1 if (row['rf'] + row['ab'] + row['gb'] + row['knn'] + row['gnb'] +
-                row['svm'] + row['lr']) > 3 else 0
+    val = 1 if (row['rf'] + row['ab'] + row['gb'] + row['knn'] + row['nb'] +
+                row['gnb'] + row['svc'] + row['svm'] + row['lr']) > 3 else 0
     return val
 
 

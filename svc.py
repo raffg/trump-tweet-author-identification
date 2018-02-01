@@ -65,7 +65,12 @@ def run_model_svc():
 
 def svc(X_train, X_val, y_train, y_val):
     # Basic SVC
-    svc = SVC().fit(X_train, y_train)
+    svc = SVC(C=100,
+              coef0=1,
+              degree=2,
+              gamma='auto',
+              kernel='poly',
+              shrinking=False).fit(X_train, y_train)
     predicted = svc.predict(X_val)
 
     print('Accuracy: ', accuracy_score(y_val, predicted))
