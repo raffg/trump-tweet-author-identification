@@ -79,8 +79,6 @@ def random_forest(X_train, X_val, y_train, y_val):
                                 n_estimators=1000,
                                 n_jobs=-1).fit(X_train, y_train)
     predicted = rf.predict(X_val)
-    accuracy_train = np.mean(rf.predict(X_train) == y_train)
-    accuracy_test = np.mean(predicted == y_val)
 
     print('Accuracy: ', accuracy_score(y_val, predicted))
     print('Precision: ', precision_score(y_val, predicted))

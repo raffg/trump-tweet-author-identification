@@ -67,8 +67,6 @@ def svc(X_train, X_val, y_train, y_val):
     # Basic SVC
     svc = SVC().fit(X_train, y_train)
     predicted = svc.predict(X_val)
-    accuracy_train = np.mean(svc.predict(X_train) == y_train)
-    accuracy_test = np.mean(predicted == y_val)
 
     print('Accuracy: ', accuracy_score(y_val, predicted))
     print('Precision: ', precision_score(y_val, predicted))

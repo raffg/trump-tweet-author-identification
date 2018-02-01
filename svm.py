@@ -68,8 +68,6 @@ def svm(X_train, X_val, y_train, y_val):
     svm = SGDClassifier(loss='hinge', penalty='l2',
                         alpha=0.0001, max_iter=50).fit(X_train, y_train)
     predicted = svm.predict(X_val)
-    accuracy_train = np.mean(svm.predict(X_train) == y_train)
-    accuracy_test = np.mean(predicted == y_val)
 
     print('Accuracy: ', accuracy_score(y_val, predicted))
     print('Precision: ', precision_score(y_val, predicted))

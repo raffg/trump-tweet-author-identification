@@ -81,8 +81,6 @@ def gb(X_train, X_val, y_train, y_val):
                                     max_features=None
                                     ).fit(X_train, y_train)
     predicted = gb.predict(X_val)
-    accuracy_train = np.mean(gb.predict(X_train) == y_train)
-    accuracy_test = np.mean(predicted == y_val)
 
     print('Accuracy: ', accuracy_score(y_val, predicted))
     print('Precision: ', precision_score(y_val, predicted))

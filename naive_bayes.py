@@ -67,8 +67,6 @@ def naive_bayes(X_train, X_val, y_train, y_val):
     # Basic Naive Bayes
     nb = MultinomialNB(alpha=10).fit(X_train, y_train)
     predicted = nb.predict(X_val)
-    accuracy_train = np.mean(nb.predict(X_train) == y_train)
-    accuracy_test = np.mean(predicted == y_val)
 
     print('Accuracy: ', accuracy_score(y_val, predicted))
     print('Precision: ', precision_score(y_val, predicted))
