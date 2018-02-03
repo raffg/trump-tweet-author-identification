@@ -41,10 +41,13 @@ def Ensemble(object):
         ''' Initialize the ensemble object
         '''
         self.model = None
+        self.top_feats = None
         self.scaler = None
+        self.tfidf_text = None
+        self.tfidf_ner = None
+        self.tfidf_pos = None
         self.knn_pca = None
         self.gnb_pca = None
-        self.top_feats = None
 
     def fit(self, X_train, y_train):
         ''' Train the ensemble with X and y data
