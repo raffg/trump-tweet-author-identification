@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 import pickle
 from src.ridge_grid_scan import ridge_grid_scan
+from src.feature_pipeline import feature_pipeline
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.decomposition import PCA
@@ -32,6 +34,7 @@ def TweetAuthorshipPredictor(object):
     -------
     fit : fit the model to X and y data
     predict : predict the authoriship of an unlabled tweet_length
+    get_top_features : returns a list of the features ordered by influence
 
     Attributes
     ----------
@@ -61,11 +64,37 @@ def TweetAuthorshipPredictor(object):
         # Save the data processing objects
         self.top_feats = None
         self.scaler = None
+        self.knn_pca = None
+        self.gnb_pca = None
         self.tfidf_text = None
         self.tfidf_ner = None
         self.tfidf_pos = None
-        self.knn_pca = None
-        self.gnb_pca = None
+
+        # Columns to standardize
+        self.feat = ['favorite_count', 'retweet_count', 'compound', 'anger',
+                     'anticipation', 'disgust', 'fear', 'joy', 'negative',
+                     'positive', 'sadness', 'surprise', 'trust',
+                     'tweet_length', 'avg_sentence_length', 'avg_word_length',
+                     'commas', 'semicolons', 'exclamations', 'periods',
+                     'questions', 'quotes', 'ellipses', 'mentions', 'hashtags',
+                     'urls', 'all_caps', 'hour']
+
+        # Columns to train on prior to tf-idf
+        feat = ['created_at', 'favorite_count', 'is_retweet', 'retweet_count',
+                'source', 'text', 'is_reply', 'compound', 'v_negative',
+                'v_neutral', 'v_positive', 'anger', 'anticipation', 'disgust',
+                'fear', 'joy', 'negative', 'positive', 'sadness', 'surprise',
+                'trust', 'tweet_length', 'avg_sentence_length',
+                'avg_word_length', 'commas', 'semicolons', 'exclamations',
+                'periods', 'questions', 'quotes', 'ellipses', 'mentions',
+                'hashtags', 'urls', 'is_quoted_retweet', 'all_caps',
+                'tweetstorm', 'hour', 'hour_20_02', 'hour_14_20', 'hour_08_14',
+                'hour_02_08', 'start_mention', 'ner', 'pos']
+
+        # tf-idf column names
+        self.text_cols = None
+        self.pos_cols = None
+        self.ner_cols = None
 
     def fit(self, X_train, y_train, featurized=False):
         ''' Train the ensemble with X and y data
@@ -82,16 +111,9 @@ def TweetAuthorshipPredictor(object):
         self:
             The fit Ensemble object.
         '''
-        # Columns to standardize
-        feat = ['favorite_count', 'retweet_count', 'compound', 'anger',
-                'anticipation', 'disgust', 'fear', 'joy', 'negative',
-                'positive', 'sadness', 'surprise', 'trust', 'tweet_length',
-                'avg_sentence_length', 'avg_word_length', 'commas',
-                'semicolons', 'exclamations', 'periods', 'questions', 'quotes',
-                'ellipses', 'mentions', 'hashtags', 'urls', 'all_caps', 'hour']
 
         # Train the standard scaler
-        _standard_scaler(X_train, feat)
+        _standard_scaler(X_train, self.feat)
 
         # Train the PCA objects
         _gnb_pca_calc
@@ -134,6 +156,11 @@ def TweetAuthorshipPredictor(object):
         X = _prepare_data_for_fit(X)
         pass
 
+    def get_top_features(self):
+        '''Returns a list of the features ordered by influence
+        '''
+        return self.top_feats
+
     def _standard_scaler(X, feat):
         # Standardize features
         print('Calculating standardization')
@@ -151,10 +178,22 @@ def TweetAuthorshipPredictor(object):
         return X_std
 
     def _prepare_data_for_fit(self, X):
+        ''' Processes the X data with all features, saves tf-idf vectorizers,
+        and standardizes.
+        '''
+        # Create new feature columns
+        X = feature_pipeline(X)
+        X = _tfidf_fit_transform(X)
+
+
+        X_std = _standardize(X, self.feat)
+
+    def _prepare_data_for_predict(self, X):
         ''' Processes the X data with all features and standardizes.
         '''
-        X_std = _standardize(X)
-        pass
+        # Create new feature columns
+        X = feature_pipeline(X)
+        X_std = _standardize(X, self.feat)
 
     def _first_stage_train(X, y):
         '''Calculate predictions for first stage of 9 models
@@ -298,3 +337,61 @@ def TweetAuthorshipPredictor(object):
                     + row['gnb'] + row['svc'] + row['svm'] + row['lr']
                     ) > 3 else 0
         return val
+
+    def _tfidf_fit_transform(X):
+        '''Fits and concatenates tf-idf columns to X for text, pos, and ner
+        '''
+        print('Calculating TF-IDF')
+        # Perform TF-IDF on text column
+        print('   on text column')
+        self.tfidf_text = TfidfVectorizer(ngram_range=(1, 2),
+                                          lowercase=False,
+                                          token_pattern='\w+|\@\w+',
+                                          norm='l2',
+                                          max_df=.99,
+                                          min_df=.01)
+        tfidf_text = self.tfidf_text.fit_transform(X['text'])
+        self.text_cols = tfidf_text.get_feature_names()
+        tfidf_text = pd.DataFrame(tfidf_text.todense(),
+                                  columns=[self.text_cols])
+
+        # Perform TF-IDF on ner column
+        print('   on ner column')
+        self.tfidf_ner = TfidfVectorizer(ngram_range=(1, 2),
+                                         lowercase=False,
+                                         norm='l2',
+                                         max_df=.99,
+                                         min_df=.01)
+        tfidf_ner = self.tfidf_ner.fit_transform(X['ner'])
+        self.ner_cols = tfidf_ner.get_feature_names()
+        tfidf_ner = pd.DataFrame(tfidf_ner.todense(), columns=[self.ner_cols])
+
+        # Perform TF-IDF on pos column
+        print('   on pos column')
+        self.tfidf_pos = TfidfVectorizer(ngram_range=(2, 3),
+                                         lowercase=False,
+                                         norm='l2',
+                                         max_df=.99,
+                                         min_df=.01)
+        tfidf_pos = self.tfidf_pos.fit_transform(X['pos'])
+        self.pos_cols = tfidf_pos.get_feature_names()
+        tfidf_pos = pd.DataFrame(tfidf_pos.todense(), columns=[self.tfidf_pos])
+
+        # Drop ner columns also present in tfidf_text
+        columns_to_keep = [x for x in tfidf_ner
+                           if x not in tfidf_text]
+        tfidf_ner = tfidf_ner[columns_to_keep]
+
+        # Drop pos columns also present in ner
+        columns_to_keep = [x for x in tfidf_pos
+                           if x not in tfidf_ner]
+        tfidf_pos = tfidf_pos[columns_to_keep]
+
+        X = pd.concat([X, tfidf_text, tfidf_pos, tfidf_ner], axis=1)
+
+        return X
+
+    def _tfidf_transform(vectorizer, X, column, columns, idx):
+        '''Takes a tf-idf vectorizer and transform the given column of the data.
+
+        '''
