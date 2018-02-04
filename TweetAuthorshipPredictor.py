@@ -71,25 +71,26 @@ def TweetAuthorshipPredictor(object):
         self.tfidf_pos = None
 
         # Columns to standardize
-        self.feat = ['favorite_count', 'retweet_count', 'compound', 'anger',
+        self.std = ['favorite_count', 'retweet_count', 'compound', 'anger',
+                    'anticipation', 'disgust', 'fear', 'joy', 'negative',
+                    'positive', 'sadness', 'surprise', 'trust',
+                    'tweet_length', 'avg_sentence_length', 'avg_word_length',
+                    'commas', 'semicolons', 'exclamations', 'periods',
+                    'questions', 'quotes', 'ellipses', 'mentions', 'hashtags',
+                    'urls', 'all_caps', 'hour']
+
+        # Columns to train on prior to tf-idf
+        self.feat = ['created_at', 'favorite_count', 'is_retweet',
+                     'retweet_count', 'source', 'text', 'is_reply', 'compound',
+                     'v_negative', 'v_neutral', 'v_positive', 'anger',
                      'anticipation', 'disgust', 'fear', 'joy', 'negative',
                      'positive', 'sadness', 'surprise', 'trust',
                      'tweet_length', 'avg_sentence_length', 'avg_word_length',
                      'commas', 'semicolons', 'exclamations', 'periods',
                      'questions', 'quotes', 'ellipses', 'mentions', 'hashtags',
-                     'urls', 'all_caps', 'hour']
-
-        # Columns to train on prior to tf-idf
-        feat = ['created_at', 'favorite_count', 'is_retweet', 'retweet_count',
-                'source', 'text', 'is_reply', 'compound', 'v_negative',
-                'v_neutral', 'v_positive', 'anger', 'anticipation', 'disgust',
-                'fear', 'joy', 'negative', 'positive', 'sadness', 'surprise',
-                'trust', 'tweet_length', 'avg_sentence_length',
-                'avg_word_length', 'commas', 'semicolons', 'exclamations',
-                'periods', 'questions', 'quotes', 'ellipses', 'mentions',
-                'hashtags', 'urls', 'is_quoted_retweet', 'all_caps',
-                'tweetstorm', 'hour', 'hour_20_02', 'hour_14_20', 'hour_08_14',
-                'hour_02_08', 'start_mention', 'ner', 'pos']
+                     'urls', 'is_quoted_retweet', 'all_caps', 'tweetstorm',
+                     'hour', 'hour_20_02', 'hour_14_20', 'hour_08_14',
+                     'hour_02_08', 'start_mention', 'ner', 'pos']
 
         # tf-idf column names
         self.text_cols = None
@@ -111,14 +112,6 @@ def TweetAuthorshipPredictor(object):
         self:
             The fit Ensemble object.
         '''
-
-        # Train the standard scaler
-        _standard_scaler(X_train, self.feat)
-
-        # Train the PCA objects
-        _gnb_pca_calc
-        _knn_pca_calc
-
         # Featurize the X data
         if not featurized:
             X_train, X_std_train = _prepare_data_for_fit(X_train)
@@ -129,8 +122,13 @@ def TweetAuthorshipPredictor(object):
                                        n=len(X_train.columns))
         self.top_feats = [(x[0]) for x in list(feature_list)]
 
+        # Train the PCA objects
+        _gnb_pca_calc(X_std_train[self.top_feats[:13]])
+        _knn_pca_calc(X_std_train[self.top_feats[:13]])
+
         # Train the individual models
-        data = _first_stage_train(X_train, np.array(y_train).ravel())
+        data = _first_stage_train(X_train, X_std_train,
+                                  np.array(y_train).ravel())
 
         X_train_dt = pd.DataFrame(data)
 
@@ -185,17 +183,16 @@ def TweetAuthorshipPredictor(object):
         X = feature_pipeline(X)
         X = _tfidf_fit_transform(X)
 
-
-        X_std = _standardize(X, self.feat)
+        X_std = _standardize(X, self.std)
 
     def _prepare_data_for_predict(self, X):
         ''' Processes the X data with all features and standardizes.
         '''
         # Create new feature columns
         X = feature_pipeline(X)
-        X_std = _standardize(X, self.feat)
+        X_std = _standardize(X, self.std)
 
-    def _first_stage_train(X, y):
+    def _first_stage_train(X_train, X_std_train, y_train):
         '''Calculate predictions for first stage of 9 models
         '''
         rf_feat = self.top_feats[:200]
