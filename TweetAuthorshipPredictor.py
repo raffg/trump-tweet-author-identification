@@ -16,11 +16,12 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.svm import SVC
 from sklearn.linear_model import SGDClassifier
 from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, \
                             f1_score
 
 
-def TweetAuthorshipPredictor(object):
+class TweetAuthorshipPredictor(object):
     ''' This class represents the ensemble of models for tweet authorship
     prediction
 
@@ -57,7 +58,7 @@ def TweetAuthorshipPredictor(object):
         self.nb = None
         self.gnb = None
         self.svc = None
-        self.svc = None
+        self.svm = None
         self.lr = None
         self.dt = None
 
@@ -81,7 +82,8 @@ def TweetAuthorshipPredictor(object):
 
         # Columns to train on prior to tf-idf
         self.feat = ['created_at', 'favorite_count', 'is_retweet',
-                     'retweet_count', 'source', 'text', 'is_reply', 'compound',
+                     'retweet_count',
+                     'text', 'is_reply', 'compound',
                      'v_negative', 'v_neutral', 'v_positive', 'anger',
                      'anticipation', 'disgust', 'fear', 'joy', 'negative',
                      'positive', 'sadness', 'surprise', 'trust',
@@ -97,7 +99,7 @@ def TweetAuthorshipPredictor(object):
         self.pos_cols = None
         self.ner_cols = None
 
-    def fit(self, X_train, y_train, featurized=False):
+    def fit(self, X_train, y_train):
         ''' Train the ensemble with X and y data
 
         Parameters
@@ -113,8 +115,13 @@ def TweetAuthorshipPredictor(object):
             The fit Ensemble object.
         '''
         # Featurize the X data
-        if not featurized:
-            X_train, X_std_train = _prepare_data_for_fit(X_train)
+        X_train, X_std_train = self._prepare_data_for_fit(X_train)
+
+        drop = ['created_at', 'text', 'pos', 'ner']
+
+        # Remove non-numeric features
+        X_train = X_train.drop(drop, axis=1)
+        X_std_train = X_std_train.drop(drop, axis=1)
 
         # Load the feature sets
         feature_list = ridge_grid_scan(X_train,
@@ -123,18 +130,18 @@ def TweetAuthorshipPredictor(object):
         self.top_feats = [(x[0]) for x in list(feature_list)]
 
         # Train the PCA objects
-        _gnb_pca_calc(X_std_train[self.top_feats[:13]])
-        _knn_pca_calc(X_std_train[self.top_feats[:13]])
+        self._gnb_pca_calc(X_std_train[self.top_feats[:13]])
+        self._knn_pca_calc(X_std_train[self.top_feats[:13]])
 
         # Train the individual models
-        data = _first_stage_train(X_train, X_std_train,
-                                  np.array(y_train).ravel())
+        data = self._first_stage_train(X_train, X_std_train,
+                                       np.array(y_train).ravel())
 
         X_train_dt = pd.DataFrame(data)
 
-        X_train_dt['majority'] = X_train_dt.apply(_majority, axis=1)
+        X_train_dt['majority'] = X_train_dt.apply(self._majority, axis=1)
 
-        self.dt = _decision_tree(X_train_dt, np.array(y_train).ravel())
+        self.dt = self._decision_tree(X_train_dt, np.array(y_train).ravel())
 
         return self
 
@@ -150,29 +157,34 @@ def TweetAuthorshipPredictor(object):
         -------
         y: 1 or 0
             Predicted label
-        ''''
-        X = _prepare_data_for_fit(X)
-        pass
+        '''
+        X, X_std = self._prepare_data_for_predict(X)
+        data = self._first_stage_predict(X)
+        X_dt = pd.DataFrame(data)
+        X_dt['majority'] = X_dt.apply(self._majority, axis=1)
+
+        return self.dt.predit(X_dt)
 
     def get_top_features(self):
         '''Returns a list of the features ordered by influence
         '''
         return self.top_feats
 
-    def _standard_scaler(X, feat):
+    def _standard_scaler(self, X):
         # Standardize features
         print('Calculating standardization')
         self.scaler = StandardScaler()
-        cols = X[feat].columns
-        self.scaler.fit(X[feat])
+        cols = X.columns
+        self.scaler.fit(X)
 
-    def _standardize(X, feat):
+    def _standardize(self, X):
         print('Performing Standardization')
-        X_std = X
-        X_std[feat] = pd.DataFrame(self.scaler.transform(
-                                   X[feat]),
-                                   index=X.index,
-                                   columns=cols)
+        X_std = X.copy()
+        cols = X[self.std].columns
+        X_std[self.std] = pd.DataFrame(self.scaler.transform(
+                                       X[self.std]),
+                                       index=X.index,
+                                       columns=cols)
         return X_std
 
     def _prepare_data_for_fit(self, X):
@@ -181,18 +193,51 @@ def TweetAuthorshipPredictor(object):
         '''
         # Create new feature columns
         X = feature_pipeline(X)
-        X = _tfidf_fit_transform(X)
+        X = self._tfidf_fit_transform(X[self.feat])
+        self._standard_scaler(X[self.std])
+        X_std = self._standardize(X)
 
-        X_std = _standardize(X, self.std)
+        return X, X_std
 
     def _prepare_data_for_predict(self, X):
         ''' Processes the X data with all features and standardizes.
         '''
         # Create new feature columns
         X = feature_pipeline(X)
-        X_std = _standardize(X, self.std)
+        X = self._tfidf_transform(X[self.feat])
+        X_std = self._standardize(X)
 
-    def _first_stage_train(X_train, X_std_train, y_train):
+        return X, X_std
+
+    def _first_stage_train(self, X_train, X_std_train, y_train):
+        '''Train models in first stage of 9 models
+        '''
+        rf_feat = self.top_feats[:200]
+        ab_feat = self.top_feats[:300]
+        gb_feat = self.top_feats[:300]
+        knn_feat = self.top_feats[:13]
+        nb_feat = self.top_feats[:5]
+        gnb_feat = self.top_feats[:13]
+        svc_feat = self.top_feats[:50]
+        svm_feat = self.top_feats[:300]
+        lr_feat = self.top_feats[:200]
+
+        rf_results = self._random_forest(X_train[rf_feat], y_train)
+        ab_results = self._adaboost(X_std_train[ab_feat], y_train)
+        gb_results = self._gradient_boosting(X_std_train[gb_feat], y_train)
+        knn_results = self._knn(X_std_train[knn_feat], y_train)
+        nb_results = self._naive_bayes(X_train[nb_feat], y_train)
+        gnb_results = self._gaussian_naive_bayes(X_std_train[gnb_feat],
+                                                 y_train)
+        svc_results = self._svc(X_std_train[svc_feat], y_train)
+        svm_results = self._svm(X_std_train[svm_feat], y_train)
+        lr_results = self._logistic_regression(X_std_train[lr_feat], y_train)
+
+        return {'rf': rf_results, 'ab': ab_results, 'gb': gb_results,
+                'knn': knn_results, 'nb': nb_results, 'gnb': gnb_results,
+                'svc': svc_results, 'svm': svm_results, 'lr': lr_results}
+
+    def _first_stage_predict(self, X):
         '''Calculate predictions for first stage of 9 models
         '''
         rf_feat = self.top_feats[:200]
@@ -205,21 +250,21 @@ def TweetAuthorshipPredictor(object):
         svm_feat = self.top_feats[:300]
         lr_feat = self.top_feats[:200]
 
-        rf_results = _random_forest(X_train[rf_feat], y_train)
-        ab_results = _adaboost(X_std_train[ab_feat], y_train)
-        gb_results = _gradient_boosting(X_std_train[gb_feat], y_train)
-        knn_results = _knn(X_std_train[knn_feat], y_train)
-        nb_results = _naive_bayes(X_train[nb_feat], y_train)
-        gnb_results = _gaussian_naive_bayes(X_std_train[gnb_feat], y_train)
-        svc_results = _svc(X_std_train[svc_feat], y_train)
-        svm_results = _svm(X_std_train[svm_feat], y_train)
-        lr_results = _logistic_regression(X_std_train[lr_feat], y_train)
+        rf_results = self.rf.predict(X[rf_feat])
+        ab_results = self.ab.predict(X_std[ab_feat])
+        gb_results = self.gb.predict(X_std[gb_feat])
+        knn_results = self.knn.predict(X_std[knn_feat])
+        nb_results = self.nb.predict(X[nb_feat], )
+        gnb_results = self.gnb.predict(X_std[gnb_feat])
+        svc_results = self.svc.predict(X_std[svc_feat])
+        svm_results = self.svm.predict(X_std[svm_feat])
+        lr_results = self.lr.predict(X_std[lr_feat])
 
         return {'rf': rf_results, 'ab': ab_results, 'gb': gb_results,
                 'knn': knn_results, 'nb': nb_results, 'gnb': gnb_results,
                 'svc': svc_results, 'svm': svm_results, 'lr': lr_results}
 
-    def _random_forest(X_train, y_train):
+    def _random_forest(self, X_train, y_train):
         print('Running Random Forest')
         rf = RandomForestClassifier(max_depth=20,
                                     max_features='sqrt',
@@ -232,7 +277,7 @@ def TweetAuthorshipPredictor(object):
         self.rf = rf
         return predicted
 
-    def _adaboost(X_train, y_train):
+    def _adaboost(self, X_train, y_train):
         print('Running AdaBoost')
         ab = AdaBoostClassifier(learning_rate=1.25,
                                 n_estimators=40).fit(X_train, y_train)
@@ -240,7 +285,7 @@ def TweetAuthorshipPredictor(object):
         self.ab = ab
         return predicted
 
-    def _gradient_boosting(X_train, y_train):
+    def _gradient_boosting(self, X_train, y_train):
         print('Running Gradient Boosting')
         gb = GradientBoostingClassifier(n_estimators=200,
                                         learning_rate=.1,
@@ -254,7 +299,7 @@ def TweetAuthorshipPredictor(object):
         self.gb = gb
         return predicted
 
-    def _knn(X_train, y_train):
+    def _knn(self, X_train, y_train):
         print('Running K Nearest Neighbors')
         X_train = self.knn_pca.transform(X_train)
         knn = KNeighborsClassifier(n_neighbors=7).fit(X_train, y_train)
@@ -262,36 +307,36 @@ def TweetAuthorshipPredictor(object):
         self.knn = knn
         return predicted
 
-    def _knn_pca_calc(X_train):
+    def _knn_pca_calc(self, X_train):
         # Perform Principle Component Analysis
         print('Performing PCA on K Nearest Neighbors')
         pca = PCA(n_components=12)
         pca.fit(X_train)
         self.knn_pca = pca
 
-    def _naive_bayes(X_train, y_train):
+    def _naive_bayes(self, X_train, y_train):
         print('Running Multinomial Naive Bayes')
         nb = MultinomialNB(alpha=10).fit(X_train, y_train)
         predicted = nb.predict(X_train)
         self.nb = nb
         return predicted
 
-    def _gaussian_naive_bayes(X_train, y_train):
+    def _gaussian_naive_bayes(self, X_train, y_train):
         print('Running Gaussian Naive Bayes')
         X_train = self.gnb_pca.transform(X_train)
         gnb = GaussianNB().fit(X_train, y_train)
         predicted = gnb.predict(X_train)
         self.gnb = gnb
-        return predicted, pca
+        return predicted
 
-    def _gnb_pca_calc(X_train):
+    def _gnb_pca_calc(self, X_train):
         # Perform Principle Component Analysis
         print('Performing PCA on Gaussian Naive Bayes')
         pca = PCA(n_components=10)
         pca.fit(X_train)
         self.gnb_pca = pca
 
-    def _svc(X_train, y_train):
+    def _svc(self, X_train, y_train):
         print('Running Support Vector Classifier')
         svc = SVC(C=100,
                   coef0=1,
@@ -303,7 +348,7 @@ def TweetAuthorshipPredictor(object):
         self.svc = svc
         return predicted
 
-    def _svm(X_train, y_train):
+    def _svm(self, X_train, y_train):
         print('Running Support Vector Machine')
         svm = SGDClassifier(loss='hinge', penalty='l2',
                             alpha=0.0001, max_iter=10).fit(X_train, y_train)
@@ -311,14 +356,14 @@ def TweetAuthorshipPredictor(object):
         self.svm = svm
         return predicted
 
-    def _logistic_regression(X_train, y_train):
+    def _logistic_regression(self, X_train, y_train):
         print('Running Logistic Regression')
         lr = LogisticRegression(C=.05).fit(X_train, y_train)
         predicted = lr.predict(X_train)
         self.lr = lr
         return predicted
 
-    def _decision_tree(X_train, y_train):
+    def _decision_tree(self, X_train, y_train):
         print('Running Decision Tree')
         dt = DecisionTreeClassifier(criterion='gini',
                                     max_depth=None,
@@ -328,14 +373,13 @@ def TweetAuthorshipPredictor(object):
         self.dt = dt
         return dt
 
-    def _majority(row):
-        print('Calculating Majority Vote')
+    def _majority(self, row):
         val = 1 if (row['rf'] + row['ab'] + row['gb'] + row['knn'] + row['nb']
                     + row['gnb'] + row['svc'] + row['svm'] + row['lr']
                     ) > 3 else 0
         return val
 
-    def _tfidf_fit_transform(X):
+    def _tfidf_fit_transform(self, X):
         '''Fits and concatenates tf-idf columns to X for text, pos, and ner
         '''
         print('Calculating TF-IDF')
@@ -348,9 +392,11 @@ def TweetAuthorshipPredictor(object):
                                           max_df=.99,
                                           min_df=.01)
         tfidf_text = self.tfidf_text.fit_transform(X['text'])
-        self.text_cols = tfidf_text.get_feature_names()
+        self.text_cols = self.tfidf_text.get_feature_names()
+        idx = X.index
         tfidf_text = pd.DataFrame(tfidf_text.todense(),
-                                  columns=[self.text_cols])
+                                  columns=[self.text_cols],
+                                  index=idx)
 
         # Perform TF-IDF on ner column
         print('   on ner column')
@@ -360,8 +406,10 @@ def TweetAuthorshipPredictor(object):
                                          max_df=.99,
                                          min_df=.01)
         tfidf_ner = self.tfidf_ner.fit_transform(X['ner'])
-        self.ner_cols = tfidf_ner.get_feature_names()
-        tfidf_ner = pd.DataFrame(tfidf_ner.todense(), columns=[self.ner_cols])
+        self.ner_cols = self.tfidf_ner.get_feature_names()
+        tfidf_ner = pd.DataFrame(tfidf_ner.todense(),
+                                 columns=[self.ner_cols],
+                                 index=idx)
 
         # Perform TF-IDF on pos column
         print('   on pos column')
@@ -371,9 +419,38 @@ def TweetAuthorshipPredictor(object):
                                          max_df=.99,
                                          min_df=.01)
         tfidf_pos = self.tfidf_pos.fit_transform(X['pos'])
-        self.pos_cols = tfidf_pos.get_feature_names()
+        self.pos_cols = self.tfidf_pos.get_feature_names()
+        tfidf_pos = pd.DataFrame(tfidf_pos.todense(),
+                                 columns=[self.pos_cols],
+                                 index=idx)
+
+        X = self._tfidf_remove_dups(X, tfidf_text, tfidf_pos, tfidf_ner)
+
+        return X
+
+    def _tfidf_transform(self, X):
+        '''Takes a tf-idf vectorizer and transform the given column of the data.
+
+        '''
+        tfidf_text = self.tfidf_text.transform(X['text'])
+        X = _tfidf_remove_dups(X, tfidf_text, tfidf_pos, tfidf_ner)
+        tfidf_text = pd.DataFrame(tfidf_text.todense(),
+                                  columns=[self.text_cols])
+
+        tfidf_ner = self.tfidf_ner.transform(X['ner'])
+        tfidf_ner = pd.DataFrame(tfidf_ner.todense(), columns=[self.ner_cols])
+
+        tfidf_pos = self.tfidf_pos.transform(X['pos'])
         tfidf_pos = pd.DataFrame(tfidf_pos.todense(), columns=[self.tfidf_pos])
 
+        X = self._tfidf_remove_dups(X, tfidf_text, tfidf_pos, tfidf_ner)
+
+        return X
+
+    def _tfidf_remove_dups(self, X, tfidf_text, tfidf_pos, tfidf_ner):
+        '''Removes columns in tfidf_pos and tfidf_ner that are duplicates from
+        tfidf_text, and concatentates the DataFrames
+        '''
         # Drop ner columns also present in tfidf_text
         columns_to_keep = [x for x in tfidf_ner
                            if x not in tfidf_text]
@@ -385,10 +462,4 @@ def TweetAuthorshipPredictor(object):
         tfidf_pos = tfidf_pos[columns_to_keep]
 
         X = pd.concat([X, tfidf_text, tfidf_pos, tfidf_ner], axis=1)
-
         return X
-
-    def _tfidf_transform(vectorizer, X, column, columns, idx):
-        '''Takes a tf-idf vectorizer and transform the given column of the data.
-
-        '''

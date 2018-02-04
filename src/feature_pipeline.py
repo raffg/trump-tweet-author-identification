@@ -18,6 +18,11 @@ def feature_pipeline(df):
     print()
     print('Feature engineering')
 
+    # Dummify is_reply column
+    print('Dummifying is_reply column')
+    df['in_reply_to_user_id_str'].fillna(0, inplace=True)
+    df['is_reply'] = np.where(df['in_reply_to_user_id_str'], 1, 0)
+
     # Create columns for vader sentiment
     print('   calculating vader sentiment')
     df = apply_vader(df, 'text')
@@ -80,4 +85,4 @@ def feature_pipeline(df):
     print('Performing NER')
     df['ner'] = df['tweetokenize'].apply(ner_tagging)
 
-    return df
+    return df.drop(['source'], axis=1)
