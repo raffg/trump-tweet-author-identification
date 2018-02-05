@@ -391,7 +391,8 @@ class TweetAuthorshipPredictor(object):
                                           norm='l2',
                                           max_df=.99,
                                           min_df=.01)
-        tfidf_text = self.tfidf_text.fit_transform(X['text'])
+        self.tfidf_text.fit(X['text'])
+        tfidf_text = self.tfidf_text.transform(X['text'])
         self.text_cols = self.tfidf_text.get_feature_names()
         idx = X.index
         tfidf_text = pd.DataFrame(tfidf_text.todense(),
@@ -429,19 +430,23 @@ class TweetAuthorshipPredictor(object):
         return X
 
     def _tfidf_transform(self, X):
-        '''Takes a tf-idf vectorizer and transform the given column of the data.
-
+        '''Performs a tf-idf transform on the given column of data
         '''
+        idx = X.index
         tfidf_text = self.tfidf_text.transform(X['text'])
-        X = _tfidf_remove_dups(X, tfidf_text, tfidf_pos, tfidf_ner)
         tfidf_text = pd.DataFrame(tfidf_text.todense(),
-                                  columns=[self.text_cols])
+                                  columns=[self.text_cols],
+                                  index=idx)
 
         tfidf_ner = self.tfidf_ner.transform(X['ner'])
-        tfidf_ner = pd.DataFrame(tfidf_ner.todense(), columns=[self.ner_cols])
+        tfidf_ner = pd.DataFrame(tfidf_ner.todense(),
+                                 columns=[self.ner_cols],
+                                 index=idx)
 
         tfidf_pos = self.tfidf_pos.transform(X['pos'])
-        tfidf_pos = pd.DataFrame(tfidf_pos.todense(), columns=[self.tfidf_pos])
+        tfidf_pos = pd.DataFrame(tfidf_pos.todense(),
+                                 columns=[self.tfidf_pos],
+                                 index=idx)
 
         X = self._tfidf_remove_dups(X, tfidf_text, tfidf_pos, tfidf_ner)
 

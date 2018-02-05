@@ -19,7 +19,7 @@ def feature_pipeline(df):
     print('Feature engineering')
 
     # Dummify is_reply column
-    print('Dummifying is_reply column')
+    print('   dummifying is_reply column')
     df['in_reply_to_user_id_str'].fillna(0, inplace=True)
     df['is_reply'] = np.where(df['in_reply_to_user_id_str'], 1, 0)
 
