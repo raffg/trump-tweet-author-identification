@@ -1,6 +1,9 @@
 # Raw data
 data/
 
+# .env
+.env/
+
 # Jupyter Notebooks
 *.ipynb_checkpoints
 *.ipynb
