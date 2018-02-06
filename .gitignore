@@ -26,3 +26,6 @@ NRC-Sentiment-Emotion-Lexicons/
 
 # presentation folder
 presentation/
+
+# ensemble pickles
+ensemble/
