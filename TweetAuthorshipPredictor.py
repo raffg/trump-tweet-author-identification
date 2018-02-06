@@ -119,51 +119,50 @@ class TweetAuthorshipPredictor(object):
 
         drop = ['created_at', 'text', 'pos', 'ner']
 
-        self.tfidf_pos = load_pickle('tfidf_pos.pkl')
-        self.tfidf_ner = load_pickle('tfidf_ner.pkl')
-        self.tfidf_text = load_pickle('tfidf_text.pkl')
-        self.text_cols = self.tfidf_text.get_feature_names()
-        self.ner_cols = self.tfidf_ner.get_feature_names()
-        self.pos_cols = self.tfidf_pos.get_feature_names()
-        self.scaler = load_pickle('ensemble/scaler.pkl')
+        # self.tfidf_pos = load_pickle('tfidf_pos.pkl')
+        # self.tfidf_ner = load_pickle('tfidf_ner.pkl')
+        # self.tfidf_text = load_pickle('tfidf_text.pkl')
+        # self.text_cols = self.tfidf_text.get_feature_names()
+        # self.ner_cols = self.tfidf_ner.get_feature_names()
+        # self.pos_cols = self.tfidf_pos.get_feature_names()
+        # self.scaler = load_pickle('ensemble/scaler.pkl')
 
         # Remove non-numeric features
-        # X_train = X_train.drop(drop, axis=1)
-        # X_std_train = X_std_train.drop(drop, axis=1)
-        # save_pickle(X_train, 'ensemble/X_train.pkl')
-        # save_pickle(X_std_train, 'ensemble/X_std_train.pkl')
-        X_train = load_pickle('ensemble/X_train.pkl')
-        X_std_train = load_pickle('ensemble/X_std_train.pkl')
+        X_train = X_train.drop(drop, axis=1)
+        X_std_train = X_std_train.drop(drop, axis=1)
+        save_pickle(X_train, 'ensemble/X_train.pkl')
+        save_pickle(X_std_train, 'ensemble/X_std_train.pkl')
+        # X_train = load_pickle('ensemble/X_train.pkl')
+        # X_std_train = load_pickle('ensemble/X_std_train.pkl')
 
         # Load the feature sets
-        # feature_list = ridge_grid_scan(X_train,
-        #                                np.array(y_train).ravel(),
-        #                                n=len(X_train.columns))
-        # self.top_feats = [(x[0]) for x in list(feature_list)]
-        # save_pickle(self.top_feats, 'ensemble/top_feats.pkl')
-        self.top_feats = load_pickle('ensemble/top_feats.pkl')
+        feature_list = ridge_grid_scan(X_train,
+                                       np.array(y_train).ravel(),
+                                       n=len(X_train.columns))
+        self.top_feats = [(x[0]) for x in list(feature_list)]
+        save_pickle(self.top_feats, 'ensemble/top_feats.pkl')
+        # self.top_feats = load_pickle('ensemble/top_feats.pkl')
 
         # Train the PCA objects
-        # self._gnb_pca_calc(X_std_train[self.top_feats[:13]])
-        # self._knn_pca_calc(X_std_train[self.top_feats[:13]])
-        # save_pickle(self.gnb_pca, 'ensemble/gnb_pca.pkl')
-        # save_pickle(self.knn_pca, 'ensemble/knn_pca.pkl')
-        self.gnb_pca = load_pickle('ensemble/gnb_pca.pkl')
-        self.knn_pca = load_pickle('ensemble/knn_pca.pkl')
+        self._gnb_pca_calc(X_std_train[self.top_feats[:13]])
+        self._knn_pca_calc(X_std_train[self.top_feats[:13]])
+        save_pickle(self.gnb_pca, 'ensemble/gnb_pca.pkl')
+        save_pickle(self.knn_pca, 'ensemble/knn_pca.pkl')
+        # self.gnb_pca = load_pickle('ensemble/gnb_pca.pkl')
+        # self.knn_pca = load_pickle('ensemble/knn_pca.pkl')
 
         # Train the individual models
         data = self._first_stage_train(X_train, X_std_train,
                                        np.array(y_train).ravel())
-        #
-        # X_train_dt = pd.DataFrame(data)
-        #
-        # X_train_dt['majority'] = X_train_dt.apply(self._majority, axis=1)
-        # save_pickle(X_train_dt, 'ensemble/X_train_dt.pkl')
-        X_train_dt = load_pickle('ensemble/X_train_dt.pkl')
+        X_train_dt = pd.DataFrame(data)
 
-        # self.dt = self._decision_tree(X_train_dt, np.array(y_train).ravel())
-        # save_pickle(self.dt, 'ensemble/dt.pkl')
-        self.dt = load_pickle('ensemble/dt.pkl')
+        X_train_dt['majority'] = X_train_dt.apply(self._majority, axis=1)
+        save_pickle(X_train_dt, 'ensemble/X_train_dt.pkl')
+        # X_train_dt = load_pickle('ensemble/X_train_dt.pkl')
+
+        self.dt = self._decision_tree(X_train_dt, np.array(y_train).ravel())
+        save_pickle(self.dt, 'ensemble/dt.pkl')
+        # self.dt = load_pickle('ensemble/dt.pkl')
 
         return self
 
@@ -194,12 +193,12 @@ class TweetAuthorshipPredictor(object):
 
     def _standard_scaler(self, X):
         # Standardize features
-        # print('Calculating standardization')
-        # self.scaler = StandardScaler()
-        # cols = X.columns
-        # self.scaler.fit(X)
-        # save_pickle(self.scaler, 'ensemble/scaler.pkl')
-        self.scaler = load_pickle('ensemble/scaler.pkl')
+        print('Calculating standardization')
+        self.scaler = StandardScaler()
+        cols = X.columns
+        self.scaler.fit(X)
+        save_pickle(self.scaler, 'ensemble/scaler.pkl')
+        # self.scaler = load_pickle('ensemble/scaler.pkl')
 
     def _standardize(self, X):
         print('Performing Standardization')
@@ -292,63 +291,55 @@ class TweetAuthorshipPredictor(object):
                 'svc': svc_results, 'svm': svm_results, 'lr': lr_results}
 
     def _random_forest(self, X_train, y_train):
-        # print('Running Random Forest')
-        # rf = RandomForestClassifier(max_depth=20,
-        #                             max_features='sqrt',
-        #                             max_leaf_nodes=None,
-        #                             min_samples_leaf=2,
-        #                             min_samples_split=2,
-        #                             n_estimators=1000,
-        #                             n_jobs=-1).fit(X_train, y_train)
-        # predicted = rf.predict(X_train)
-        # self.rf = rf
-        #
-        # save_pickle(self.rf, 'ensemble/rf.pkl')
-        self.rf = load_pickle('ensemble/rf.pkl')
-
-        # return predicted
+        print('Running Random Forest')
+        rf = RandomForestClassifier(max_depth=20,
+                                    max_features='sqrt',
+                                    max_leaf_nodes=None,
+                                    min_samples_leaf=2,
+                                    min_samples_split=2,
+                                    n_estimators=1000,
+                                    n_jobs=-1).fit(X_train, y_train)
+        predicted = rf.predict(X_train)
+        self.rf = rf
+        save_pickle(self.rf, 'ensemble/rf.pkl')
+        # self.rf = load_pickle('ensemble/rf.pkl')
+        return predicted
 
     def _adaboost(self, X_train, y_train):
-        # print('Running AdaBoost')
-        # ab = AdaBoostClassifier(learning_rate=1.25,
-        #                         n_estimators=40).fit(X_train, y_train)
-        # predicted = ab.predict(X_train)
-        # self.ab = ab
-        #
-        # save_pickle(self.ab, 'ensemble/ab.pkl')
-        self.ab = load_pickle('ensemble/ab.pkl')
-
-        # return predicted
+        print('Running AdaBoost')
+        ab = AdaBoostClassifier(learning_rate=1.25,
+                                n_estimators=40).fit(X_train, y_train)
+        predicted = ab.predict(X_train)
+        self.ab = ab
+        save_pickle(self.ab, 'ensemble/ab.pkl')
+        # self.ab = load_pickle('ensemble/ab.pkl')
+        return predicted
 
     def _gradient_boosting(self, X_train, y_train):
-        # print('Running Gradient Boosting')
-        # gb = GradientBoostingClassifier(n_estimators=200,
-        #                                 learning_rate=.1,
-        #                                 max_depth=6,
-        #                                 min_samples_split=2,
-        #                                 min_samples_leaf=1,
-        #                                 subsample=1,
-        #                                 max_features=None
-        #                                 ).fit(X_train, y_train)
-        # predicted = gb.predict(X_train)
-        # self.gb = gb
-        #
-        # save_pickle(self.gb, 'ensemble/gb.pkl')
-        self.gb = load_pickle('ensemble/gb.pkl')
-
-        # return predicted
+        print('Running Gradient Boosting')
+        gb = GradientBoostingClassifier(n_estimators=200,
+                                        learning_rate=.1,
+                                        max_depth=6,
+                                        min_samples_split=2,
+                                        min_samples_leaf=1,
+                                        subsample=1,
+                                        max_features=None
+                                        ).fit(X_train, y_train)
+        predicted = gb.predict(X_train)
+        self.gb = gb
+        save_pickle(self.gb, 'ensemble/gb.pkl')
+        # self.gb = load_pickle('ensemble/gb.pkl')
+        return predicted
 
     def _knn(self, X_train, y_train):
-        # print('Running K Nearest Neighbors')
-        # X_train = self.knn_pca.transform(X_train)
-        # knn = KNeighborsClassifier(n_neighbors=7).fit(X_train, y_train)
-        # predicted = knn.predict(X_train)
-        # self.knn = knn
-        #
-        # save_pickle(self.knn, 'ensemble/knn.pkl')
-        self.knn = load_pickle('ensemble/knn.pkl')
-
-        # return predicted
+        print('Running K Nearest Neighbors')
+        X_train = self.knn_pca.transform(X_train)
+        knn = KNeighborsClassifier(n_neighbors=7).fit(X_train, y_train)
+        predicted = knn.predict(X_train)
+        self.knn = knn
+        save_pickle(self.knn, 'ensemble/knn.pkl')
+        # self.knn = load_pickle('ensemble/knn.pkl')
+        return predicted
 
     def _knn_pca_calc(self, X_train):
         # Perform Principle Component Analysis
@@ -358,27 +349,23 @@ class TweetAuthorshipPredictor(object):
         self.knn_pca = pca
 
     def _naive_bayes(self, X_train, y_train):
-        # print('Running Multinomial Naive Bayes')
-        # nb = MultinomialNB(alpha=10).fit(X_train, y_train)
-        # predicted = nb.predict(X_train)
-        # self.nb = nb
-        #
-        # save_pickle(self.nb, 'ensemble/nb.pkl')
-        self.nb = load_pickle('ensemble/nb.pkl')
-
-        # return predicted
+        print('Running Multinomial Naive Bayes')
+        nb = MultinomialNB(alpha=10).fit(X_train, y_train)
+        predicted = nb.predict(X_train)
+        self.nb = nb
+        save_pickle(self.nb, 'ensemble/nb.pkl')
+        # self.nb = load_pickle('ensemble/nb.pkl')
+        return predicted
 
     def _gaussian_naive_bayes(self, X_train, y_train):
-        # print('Running Gaussian Naive Bayes')
-        # X_train = self.gnb_pca.transform(X_train)
-        # gnb = GaussianNB().fit(X_train, y_train)
-        # predicted = gnb.predict(X_train)
-        # self.gnb = gnb
-        #
-        # save_pickle(self.gnb, 'ensemble/gnb.pkl')
-        self.gnb= load_pickle('ensemble/gnb.pkl')
-
-        # return predicted
+        print('Running Gaussian Naive Bayes')
+        X_train = self.gnb_pca.transform(X_train)
+        gnb = GaussianNB().fit(X_train, y_train)
+        predicted = gnb.predict(X_train)
+        self.gnb = gnb
+        save_pickle(self.gnb, 'ensemble/gnb.pkl')
+        # self.gnb= load_pickle('ensemble/gnb.pkl')
+        return predicted
 
     def _gnb_pca_calc(self, X_train):
         # Perform Principle Component Analysis
@@ -388,43 +375,37 @@ class TweetAuthorshipPredictor(object):
         self.gnb_pca = pca
 
     def _svc(self, X_train, y_train):
-        # print('Running Support Vector Classifier')
-        # svc = SVC(C=100,
-        #           coef0=1,
-        #           degree=2,
-        #           gamma='auto',
-        #           kernel='poly',
-        #           shrinking=False).fit(X_train, y_train)
-        # predicted = svc.predict(X_train)
-        # self.svc = svc
-        #
-        # save_pickle(self.svc, 'ensemble/svc.pkl')
+        print('Running Support Vector Classifier')
+        svc = SVC(C=100,
+                  coef0=1,
+                  degree=2,
+                  gamma='auto',
+                  kernel='poly',
+                  shrinking=False).fit(X_train, y_train)
+        predicted = svc.predict(X_train)
+        self.svc = svc
+        save_pickle(self.svc, 'ensemble/svc.pkl')
         self.svc = load_pickle('ensemble/svc.pkl')
-
-        # return predicted
+        return predicted
 
     def _svm(self, X_train, y_train):
-        # print('Running Support Vector Machine')
-        # svm = SGDClassifier(loss='hinge', penalty='l2',
-        #                     alpha=0.0001, max_iter=10).fit(X_train, y_train)
-        # predicted = svm.predict(X_train)
-        # self.svm = svm
-        #
-        # save_pickle(self.svm, 'ensemble/svm.pkl')
-        self.svm = load_pickle('ensemble/svm.pkl')
-
-        # return predicted
+        print('Running Support Vector Machine')
+        svm = SGDClassifier(loss='hinge', penalty='l2',
+                            alpha=0.0001, max_iter=10).fit(X_train, y_train)
+        predicted = svm.predict(X_train)
+        self.svm = svm
+        save_pickle(self.svm, 'ensemble/svm.pkl')
+        # self.svm = load_pickle('ensemble/svm.pkl')
+        return predicted
 
     def _logistic_regression(self, X_train, y_train):
-        # print('Running Logistic Regression')
-        # lr = LogisticRegression(C=.05).fit(X_train, y_train)
-        # predicted = lr.predict(X_train)
-        # self.lr = lr
-        #
-        # save_pickle(self.lr, 'ensemble/lr.pkl')
-        self.lr = load_pickle('ensemble/lr.pkl')
-
-        # return predicted
+        print('Running Logistic Regression')
+        lr = LogisticRegression(C=.05).fit(X_train, y_train)
+        predicted = lr.predict(X_train)
+        self.lr = lr
+        save_pickle(self.lr, 'ensemble/lr.pkl')
+        # self.lr = load_pickle('ensemble/lr.pkl')
+        return predicted
 
     def _decision_tree(self, X_train, y_train):
         print('Running Decision Tree')
@@ -448,50 +429,50 @@ class TweetAuthorshipPredictor(object):
         print('Calculating TF-IDF')
         # Perform TF-IDF on text column
         print('   on text column')
-        # self.tfidf_text = TfidfVectorizer(ngram_range=(1, 2),
-        #                                   lowercase=False,
-        #                                   token_pattern='\w+|\@\w+',
-        #                                   norm='l2',
-        #                                   max_df=.99,
-        #                                   min_df=.01)
-        # tfidf_text = self.tfidf_text.fit_transform(X['text'])
-        # self.text_cols = self.tfidf_text.get_feature_names()
-        # idx = X.index
-        # tfidf_text = pd.DataFrame(tfidf_text.todense(),
-        #                           columns=[self.text_cols],
-        #                           index=idx)
-        # save_pickle(self.tfidf_text, 'tfidf_text.pkl')
-        self.tfidf_text = load_pickle('tfidf_text.pkl')
+        self.tfidf_text = TfidfVectorizer(ngram_range=(1, 2),
+                                          lowercase=False,
+                                          token_pattern='\w+|\@\w+',
+                                          norm='l2',
+                                          max_df=.99,
+                                          min_df=.01)
+        tfidf_text = self.tfidf_text.fit_transform(X['text'])
+        self.text_cols = self.tfidf_text.get_feature_names()
+        idx = X.index
+        tfidf_text = pd.DataFrame(tfidf_text.todense(),
+                                  columns=[self.text_cols],
+                                  index=idx)
+        save_pickle(self.tfidf_text, 'tfidf_text.pkl')
+        # self.tfidf_text = load_pickle('tfidf_text.pkl')
 
         # Perform TF-IDF on ner column
         print('   on ner column')
-        # self.tfidf_ner = TfidfVectorizer(ngram_range=(1, 2),
-        #                                  lowercase=False,
-        #                                  norm='l2',
-        #                                  max_df=.99,
-        #                                  min_df=.01)
-        # tfidf_ner = self.tfidf_ner.fit_transform(X['ner'])
-        # self.ner_cols = self.tfidf_ner.get_feature_names()
-        # tfidf_ner = pd.DataFrame(tfidf_ner.todense(),
-        #                          columns=[self.ner_cols],
-        #                          index=idx)
-        # save_pickle(self.tfidf_ner, 'tfidf_ner.pkl')
-        self.tfidf_ner = load_pickle('tfidf_ner.pkl')
+        self.tfidf_ner = TfidfVectorizer(ngram_range=(1, 2),
+                                         lowercase=False,
+                                         norm='l2',
+                                         max_df=.99,
+                                         min_df=.01)
+        tfidf_ner = self.tfidf_ner.fit_transform(X['ner'])
+        self.ner_cols = self.tfidf_ner.get_feature_names()
+        tfidf_ner = pd.DataFrame(tfidf_ner.todense(),
+                                 columns=[self.ner_cols],
+                                 index=idx)
+        save_pickle(self.tfidf_ner, 'tfidf_ner.pkl')
+        # self.tfidf_ner = load_pickle('tfidf_ner.pkl')
 
         # Perform TF-IDF on pos column
         print('   on pos column')
-        # self.tfidf_pos = TfidfVectorizer(ngram_range=(2, 3),
-        #                                  lowercase=False,
-        #                                  norm='l2',
-        #                                  max_df=.99,
-        #                                  min_df=.01)
-        # tfidf_pos = self.tfidf_pos.fit_transform(X['pos'])
-        # self.pos_cols = self.tfidf_pos.get_feature_names()
-        # tfidf_pos = pd.DataFrame(tfidf_pos.todense(),
-        #                          columns=[self.pos_cols],
-        #                          index=idx)
-        # save_pickle(self.tfidf_pos, 'tfidf_pos.pkl')
-        self.tfidf_pos = load_pickle('tfidf_pos.pkl')
+        self.tfidf_pos = TfidfVectorizer(ngram_range=(2, 3),
+                                         lowercase=False,
+                                         norm='l2',
+                                         max_df=.99,
+                                         min_df=.01)
+        tfidf_pos = self.tfidf_pos.fit_transform(X['pos'])
+        self.pos_cols = self.tfidf_pos.get_feature_names()
+        tfidf_pos = pd.DataFrame(tfidf_pos.todense(),
+                                 columns=[self.pos_cols],
+                                 index=idx)
+        save_pickle(self.tfidf_pos, 'tfidf_pos.pkl')
+        # self.tfidf_pos = load_pickle('tfidf_pos.pkl')
 
         X = self._tfidf_remove_dups(X, tfidf_text, tfidf_pos, tfidf_ner)
 
