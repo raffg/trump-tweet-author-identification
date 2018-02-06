@@ -1,6 +1,5 @@
 from nltk import word_tokenize, pos_tag
 from nltk.tag import StanfordNERTagger
-import preprocessor as p
 
 
 def pos_tagging(text):

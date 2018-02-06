@@ -3,6 +3,7 @@ import numpy as np
 import pickle
 from src.ridge_grid_scan import ridge_grid_scan
 from src.feature_pipeline import feature_pipeline
+from src.load_data import load_json_list, apply_date_mask
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
@@ -19,6 +20,30 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, \
                             f1_score
+
+
+def main():
+    data_list = (['data/condensed_2009.json',
+                  'data/condensed_2010.json',
+                  'data/condensed_2011.json',
+                  'data/condensed_2012.json',
+                  'data/condensed_2013.json',
+                  'data/condensed_2014.json',
+                  'data/condensed_2015.json',
+                  'data/condensed_2016.json',
+                  'data/condensed_2017.json'])
+
+    df = load_json_list(data_list)
+    df = df.sort_values('created_at').reset_index(drop=True)
+    df2 = apply_date_mask(df, 'created_at', '2009-01-01', '2017-03-26')
+
+    y = pd.DataFrame(np.where(df2['source'] == 'Twitter for Android', 1, 0))
+    X = df2.copy()
+
+    trump = TweetAuthorshipPredictor()
+    trump.fit(X, y)
+
+    save_pickle(trump, 'trump.pkl')
 
 
 class TweetAuthorshipPredictor(object):
@@ -115,7 +140,7 @@ class TweetAuthorshipPredictor(object):
             The fit Ensemble object.
         '''
         # Featurize the X data
-        # X_train, X_std_train = self._prepare_data_for_fit(X_train)
+        X_train, X_std_train = self._prepare_data_for_fit(X_train)
 
         drop = ['created_at', 'text', 'pos', 'ner']
 
@@ -529,3 +554,7 @@ def load_pickle(filename):
     print('Pickle load', filename)
     with open(filename, 'rb') as f:
         return pickle.load(f)
+
+
+if __name__ == '__main__':
+    main()

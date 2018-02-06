@@ -1,6 +1,5 @@
 import re
 import pandas as pd
-import preprocessor as p
 from src import tweetokenizer as t
 
 
