@@ -33,9 +33,11 @@ def main():
                   'data/condensed_2016.json',
                   'data/condensed_2017.json'])
 
+    print('Loading data...')
     df = load_json_list(data_list)
     df = df.sort_values('created_at').reset_index(drop=True)
     df2 = apply_date_mask(df, 'created_at', '2009-01-01', '2017-03-26')
+    # df2 = apply_date_mask(df, 'created_at', '2017-03-21', '2017-03-26')
 
     y = pd.DataFrame(np.where(df2['source'] == 'Twitter for Android', 1, 0))
     X = df2.copy()
