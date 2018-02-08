@@ -16,12 +16,14 @@ def main():
     auth.set_access_token(access_token, access_token_secret)
     api = tweepy.API(auth)
 
-    with open('trump.pkl', 'rb') as trump:
-        model = pickle.load(trump)
+    # with open('trump.pkl', 'rb') as trump:
+    #     model = pickle.load(trump)
+
+    first_tweet()
 
 
 def post_tweet(tweet, prediction):
-    '''Takes a tweet and formats a response
+    '''Takes a tweet, formats the response, and posts
     INPUT: string
     OUTPUT:
     '''
@@ -38,15 +40,16 @@ def post_tweet(tweet, prediction):
                 format(text[:140 - 30 - len(url)], url))
         image = 'images/trump.png'
 
-    api.update_with_media(image, status=text, in_reply_to_status_id=status_id)
-
-
-def post_tweet(api, text):
-    api.update_with_media(text)
+    api.update_with_media(image, status=text)
 
 
 def predict_author(model, tweet):
     return model.predict(tweet)
+
+
+def first_tweet():
+    api.update_with_media('images/trump_ticker.gif',
+                          status="I miss ol' Spicey")
 
 
 if __name__ == '__main__':
