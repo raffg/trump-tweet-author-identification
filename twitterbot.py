@@ -16,44 +16,54 @@ auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
 api = tweepy.API(auth)
 
-test = '14649582'
+# test = '14649582'
 realDonaldTrump = '25073877'
 
-# first_tweet(api)
-
-# with open('trump.pkl', 'rb') as trump:
-#     model = pickle.load(trump)
-
-trumpstreamlistener = TrumpStreamListener()
-trumpstream = tweepy.Stream(auth, trumpstreamlistener())
-
-trumpstream.filter(follow=[realDonaldTrump])
+with open('trump.pkl', 'rb') as trump:
+    model = pickle.load(trump)
 
 
 class TrumpStreamListener(tweepy.StreamListener):
 
     def on_status(self, status):
         if status.author.id_str == realDonaldTrump:
-            tweet_info = {'created_at': status.created_at,
-                          'favorite_count': status.favorite_count,
-                          'id_str': status.id_str,
-                          'in_reply_to_user_id_str':
-                          status.in_reply_to_user_id_str,
-                          'is_retweet': status.retweeted,
-                          'retweet_count': status.retweet_count,
-                          'source': status.source,
-                          'text': status.text}
-            tweet = pd.DataFrame(tweet_info)
+            # tweet_info = {'created_at': status.created_at,
+            #               'favorite_count': status.favorite_count,
+            #               'id_str': status.id_str,
+            #               'in_reply_to_user_id_str':
+            #               status.in_reply_to_user_id_str,
+            #               'is_retweet': status.retweeted,
+            #               'retweet_count': status.retweet_count,
+            #               'source': status.source,
+            #               'text': status.text}
+            tweet = pd.DataFrame(columns=['created_at',
+                                          'favorite_count',
+                                          'id_str',
+                                          'in_reply_to_user_id_str',
+                                          'is_retweet',
+                                          'retweet_count',
+                                          'source',
+                                          'text'])
+            tweet.loc[0] = [status.created_at,
+                            status.favorite_count,
+                            status.id_str,
+                            status.in_reply_to_user_id_str,
+                            status.retweeted,
+                            status.retweet_count,
+                            status.source,
+                            status.text]
             prediction = predict_author(tweet)
             post_tweet(status, prediction)
 
 
 def post_tweet(status, prediction):
-    '''Takes a tweet, formats the response, and posts
+    '''Takes a tweet, formats the response, and posts to Twitter
     INPUT: string
     OUTPUT:
     '''
     url = str('https://twitter.com/realDonaldTrump/status/' + status.id_str)
+    url = ('https://twitter.com/' + status.user.screen_name +
+           '/status/' + status.id_str)
     text = str(status.text)
 
     if prediction == 0:
@@ -74,5 +84,7 @@ def first_tweet(api):
                           status="Stay tuned!...")
 
 
-if __name__ == '__main__':
-    main()
+trumpstreamlistener = TrumpStreamListener()
+trumpstream = tweepy.Stream(auth, trumpstreamlistener)
+
+trumpstream.filter(follow=[realDonaldTrump])
