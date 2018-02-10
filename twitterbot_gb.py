@@ -187,7 +187,14 @@ def standardize(X):
     return X_std
 
 
-trumpstreamlistener = TrumpStreamListener()
-trumpstream = tweepy.Stream(auth, trumpstreamlistener)
+def start_stream():
+    while True:
+        try:
+            trumpstream = tweepy.Stream(auth, trumpstreamlistener)
+            trumpstream.filter(follow=[realDonaldTrump])
+        except:
+            continue
 
-trumpstream.filter(follow=[realDonaldTrump])
+
+trumpstreamlistener = TrumpStreamListener()
+start_stream()

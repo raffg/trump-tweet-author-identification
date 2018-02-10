@@ -52,9 +52,9 @@ def load_pickle(filename):
 
 
 knn_pca = load_pickle('ensemble/knn_pca.pkl')
-tfidf_pos = load_pickle('tfidf_pos.pkl')
-tfidf_ner = load_pickle('tfidf_ner.pkl')
-tfidf_text = load_pickle('tfidf_text.pkl')
+tfidf_pos = load_pickle('ensemble/tfidf_pos.pkl')
+tfidf_ner = load_pickle('ensemble/tfidf_ner.pkl')
+tfidf_text = load_pickle('ensemble/tfidf_text.pkl')
 text_cols = tfidf_text.get_feature_names()
 ner_cols = tfidf_ner.get_feature_names()
 pos_cols = tfidf_pos.get_feature_names()
@@ -106,12 +106,14 @@ def post_tweet(status, prediction):
            '/status/' + status.id_str)
     text = str(status.text)
 
-    if prediction == 0:
-        tweet = ('An aide probably wrote this: "{}..." {}'.
-                 format(text[:140 - 32], url))
+    if prediction[0] == 0:
+        tweet = ('I am {0:.0%} certain an aide wrote this:\n"{1}..."\n'
+                 '@realDonaldTrump\n{2}'.
+                 format(prediction[1][0][0], text[:197], url))
     else:
-        tweet = ('Trump probably wrote this: "{}..." {}'.
-                 format(text[:140 - 30 - len(url)], url))
+        tweet = ('I am {0:.0%} certain Trump wrote this:\n"{1}..."\n'
+                 '@realDonaldTrump\n{2}'.
+                 format(prediction[1][0][1], text[:199], url))
     api.update_status(tweet)
     print(tweet)
 
@@ -119,7 +121,7 @@ def post_tweet(status, prediction):
 def predict_author(tweet):
     X, X_std = prepare_data_for_predict(tweet)
     X_knn = knn_pca.transform(X_std[top_feats[:13]])
-    return model.predict(X_knn)
+    return model.predict(X_knn), model.predict_proba(X_knn)
 
 
 def first_tweet(api):
@@ -187,7 +189,14 @@ def standardize(X):
     return X_std
 
 
-trumpstreamlistener = TrumpStreamListener()
-trumpstream = tweepy.Stream(auth, trumpstreamlistener)
+def start_stream():
+    while True:
+        try:
+            trumpstream = tweepy.Stream(auth, trumpstreamlistener)
+            trumpstream.filter(follow=[realDonaldTrump])
+        except:
+            continue
 
-trumpstream.filter(follow=[realDonaldTrump])
+
+trumpstreamlistener = TrumpStreamListener()
+start_stream()
