@@ -23,26 +23,24 @@ realDonaldTrump = '25073877'
 with open('twitterbot_pickles/rf.pkl', 'rb') as trump:
     model = pickle.load(trump)
 
-std = ['favorite_count', 'retweet_count', 'compound', 'anger',
-       'anticipation', 'disgust', 'fear', 'joy', 'negative',
-       'positive', 'sadness', 'surprise', 'trust',
-       'tweet_length', 'avg_sentence_length', 'avg_word_length',
-       'commas', 'semicolons', 'exclamations', 'periods',
-       'questions', 'quotes', 'ellipses', 'mentions', 'hashtags',
-       'urls', 'all_caps', 'hour']
+std = ['compound', 'anger', 'anticipation', 'disgust', 'fear',
+       'joy', 'negative', 'positive', 'sadness', 'surprise',
+       'trust', 'tweet_length', 'avg_sentence_length',
+       'avg_word_length', 'commas', 'semicolons', 'exclamations',
+       'periods', 'questions', 'quotes', 'ellipses', 'mentions',
+       'hashtags', 'urls', 'all_caps', 'hour', 'random_caps']
 
-feat = ['created_at', 'favorite_count', 'is_retweet',
-        'retweet_count',
-        'text', 'is_reply', 'compound',
-        'v_negative', 'v_neutral', 'v_positive', 'anger',
-        'anticipation', 'disgust', 'fear', 'joy', 'negative',
-        'positive', 'sadness', 'surprise', 'trust',
+feat = ['created_at', 'is_retweet', 'text', 'is_reply',
+        'compound', 'v_negative', 'v_neutral', 'v_positive',
+        'anger', 'anticipation', 'disgust', 'fear', 'joy',
+        'negative', 'positive', 'sadness', 'surprise', 'trust',
         'tweet_length', 'avg_sentence_length', 'avg_word_length',
         'commas', 'semicolons', 'exclamations', 'periods',
         'questions', 'quotes', 'ellipses', 'mentions', 'hashtags',
         'urls', 'is_quoted_retweet', 'all_caps', 'tweetstorm',
         'hour', 'hour_20_02', 'hour_14_20', 'hour_08_14',
-        'hour_02_08', 'start_mention', 'ner', 'pos']
+        'hour_02_08', 'day_of_week', 'weekend', 'random_caps',
+        'start_mention', 'ner', 'pos']
 
 
 def load_pickle(filename):
