@@ -140,33 +140,33 @@ class TweetAuthorshipPredictor(object):
             The fit Ensemble object.
         '''
         # Featurize the X data
-        X_train, X_std_train = self._prepare_data_for_fit(X_train)
-
-        drop = ['created_at', 'text', 'pos', 'ner']
-
+        # X_train, X_std_train = self._prepare_data_for_fit(X_train)
+        #
+        # drop = ['created_at', 'text', 'pos', 'ner']
+        #
         self.tfidf_pos = load_pickle('twitterbot_pickles/tfidf_pos.pkl')
         self.tfidf_ner = load_pickle('twitterbot_pickles/tfidf_ner.pkl')
         self.tfidf_text = load_pickle('twitterbot_pickles/tfidf_text.pkl')
-        # self.scaler = load_pickle('twitterbot_pickles/scaler.pkl')
+        self.scaler = load_pickle('twitterbot_pickles/scaler.pkl')
         self.text_cols = self.tfidf_text.get_feature_names()
         self.ner_cols = self.tfidf_ner.get_feature_names()
         self.pos_cols = self.tfidf_pos.get_feature_names()
-
-        # Remove non-numeric features
-        X_train = X_train.drop(drop, axis=1)
-        X_std_train = X_std_train.drop(drop, axis=1)
-        save_pickle(X_train, 'ensemble/X_train.pkl')
-        save_pickle(X_std_train, 'ensemble/X_std_train.pkl')
-        # X_train = load_pickle('twitterbot_pickles/X_train.pkl')
-        # X_std_train = load_pickle('twitterbot_pickles/X_std_train.pkl')
+        #
+        # # Remove non-numeric features
+        # X_train = X_train.drop(drop, axis=1)
+        # X_std_train = X_std_train.drop(drop, axis=1)
+        # save_pickle(X_train, 'ensemble/X_train.pkl')
+        # save_pickle(X_std_train, 'ensemble/X_std_train.pkl')
+        X_train = load_pickle('twitterbot_pickles/X_train.pkl')
+        X_std_train = load_pickle('twitterbot_pickles/X_std_train.pkl')
 
         # Load the feature sets
-        feature_list = ridge_grid_scan(X_train,
-                                       np.array(y_train).ravel(),
-                                       n=len(X_train.columns))
-        self.top_feats = [(x[0]) for x in list(feature_list)]
-        save_pickle(self.top_feats, 'ensemble/top_feats.pkl')
-        # self.top_feats = load_pickle('twitterbot_pickles/top_feats.pkl')
+        # feature_list = ridge_grid_scan(X_train,
+        #                                np.array(y_train).ravel(),
+        #                                n=len(X_train.columns))
+        # self.top_feats = [(x[0]) for x in list(feature_list)]
+        # save_pickle(self.top_feats, 'ensemble/top_feats.pkl')
+        self.top_feats = load_pickle('twitterbot_pickles/top_feats.pkl')
 
         # Train the PCA objects
         self._gnb_pca_calc(X_std_train[self.top_feats[:13]])

@@ -18,6 +18,7 @@ auth.set_access_token(access_token, access_token_secret)
 api = tweepy.API(auth)
 
 realDonaldTrump = '25073877'
+# realDonaldTrump = '14649582'
 
 with open('pickle/ensemble_knn.pkl', 'rb') as trump:
     model = pickle.load(trump)
@@ -102,13 +103,13 @@ def post_tweet(status, prediction):
         tweet = ('I am {0:.0%} certain an aide wrote this:\n"{1}..."'
                  '\n@realDonaldTrump\n'
                  '{2}'.
-                 format(proba, text[:100], url))
+                 format(proba, text[:150], url))
     else:
         proba = .99 if prediction[1][0][1] > .99 else prediction[1][0][1]
         tweet = ('I am {0:.0%} certain Trump wrote this:\n"{1}..."'
                  '\n@realDonaldTrump\n'
                  '{2}'.
-                 format(proba, text[:100], url))
+                 format(proba, text[:150], url))
     print(tweet)
     print()
     api.update_status(tweet)

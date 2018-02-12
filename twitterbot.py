@@ -2,6 +2,7 @@ import json
 import tweepy
 import pandas as pd
 import pickle
+from time import sleep
 from TweetAuthorshipPredictor import TweetAuthorshipPredictor
 
 
@@ -18,8 +19,10 @@ api = tweepy.API(auth)
 
 # test = '14649582'
 realDonaldTrump = '25073877'
+# realDonaldTrump = '14649582'
 
-with open('trump.pkl', 'rb') as trump:
+with open('twitterbot_pickles/trump.pkl', 'rb') as trump:
+    print('Loading model...')
     model = pickle.load(trump)
 
 
@@ -46,6 +49,13 @@ class TrumpStreamListener(tweepy.StreamListener):
             prediction = predict_author(tweet)
             post_tweet(status, prediction)
 
+    def on_error(self, status_code):
+        if status_code == 420:
+            # returning False in on_data disconnects the stream
+            print('Hit rate limit, pausing 60 seconds')
+            sleep(60)
+            return True
+
 
 def post_tweet(status, prediction):
     '''Takes a tweet, formats the response, and posts to Twitter
@@ -62,13 +72,13 @@ def post_tweet(status, prediction):
         tweet = ('I am {0:.0%} certain an aide wrote this:\n"{1}..."'
                  '\n@realDonaldTrump\n'
                  '{2}'.
-                 format(proba, text[:100], url))
+                 format(proba, text[:150], url))
     else:
         proba = .99 if prediction[1][0][1] > .99 else prediction[1][0][1]
         tweet = ('I am {0:.0%} certain Trump wrote this:\n"{1}..."'
                  '\n@realDonaldTrump\n'
                  '{2}'.
-                 format(proba, text[:100], url))
+                 format(proba, text[:150], url))
     print(tweet)
     print()
     api.update_status(tweet)
@@ -93,4 +103,5 @@ def start_stream():
 
 
 trumpstreamlistener = TrumpStreamListener()
+print('Ready!')
 start_stream()
