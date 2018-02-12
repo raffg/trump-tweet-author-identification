@@ -19,7 +19,7 @@ api = tweepy.API(auth)
 
 realDonaldTrump = '25073877'
 
-with open('pickle/ensemble_knn.pkl', 'rb') as trump:
+with open('twitterbot_pickles/rf.pkl', 'rb') as trump:
     model = pickle.load(trump)
 
 std = ['favorite_count', 'retweet_count', 'compound', 'anger',
@@ -51,7 +51,6 @@ def load_pickle(filename):
         return pickle.load(f)
 
 
-knn_pca = load_pickle('twitterbot_pickles/knn_pca.pkl')
 tfidf_pos = load_pickle('twitterbot_pickles/tfidf_pos.pkl')
 tfidf_ner = load_pickle('twitterbot_pickles/tfidf_ner.pkl')
 tfidf_text = load_pickle('twitterbot_pickles/tfidf_text.pkl')
@@ -116,8 +115,8 @@ def post_tweet(status, prediction):
 
 def predict_author(tweet):
     X, X_std = prepare_data_for_predict(tweet)
-    X_knn = knn_pca.transform(X_std[top_feats[:13]])
-    return model.predict(X_knn), model.predict_proba(X_knn)
+    X = X[top_feats[:200]]
+    return model.predict(X), model.predict_proba(X)
 
 
 def first_tweet(api):

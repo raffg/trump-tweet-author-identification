@@ -147,6 +147,21 @@ def apply_all_caps(df, column):
     return new_df
 
 
+def random_capitalization(df, column):
+    '''
+    Takes a DataFrame and a specified column of text and creates a new column
+    with the count of randomly capitalized words in the text
+    INPUT: DataFrame, string
+    OUTPUT: the original DataFrame with one new column
+    '''
+
+    new_df = df.copy()
+    exp = r"(?<!\.\s)(?<!\!\s)(?<!\?\s)\b[A-Z][a-z]*[^'][^I]\b"
+    new_df['random_caps'] = new_df[column].apply(lambda x:
+                                                 len(re.findall(exp, x)))
+    return new_df
+
+
 def mention_start(text):
     '''
     Takes a text string and outputs 1 if the string begins with "<USER>" and

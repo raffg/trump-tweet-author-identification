@@ -40,11 +40,12 @@ def main():
 
     y = pd.DataFrame(np.where(df2['source'] == 'Twitter for Android', 1, 0))
     X = df2.copy()
+    save_pickle(y, 'ensemble/y_train.pkl')
 
     trump = TweetAuthorshipPredictor()
     trump.fit(X, y)
 
-    save_pickle(trump, 'trump.pkl')
+    save_pickle(trump, 'ensemble/trump.pkl')
 
 
 class TweetAuthorshipPredictor(object):
@@ -98,27 +99,25 @@ class TweetAuthorshipPredictor(object):
         self.tfidf_pos = None
 
         # Columns to standardize
-        self.std = ['favorite_count', 'retweet_count', 'compound', 'anger',
-                    'anticipation', 'disgust', 'fear', 'joy', 'negative',
-                    'positive', 'sadness', 'surprise', 'trust',
-                    'tweet_length', 'avg_sentence_length', 'avg_word_length',
-                    'commas', 'semicolons', 'exclamations', 'periods',
-                    'questions', 'quotes', 'ellipses', 'mentions', 'hashtags',
-                    'urls', 'all_caps', 'hour']
+        self.std = ['compound', 'anger', 'anticipation', 'disgust', 'fear',
+                    'joy', 'negative', 'positive', 'sadness', 'surprise',
+                    'trust', 'tweet_length', 'avg_sentence_length',
+                    'avg_word_length', 'commas', 'semicolons', 'exclamations',
+                    'periods', 'questions', 'quotes', 'ellipses', 'mentions',
+                    'hashtags', 'urls', 'all_caps', 'hour', 'random_caps']
 
         # Columns to train on prior to tf-idf
-        self.feat = ['created_at', 'favorite_count', 'is_retweet',
-                     'retweet_count',
-                     'text', 'is_reply', 'compound',
-                     'v_negative', 'v_neutral', 'v_positive', 'anger',
-                     'anticipation', 'disgust', 'fear', 'joy', 'negative',
-                     'positive', 'sadness', 'surprise', 'trust',
+        self.feat = ['created_at', 'is_retweet', 'text', 'is_reply',
+                     'compound', 'v_negative', 'v_neutral', 'v_positive',
+                     'anger', 'anticipation', 'disgust', 'fear', 'joy',
+                     'negative', 'positive', 'sadness', 'surprise', 'trust',
                      'tweet_length', 'avg_sentence_length', 'avg_word_length',
                      'commas', 'semicolons', 'exclamations', 'periods',
                      'questions', 'quotes', 'ellipses', 'mentions', 'hashtags',
                      'urls', 'is_quoted_retweet', 'all_caps', 'tweetstorm',
                      'hour', 'hour_20_02', 'hour_14_20', 'hour_08_14',
-                     'hour_02_08', 'start_mention', 'ner', 'pos']
+                     'hour_02_08', 'day_of_week', 'weekend', 'random_caps',
+                     'start_mention', 'ner', 'pos']
 
         # tf-idf column names
         self.text_cols = None
@@ -145,21 +144,21 @@ class TweetAuthorshipPredictor(object):
 
         drop = ['created_at', 'text', 'pos', 'ner']
 
-        # self.tfidf_pos = load_pickle('tfidf_pos.pkl')
-        # self.tfidf_ner = load_pickle('tfidf_ner.pkl')
-        # self.tfidf_text = load_pickle('tfidf_text.pkl')
-        # self.text_cols = self.tfidf_text.get_feature_names()
-        # self.ner_cols = self.tfidf_ner.get_feature_names()
-        # self.pos_cols = self.tfidf_pos.get_feature_names()
-        # self.scaler = load_pickle('ensemble/scaler.pkl')
+        self.tfidf_pos = load_pickle('twitterbot_pickles/tfidf_pos.pkl')
+        self.tfidf_ner = load_pickle('twitterbot_pickles/tfidf_ner.pkl')
+        self.tfidf_text = load_pickle('twitterbot_pickles/tfidf_text.pkl')
+        # self.scaler = load_pickle('twitterbot_pickles/scaler.pkl')
+        self.text_cols = self.tfidf_text.get_feature_names()
+        self.ner_cols = self.tfidf_ner.get_feature_names()
+        self.pos_cols = self.tfidf_pos.get_feature_names()
 
         # Remove non-numeric features
         X_train = X_train.drop(drop, axis=1)
         X_std_train = X_std_train.drop(drop, axis=1)
         save_pickle(X_train, 'ensemble/X_train.pkl')
         save_pickle(X_std_train, 'ensemble/X_std_train.pkl')
-        # X_train = load_pickle('ensemble/X_train.pkl')
-        # X_std_train = load_pickle('ensemble/X_std_train.pkl')
+        # X_train = load_pickle('twitterbot_pickles/X_train.pkl')
+        # X_std_train = load_pickle('twitterbot_pickles/X_std_train.pkl')
 
         # Load the feature sets
         feature_list = ridge_grid_scan(X_train,
@@ -167,15 +166,15 @@ class TweetAuthorshipPredictor(object):
                                        n=len(X_train.columns))
         self.top_feats = [(x[0]) for x in list(feature_list)]
         save_pickle(self.top_feats, 'ensemble/top_feats.pkl')
-        # self.top_feats = load_pickle('ensemble/top_feats.pkl')
+        # self.top_feats = load_pickle('twitterbot_pickles/top_feats.pkl')
 
         # Train the PCA objects
         self._gnb_pca_calc(X_std_train[self.top_feats[:13]])
         self._knn_pca_calc(X_std_train[self.top_feats[:13]])
         save_pickle(self.gnb_pca, 'ensemble/gnb_pca.pkl')
         save_pickle(self.knn_pca, 'ensemble/knn_pca.pkl')
-        # self.gnb_pca = load_pickle('ensemble/gnb_pca.pkl')
-        # self.knn_pca = load_pickle('ensemble/knn_pca.pkl')
+        # self.gnb_pca = load_pickle('twitterbot_pickles/gnb_pca.pkl')
+        # self.knn_pca = load_pickle('twitterbot_pickles/knn_pca.pkl')
 
         # Train the individual models
         data = self._first_stage_train(X_train, X_std_train,
@@ -184,11 +183,9 @@ class TweetAuthorshipPredictor(object):
 
         X_train_dt['majority'] = X_train_dt.apply(self._majority, axis=1)
         save_pickle(X_train_dt, 'ensemble/X_train_dt.pkl')
-        # X_train_dt = load_pickle('ensemble/X_train_dt.pkl')
+        # X_train_dt = load_pickle('twitterbot_pickles/X_train_dt.pkl')
 
         self.dt = self._decision_tree(X_train_dt, np.array(y_train).ravel())
-        save_pickle(self.dt, 'ensemble/dt.pkl')
-        # self.dt = load_pickle('ensemble/dt.pkl')
 
         return self
 
@@ -224,10 +221,9 @@ class TweetAuthorshipPredictor(object):
         cols = X.columns
         self.scaler.fit(X)
         save_pickle(self.scaler, 'ensemble/scaler.pkl')
-        # self.scaler = load_pickle('ensemble/scaler.pkl')
+        # self.scaler = load_pickle('twitterbot_pickles/scaler.pkl')
 
     def _standardize(self, X):
-        print('Performing Standardization')
         X_std = X.copy()
         cols = X[self.std].columns
         X_std[self.std] = pd.DataFrame(self.scaler.transform(
@@ -241,7 +237,7 @@ class TweetAuthorshipPredictor(object):
         and standardizes.
         '''
         # Create new feature columns
-        X = feature_pipeline(X)
+        X = feature_pipeline(X, verbose=True)
         X = self._tfidf_fit_transform(X[self.feat])
         self._standard_scaler(X[self.std])
         X_std = self._standardize(X)
@@ -312,9 +308,24 @@ class TweetAuthorshipPredictor(object):
         svm_results = self.svm.predict(X_std[svm_feat])
         lr_results = self.lr.predict(X_std[lr_feat])
 
-        return {'rf': rf_results, 'ab': ab_results, 'gb': gb_results,
+        data = {'rf': rf_results, 'ab': ab_results, 'gb': gb_results,
                 'knn': knn_results, 'nb': nb_results, 'gnb': gnb_results,
                 'svc': svc_results, 'svm': svm_results, 'lr': lr_results}
+
+        print('rf', self.rf.predict_proba(X[rf_feat]))
+        print('ab', self.ab.predict_proba(X_std[ab_feat]))
+        print('gb', self.gb.predict_proba(X_std[gb_feat]))
+        print('knn', self.knn.predict_proba(X_knn))
+        print('nb', self.nb.predict_proba(X[nb_feat]))
+        print('gnb', self.gnb.predict_proba(X_gnb))
+        # print('svc', self.svc.predict_proba(X_std[svc_feat]))
+        # print('svm', self.svm.predict_proba(X_std[svm_feat]))
+        print('lr', self.lr.predict_proba(X_std[lr_feat]))
+
+        for key, value in data.items():
+            print(key, value)
+
+        return data
 
     def _random_forest(self, X_train, y_train):
         print('Running Random Forest')
@@ -328,7 +339,7 @@ class TweetAuthorshipPredictor(object):
         predicted = rf.predict(X_train)
         self.rf = rf
         save_pickle(self.rf, 'ensemble/rf.pkl')
-        # self.rf = load_pickle('ensemble/rf.pkl')
+        # self.rf = load_pickle('twitterbot_pickles/rf.pkl')
         return predicted
 
     def _adaboost(self, X_train, y_train):
@@ -338,7 +349,7 @@ class TweetAuthorshipPredictor(object):
         predicted = ab.predict(X_train)
         self.ab = ab
         save_pickle(self.ab, 'ensemble/ab.pkl')
-        # self.ab = load_pickle('ensemble/ab.pkl')
+        # self.ab = load_pickle('twitterbot_pickles/ab.pkl')
         return predicted
 
     def _gradient_boosting(self, X_train, y_train):
@@ -354,7 +365,7 @@ class TweetAuthorshipPredictor(object):
         predicted = gb.predict(X_train)
         self.gb = gb
         save_pickle(self.gb, 'ensemble/gb.pkl')
-        # self.gb = load_pickle('ensemble/gb.pkl')
+        # self.gb = load_pickle('twitterbot_pickles/gb.pkl')
         return predicted
 
     def _knn(self, X_train, y_train):
@@ -364,7 +375,7 @@ class TweetAuthorshipPredictor(object):
         predicted = knn.predict(X_train)
         self.knn = knn
         save_pickle(self.knn, 'ensemble/knn.pkl')
-        # self.knn = load_pickle('ensemble/knn.pkl')
+        # self.knn = load_pickle('twitterbot_pickles/knn.pkl')
         return predicted
 
     def _knn_pca_calc(self, X_train):
@@ -380,7 +391,7 @@ class TweetAuthorshipPredictor(object):
         predicted = nb.predict(X_train)
         self.nb = nb
         save_pickle(self.nb, 'ensemble/nb.pkl')
-        # self.nb = load_pickle('ensemble/nb.pkl')
+        # self.nb = load_pickle('twitterbot_pickles/nb.pkl')
         return predicted
 
     def _gaussian_naive_bayes(self, X_train, y_train):
@@ -390,7 +401,7 @@ class TweetAuthorshipPredictor(object):
         predicted = gnb.predict(X_train)
         self.gnb = gnb
         save_pickle(self.gnb, 'ensemble/gnb.pkl')
-        # self.gnb= load_pickle('ensemble/gnb.pkl')
+        # self.gnb= load_pickle('twitterbot_pickles/gnb.pkl')
         return predicted
 
     def _gnb_pca_calc(self, X_train):
@@ -411,7 +422,7 @@ class TweetAuthorshipPredictor(object):
         predicted = svc.predict(X_train)
         self.svc = svc
         save_pickle(self.svc, 'ensemble/svc.pkl')
-        self.svc = load_pickle('ensemble/svc.pkl')
+        # self.svc = load_pickle('twitterbot_pickles/svc.pkl')
         return predicted
 
     def _svm(self, X_train, y_train):
@@ -421,7 +432,7 @@ class TweetAuthorshipPredictor(object):
         predicted = svm.predict(X_train)
         self.svm = svm
         save_pickle(self.svm, 'ensemble/svm.pkl')
-        # self.svm = load_pickle('ensemble/svm.pkl')
+        # self.svm = load_pickle('twitterbot_pickles/svm.pkl')
         return predicted
 
     def _logistic_regression(self, X_train, y_train):
@@ -430,7 +441,7 @@ class TweetAuthorshipPredictor(object):
         predicted = lr.predict(X_train)
         self.lr = lr
         save_pickle(self.lr, 'ensemble/lr.pkl')
-        # self.lr = load_pickle('ensemble/lr.pkl')
+        # self.lr = load_pickle('twitterbot_pickles/lr.pkl')
         return predicted
 
     def _decision_tree(self, X_train, y_train):
@@ -441,6 +452,8 @@ class TweetAuthorshipPredictor(object):
                                     splitter='best')
         dt.fit(X_train, y_train)
         self.dt = dt
+        save_pickle(self.dt, 'ensemble/dt.pkl')
+        # self.dt = load_pickle('twitterbot_pickles/dt.pkl')
         return dt
 
     def _majority(self, row):
@@ -467,8 +480,8 @@ class TweetAuthorshipPredictor(object):
         tfidf_text = pd.DataFrame(tfidf_text.todense(),
                                   columns=[self.text_cols],
                                   index=idx)
-        save_pickle(self.tfidf_text, 'tfidf_text.pkl')
-        # self.tfidf_text = load_pickle('tfidf_text.pkl')
+        save_pickle(self.tfidf_text, 'ensemble/tfidf_text.pkl')
+        # self.tfidf_text = load_pickle('twitterbot_pickles/tfidf_text.pkl')
 
         # Perform TF-IDF on ner column
         print('   on ner column')
@@ -482,8 +495,8 @@ class TweetAuthorshipPredictor(object):
         tfidf_ner = pd.DataFrame(tfidf_ner.todense(),
                                  columns=[self.ner_cols],
                                  index=idx)
-        save_pickle(self.tfidf_ner, 'tfidf_ner.pkl')
-        # self.tfidf_ner = load_pickle('tfidf_ner.pkl')
+        save_pickle(self.tfidf_ner, 'ensemble/tfidf_ner.pkl')
+        # self.tfidf_ner = load_pickle('twitterbot_pickles/tfidf_ner.pkl')
 
         # Perform TF-IDF on pos column
         print('   on pos column')
@@ -497,8 +510,8 @@ class TweetAuthorshipPredictor(object):
         tfidf_pos = pd.DataFrame(tfidf_pos.todense(),
                                  columns=[self.pos_cols],
                                  index=idx)
-        save_pickle(self.tfidf_pos, 'tfidf_pos.pkl')
-        # self.tfidf_pos = load_pickle('tfidf_pos.pkl')
+        save_pickle(self.tfidf_pos, 'ensemble/tfidf_pos.pkl')
+        # self.tfidf_pos = load_pickle('twitterbot_pickles/tfidf_pos.pkl')
 
         X = self._tfidf_remove_dups(X, tfidf_text, tfidf_pos, tfidf_ner)
 
