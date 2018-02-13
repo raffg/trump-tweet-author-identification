@@ -84,6 +84,7 @@ class TrumpStreamListener(tweepy.StreamListener):
                             status.retweet_count,
                             status.source,
                             status.text]
+            print(tweet)
             prediction = predict_author(tweet)
             post_tweet(status, prediction)
 
@@ -100,13 +101,13 @@ def post_tweet(status, prediction):
 
     if prediction[0] == 0:
         proba = .99 if prediction[1][0][0] > .99 else prediction[1][0][0]
-        tweet = ('I am {0:.0%} confidant an aide wrote this:\n"{1}..."'
+        tweet = ('I am {0:.0%} confident an aide wrote this:\n"{1}..."'
                  '\n@realDonaldTrump\n'
                  '{2}'.
                  format(proba, text[:150], url))
     else:
         proba = .99 if prediction[1][0][1] > .99 else prediction[1][0][1]
-        tweet = ('I am {0:.0%} confidant Trump wrote this:\n"{1}..."'
+        tweet = ('I am {0:.0%} confident Trump wrote this:\n"{1}..."'
                  '\n@realDonaldTrump\n'
                  '{2}'.
                  format(proba, text[:150], url))
@@ -125,8 +126,15 @@ def predict_author(tweet):
     gb_results = gb.predict(X_gb), gb.predict_proba(X_gb)
     knn_results = knn.predict(X_knn), knn.predict_proba(X_knn)
 
+    print(rf_results)
+    print(gb_results)
+    print(knn_results)
+
     total = sum([rf_results[0], gb_results[0], knn_results[0]])
     majority = 1 if total > 1 else 0
+
+    print(total)
+    print(majority)
 
     zero = -(rf_results[1][0][0] * (rf_results[0] - 1) +
              gb_results[1][0][0] * (gb_results[0] - 1) +
@@ -138,7 +146,7 @@ def predict_author(tweet):
     proba0 = zero / (3 - total) if total != 3 else 0
     proba1 = one / total if total != 0 else 0
 
-    return (np.array([majority]), np.array([[proba0, proba1]]))
+    return (np.array([majority]), np.array([[float(proba0), float(proba1)]]))
 
 
 def first_tweet(api):
