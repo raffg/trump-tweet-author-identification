@@ -22,15 +22,6 @@ api = tweepy.API(auth)
 realDonaldTrump = '25073877'
 # realDonaldTrump = '14649582'
 
-with open('twitterbot_pickles/rf.pkl', 'rb') as _rf:
-    rf = pickle.load(_rf)
-
-with open('twitterbot_pickles/gb.pkl', 'rb') as _gb:
-    gb = pickle.load(_gb)
-
-with open('twitterbot_pickles/knn.pkl', 'rb') as _knn:
-    knn = pickle.load(_knn)
-
 std = ['compound', 'anger', 'anticipation', 'disgust', 'fear',
        'joy', 'negative', 'positive', 'sadness', 'surprise',
        'trust', 'tweet_length', 'avg_sentence_length',
@@ -58,6 +49,9 @@ def load_pickle(filename):
         return pickle.load(f)
 
 
+rf = load_pickle('twitterbot_pickles/rf.pkl')
+gb = load_pickle('twitterbot_pickles/gb.pkl')
+knn = load_pickle('twitterbot_pickles/knn.pkl')
 knn_pca = load_pickle('twitterbot_pickles/knn_pca.pkl')
 tfidf_pos = load_pickle('twitterbot_pickles/tfidf_pos.pkl')
 tfidf_ner = load_pickle('twitterbot_pickles/tfidf_ner.pkl')
@@ -91,7 +85,6 @@ class TrumpStreamListener(tweepy.StreamListener):
                             status.source,
                             status.text]
             prediction = predict_author(tweet)
-            print(prediction)
             post_tweet(status, prediction)
 
 
@@ -107,13 +100,13 @@ def post_tweet(status, prediction):
 
     if prediction[0] == 0:
         proba = .99 if prediction[1][0][0] > .99 else prediction[1][0][0]
-        tweet = ('I am {0:.0%} certain an aide wrote this:\n"{1}..."'
+        tweet = ('I am {0:.0%} confidant an aide wrote this:\n"{1}..."'
                  '\n@realDonaldTrump\n'
                  '{2}'.
                  format(proba, text[:150], url))
     else:
         proba = .99 if prediction[1][0][1] > .99 else prediction[1][0][1]
-        tweet = ('I am {0:.0%} certain Trump wrote this:\n"{1}..."'
+        tweet = ('I am {0:.0%} confidant Trump wrote this:\n"{1}..."'
                  '\n@realDonaldTrump\n'
                  '{2}'.
                  format(proba, text[:150], url))
@@ -134,8 +127,16 @@ def predict_author(tweet):
 
     total = sum([rf_results[0], gb_results[0], knn_results[0]])
     majority = 1 if total > 1 else 0
-    proba0 = np.mean([rf_results[1][0][1], gb_results[1][0][1], knn_results[1][0][1]])
-    proba1 = np.mean([rf_results[1][0][0], gb_results[1][0][0], knn_results[1][0][0]])
+
+    zero = -(rf_results[1][0][0] * (rf_results[0] - 1) +
+             gb_results[1][0][0] * (gb_results[0] - 1) +
+             knn_results[1][0][0] * (knn_results[0] - 1))
+    one = (rf_results[1][0][1] * rf_results[0] +
+           gb_results[1][0][1] * gb_results[0] +
+           knn_results[1][0][1] * knn_results[0])
+
+    proba0 = zero / (3 - total) if total != 3 else 0
+    proba1 = one / total if total != 0 else 0
 
     return (np.array([majority]), np.array([[proba0, proba1]]))
 
@@ -195,7 +196,6 @@ def tfidf_remove_dups(X, tfidf_text, tfidf_pos, tfidf_ner):
 
 
 def standardize(X):
-    print('Performing Standardization')
     X_std = X.copy()
     cols = X[std].columns
     X_std[std] = pd.DataFrame(scaler.transform(

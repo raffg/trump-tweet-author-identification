@@ -69,13 +69,13 @@ def post_tweet(status, prediction):
 
     if prediction[0] == 0:
         proba = .99 if prediction[1][0][0] > .99 else prediction[1][0][0]
-        tweet = ('I am {0:.0%} certain an aide wrote this:\n"{1}..."'
+        tweet = ('I am {0:.0%} confidant an aide wrote this:\n"{1}..."'
                  '\n@realDonaldTrump\n'
                  '{2}'.
                  format(proba, text[:150], url))
     else:
         proba = .99 if prediction[1][0][1] > .99 else prediction[1][0][1]
-        tweet = ('I am {0:.0%} certain Trump wrote this:\n"{1}..."'
+        tweet = ('I am {0:.0%} confidant Trump wrote this:\n"{1}..."'
                  '\n@realDonaldTrump\n'
                  '{2}'.
                  format(proba, text[:150], url))
