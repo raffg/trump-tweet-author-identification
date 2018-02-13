@@ -48,7 +48,7 @@ I looked at the style of each tweet by counting various punctuation marks (the n
 I also created features for what I have recognized as Trump's rather unique Twitter behavior. These features include the "quoted retweet" (where Trump copies and pastes a another user's tweet onto his own timeline and surrounds it in quotation marks), words written in ALL CAPS or followed by several exclamation points!!!, and also middle-of-the-night tweeting.
 
 ### Sentiment
-I used C.J. Hutto's [VADER](https://github.com/cjhutto/vaderSentiment) package to extract the sentiment of each tweet. VADER, which stands for Valence Aware Dictionary and sEntiment Reasoner, is a lexicon and rule-based tool that is specifically tuned to social media. Given a string of text, it outputs a number between 0 and 1 for negativity, positivity, and neutrality
+I used C.J. Hutto's [VADER](https://github.com/cjhutto/vaderSentiment) package to extract the sentiment of each tweet. VADER, which stands for Valence Aware Dictionary and sEntiment Reasoning, is a lexicon and rule-based tool that is specifically tuned to social media. Given a string of text, it outputs a number between 0 and 1 for negativity, positivity, and neutrality
 for the text, as well as a compound score from -1 to 1 which is an aggregate measure.
 
 ### Emotion
