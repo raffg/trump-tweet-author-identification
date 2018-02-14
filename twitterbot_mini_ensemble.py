@@ -84,7 +84,6 @@ class TrumpStreamListener(tweepy.StreamListener):
                             status.retweet_count,
                             status.source,
                             status.text]
-            print(tweet)
             prediction = predict_author(tweet)
             post_tweet(status, prediction)
 
@@ -132,9 +131,6 @@ def predict_author(tweet):
 
     total = sum([rf_results[0], gb_results[0], knn_results[0]])
     majority = 1 if total > 1 else 0
-
-    print(total)
-    print(majority)
 
     zero = -(rf_results[1][0][0] * (rf_results[0] - 1) +
              gb_results[1][0][0] * (gb_results[0] - 1) +
