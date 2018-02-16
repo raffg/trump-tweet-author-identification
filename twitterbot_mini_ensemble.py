@@ -3,7 +3,6 @@ import tweepy
 import pandas as pd
 import numpy as np
 import pickle
-from TweetAuthorshipPredictor import TweetAuthorshipPredictor
 from src.feature_pipeline import feature_pipeline
 from sklearn.ensemble import VotingClassifier
 

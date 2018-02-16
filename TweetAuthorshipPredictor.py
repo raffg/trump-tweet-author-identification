@@ -203,11 +203,18 @@ class TweetAuthorshipPredictor(object):
             Predicted label
         '''
         X, X_std = self._prepare_data_for_predict(X)
-        data = self._first_stage_predict(X, X_std)
+        data, probabilities = self._first_stage_predict(X, X_std)
         X_dt = pd.DataFrame(data)
         X_dt['majority'] = X_dt.apply(self._majority, axis=1)
 
-        return self.dt.predict(X_dt), self.dt.predict_proba(X_dt)
+        prediction = self.dt.predict(X_dt)
+        proba_list = []
+        for key, value in probabilities.items():
+            if data[key] == prediction:
+                proba_list.append(value[0][prediction])
+        proba = np.mean(proba_list)
+
+        return self.dt.predict(X_dt), proba
 
     def get_top_features(self):
         '''Returns a list of the features ordered by influence
@@ -312,20 +319,25 @@ class TweetAuthorshipPredictor(object):
                 'knn': knn_results, 'nb': nb_results, 'gnb': gnb_results,
                 'svc': svc_results, 'svm': svm_results, 'lr': lr_results}
 
-        print('rf', self.rf.predict_proba(X[rf_feat]))
-        print('ab', self.ab.predict_proba(X_std[ab_feat]))
-        print('gb', self.gb.predict_proba(X_std[gb_feat]))
-        print('knn', self.knn.predict_proba(X_knn))
-        print('nb', self.nb.predict_proba(X[nb_feat]))
-        print('gnb', self.gnb.predict_proba(X_gnb))
-        # print('svc', self.svc.predict_proba(X_std[svc_feat]))
-        # print('svm', self.svm.predict_proba(X_std[svm_feat]))
-        print('lr', self.lr.predict_proba(X_std[lr_feat]))
+        rf_predict = self.rf.predict_proba(X[rf_feat])
+        ab_predict = self.ab.predict_proba(X_std[ab_feat])
+        gb_predict = self.gb.predict_proba(X_std[gb_feat])
+        knn_predict = self.knn.predict_proba(X_knn)
+        nb_predict = self.nb.predict_proba(X[nb_feat])
+        gnb_predict = self.gnb.predict_proba(X_gnb)
+        lr_predict = self.lr.predict_proba(X_std[lr_feat])
+
+        probabilities = {'rf': rf_predict, 'ab': ab_predict, 'gb': gb_predict,
+                         'knn': knn_predict, 'nb': nb_predict,
+                         'gnb': gnb_predict, 'lr': lr_predict}
+
+        for key, value in probabilities.items():
+            print(key, value)
 
         for key, value in data.items():
             print(key, value)
 
-        return data
+        return data, probabilities
 
     def _random_forest(self, X_train, y_train):
         print('Running Random Forest')

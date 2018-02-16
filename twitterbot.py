@@ -62,21 +62,22 @@ def post_tweet(status, prediction):
     INPUT: string
     OUTPUT:
     '''
-    url = str('https://twitter.com/realDonaldTrump/status/' + status.id_str)
     url = ('https://twitter.com/' + status.user.screen_name +
            '/status/' + status.id_str)
     text = str(status.text)
 
+    proba = .99 if prediction[1] > .99 else prediction[1]
+
     if prediction[0] == 0:
-        proba = .99 if prediction[1][0][0] > .99 else prediction[1][0][0]
-        tweet = ('I am {0:.0%} confident an aide wrote this:\n"{1}..."'
-                 '\n@realDonaldTrump\n'
+        tweet = ('I am {0:.0%} confident an aide wrote this:\n'
+                 '"{1}..."\n'
+                 '@realDonaldTrump\n'
                  '{2}'.
                  format(proba, text[:150], url))
     else:
-        proba = .99 if prediction[1][0][1] > .99 else prediction[1][0][1]
-        tweet = ('I am {0:.0%} confident Trump wrote this:\n"{1}..."'
-                 '\n@realDonaldTrump\n'
+        tweet = ('I am {0:.0%} confident Trump wrote this:\n'
+                 '"{1}..."\n'
+                 '@realDonaldTrump\n'
                  '{2}'.
                  format(proba, text[:150], url))
     print(tweet)
