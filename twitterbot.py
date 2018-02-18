@@ -17,9 +17,8 @@ auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
 api = tweepy.API(auth)
 
-# test = '14649582'
 realDonaldTrump = '25073877'
-# realDonaldTrump = '14649582'
+# realDonaldTrump = '14649582'  # test
 
 with open('twitterbot_pickles/trump.pkl', 'rb') as trump:
     print('Loading model...')

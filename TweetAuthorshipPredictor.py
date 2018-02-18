@@ -101,9 +101,9 @@ class TweetAuthorshipPredictor(object):
         # Columns to standardize
         self.std = ['compound', 'anger', 'anticipation', 'disgust', 'fear',
                     'joy', 'negative', 'positive', 'sadness', 'surprise',
-                    'trust', 'tweet_length', 'avg_sentence_length',
-                    'avg_word_length', 'commas', 'semicolons', 'exclamations',
-                    'periods', 'questions', 'quotes', 'ellipses', 'mentions',
+                    'trust', 'avg_sentence_length', 'avg_word_length',
+                    'commas', 'semicolons', 'exclamations', 'periods',
+                    'questions', 'quotes', 'ellipses', 'mentions',
                     'hashtags', 'urls', 'all_caps', 'hour', 'random_caps']
 
         # Columns to train on prior to tf-idf
@@ -111,13 +111,13 @@ class TweetAuthorshipPredictor(object):
                      'compound', 'v_negative', 'v_neutral', 'v_positive',
                      'anger', 'anticipation', 'disgust', 'fear', 'joy',
                      'negative', 'positive', 'sadness', 'surprise', 'trust',
-                     'tweet_length', 'avg_sentence_length', 'avg_word_length',
-                     'commas', 'semicolons', 'exclamations', 'periods',
-                     'questions', 'quotes', 'ellipses', 'mentions', 'hashtags',
-                     'urls', 'is_quoted_retweet', 'all_caps', 'tweetstorm',
-                     'hour', 'hour_20_02', 'hour_14_20', 'hour_08_14',
-                     'hour_02_08', 'day_of_week', 'weekend', 'random_caps',
-                     'start_mention', 'ner', 'pos']
+                     'avg_sentence_length', 'avg_word_length', 'commas',
+                     'semicolons', 'exclamations', 'periods', 'questions',
+                     'quotes', 'ellipses', 'mentions', 'hashtags', 'urls',
+                     'is_quoted_retweet', 'all_caps', 'tweetstorm', 'hour',
+                     'hour_20_02', 'hour_14_20', 'hour_08_14', 'hour_02_08',
+                     'day_of_week', 'weekend', 'random_caps', 'start_mention',
+                     'ner', 'pos']
 
         # tf-idf column names
         self.text_cols = None
@@ -140,33 +140,34 @@ class TweetAuthorshipPredictor(object):
             The fit Ensemble object.
         '''
         # Featurize the X data
-        # X_train, X_std_train = self._prepare_data_for_fit(X_train)
-        #
-        # drop = ['created_at', 'text', 'pos', 'ner']
-        #
-        self.tfidf_pos = load_pickle('twitterbot_pickles/tfidf_pos.pkl')
-        self.tfidf_ner = load_pickle('twitterbot_pickles/tfidf_ner.pkl')
-        self.tfidf_text = load_pickle('twitterbot_pickles/tfidf_text.pkl')
-        self.scaler = load_pickle('twitterbot_pickles/scaler.pkl')
+        X_train, X_std_train = self._prepare_data_for_fit(X_train)
+
+        save_pickle(X_train, 'ensemble/X_train.pkl')
+        save_pickle(X_std_train, 'ensemble/X_std_train.pkl')
+        # X_train = load_pickle('twitterbot_pickles/X_train.pkl')
+        # X_std_train = load_pickle('twitterbot_pickles/X_std_train.pkl')
+
+        drop = ['created_at', 'text', 'pos', 'ner']
+
+        # self.tfidf_pos = load_pickle('twitterbot_pickles/tfidf_pos.pkl')
+        # self.tfidf_ner = load_pickle('twitterbot_pickles/tfidf_ner.pkl')
+        # self.tfidf_text = load_pickle('twitterbot_pickles/tfidf_text.pkl')
+        # self.scaler = load_pickle('twitterbot_pickles/scaler.pkl')
         self.text_cols = self.tfidf_text.get_feature_names()
         self.ner_cols = self.tfidf_ner.get_feature_names()
         self.pos_cols = self.tfidf_pos.get_feature_names()
         #
         # # Remove non-numeric features
-        # X_train = X_train.drop(drop, axis=1)
-        # X_std_train = X_std_train.drop(drop, axis=1)
-        # save_pickle(X_train, 'ensemble/X_train.pkl')
-        # save_pickle(X_std_train, 'ensemble/X_std_train.pkl')
-        X_train = load_pickle('twitterbot_pickles/X_train.pkl')
-        X_std_train = load_pickle('twitterbot_pickles/X_std_train.pkl')
+        X_train = X_train.drop(drop, axis=1)
+        X_std_train = X_std_train.drop(drop, axis=1)
 
         # Load the feature sets
-        # feature_list = ridge_grid_scan(X_train,
-        #                                np.array(y_train).ravel(),
-        #                                n=len(X_train.columns))
-        # self.top_feats = [(x[0]) for x in list(feature_list)]
-        # save_pickle(self.top_feats, 'ensemble/top_feats.pkl')
-        self.top_feats = load_pickle('twitterbot_pickles/top_feats.pkl')
+        feature_list = ridge_grid_scan(X_train,
+                                       np.array(y_train).ravel(),
+                                       n=len(X_train.columns))
+        self.top_feats = [(x[0]) for x in list(feature_list)]
+        save_pickle(self.top_feats, 'ensemble/top_feats.pkl')
+        # self.top_feats = load_pickle('twitterbot_pickles/top_feats.pkl')
 
         # Train the PCA objects
         self._gnb_pca_calc(X_std_train[self.top_feats[:13]])

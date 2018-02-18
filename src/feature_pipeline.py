@@ -37,8 +37,7 @@ def feature_pipeline(df, verbose=False):
 
     # Create columns for average tweet, sentence, and word length of tweet
     if verbose:
-        print('   calculating average tweet, sentence, and word length')
-    df = tweet_length(df, 'text')
+        print('   calculating average sentence and word length')
     df = apply_avg_lengths(df, 'text')
 
     # Create columns for counts of punctuation
