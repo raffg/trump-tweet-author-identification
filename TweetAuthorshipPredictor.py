@@ -114,10 +114,9 @@ class TweetAuthorshipPredictor(object):
                      'avg_sentence_length', 'avg_word_length', 'commas',
                      'semicolons', 'exclamations', 'periods', 'questions',
                      'quotes', 'ellipses', 'mentions', 'hashtags', 'urls',
-                     'is_quoted_retweet', 'all_caps', 'tweetstorm', 'hour',
-                     'hour_20_02', 'hour_14_20', 'hour_08_14', 'hour_02_08',
-                     'day_of_week', 'weekend', 'random_caps', 'start_mention',
-                     'ner', 'pos']
+                     'is_quoted_retweet', 'all_caps', 'hour', 'hour_20_02',
+                     'hour_14_20', 'hour_08_14', 'hour_02_08', 'day_of_week',
+                     'weekend', 'random_caps', 'start_mention', 'ner', 'pos']
 
         # tf-idf column names
         self.text_cols = None

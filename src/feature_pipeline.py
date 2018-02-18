@@ -65,9 +65,9 @@ def feature_pipeline(df, verbose=False):
     df = apply_all_caps(df, 'text')
 
     # Create column identifying if the tweet is part of a tweetstorm
-    if verbose:
-        print('   calculating tweetstorm')
-    df = tweetstorm(df, 'text', 'source', 'created_at', 600)
+    # if verbose:
+    #     print('   calculating tweetstorm')
+    # df = tweetstorm(df, 'text', 'source', 'created_at', 600)
 
     # Create column identifying the hour of the day that the tweet was posted
     if verbose:
