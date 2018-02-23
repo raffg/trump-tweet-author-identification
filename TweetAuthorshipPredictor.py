@@ -23,23 +23,14 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, \
 
 
 def main():
-    data_list = (['data/condensed_2009.json',
-                  'data/condensed_2010.json',
-                  'data/condensed_2011.json',
-                  'data/condensed_2012.json',
-                  'data/condensed_2013.json',
-                  'data/condensed_2014.json',
-                  'data/condensed_2015.json',
-                  'data/condensed_2016.json',
-                  'data/condensed_2017.json'])
+    with open('labeled_data_through_feb_21.pkl', 'rb') as f:
+        df = pickle.load(f)
 
     print('Loading data...')
-    df = load_json_list(data_list)
-    df = df.sort_values('created_at').reset_index(drop=True)
-    df2 = apply_date_mask(df, 'created_at', '2009-01-01', '2017-03-26')
+    # df2 = apply_date_mask(df, 'created_at', '2009-01-01', '2017-03-26')
 
-    y = pd.DataFrame(np.where(df2['source'] == 'Twitter for Android', 1, 0))
-    X = df2.copy()
+    y = pd.DataFrame(np.where(df['label'] == 1, 1, 0))
+    X = df.drop(['label'], axis=1)
     save_pickle(y, 'ensemble/y_train.pkl')
 
     trump = TweetAuthorshipPredictor()
