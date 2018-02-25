@@ -27,7 +27,7 @@ def main():
         df = pickle.load(f)
 
     print('Loading data...')
-    # df2 = apply_date_mask(df, 'created_at', '2009-01-01', '2017-03-26')
+    # df = apply_date_mask(df, 'created_at', '2015-06-16', '2018-03-26')
 
     y = pd.DataFrame(np.where(df['label'] == 1, 1, 0))
     X = df.drop(['label'], axis=1)
@@ -130,19 +130,19 @@ class TweetAuthorshipPredictor(object):
             The fit Ensemble object.
         '''
         # Featurize the X data
-        # X_train, X_std_train = self._prepare_data_for_fit(X_train)
+        X_train, X_std_train = self._prepare_data_for_fit(X_train)
 
-        # save_pickle(X_train, 'ensemble/X_train.pkl')
-        # save_pickle(X_std_train, 'ensemble/X_std_train.pkl')
-        X_train = load_pickle('twitterbot_pickles/X_train.pkl')
-        X_std_train = load_pickle('twitterbot_pickles/X_std_train.pkl')
+        save_pickle(X_train, 'ensemble/X_train.pkl')
+        save_pickle(X_std_train, 'ensemble/X_std_train.pkl')
+        # X_train = load_pickle('twitterbot_pickles/X_train.pkl')
+        # X_std_train = load_pickle('twitterbot_pickles/X_std_train.pkl')
 
         drop = ['created_at', 'text', 'pos', 'ner']
 
-        self.tfidf_pos = load_pickle('twitterbot_pickles/tfidf_pos.pkl')
-        self.tfidf_ner = load_pickle('twitterbot_pickles/tfidf_ner.pkl')
-        self.tfidf_text = load_pickle('twitterbot_pickles/tfidf_text.pkl')
-        self.scaler = load_pickle('twitterbot_pickles/scaler.pkl')
+        # self.tfidf_pos = load_pickle('twitterbot_pickles/tfidf_pos.pkl')
+        # self.tfidf_ner = load_pickle('twitterbot_pickles/tfidf_ner.pkl')
+        # self.tfidf_text = load_pickle('twitterbot_pickles/tfidf_text.pkl')
+        # self.scaler = load_pickle('twitterbot_pickles/scaler.pkl')
         self.text_cols = self.tfidf_text.get_feature_names()
         self.ner_cols = self.tfidf_ner.get_feature_names()
         self.pos_cols = self.tfidf_pos.get_feature_names()
