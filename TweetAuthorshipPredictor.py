@@ -17,17 +17,16 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.svm import SVC
 from sklearn.linear_model import SGDClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, \
                             f1_score
 
 
 def main():
-    with open('labeled_data_through_feb_21.pkl', 'rb') as f:
+    with open('labeled_data_through_mar_11.pkl', 'rb') as f:
         df = pickle.load(f)
 
     print('Loading data...')
-    # df = apply_date_mask(df, 'created_at', '2015-06-16', '2018-03-26')
+    df = apply_date_mask(df, 'created_at', '2009-01-01', '2018-12-31')
 
     y = pd.DataFrame(np.where(df['label'] == 1, 1, 0))
     X = df.drop(['label'], axis=1)
@@ -78,7 +77,7 @@ class TweetAuthorshipPredictor(object):
         self.svc = None
         self.svm = None
         self.lr = None
-        self.dt = None
+        self.ridge = None
 
         # Save the data processing objects
         self.top_feats = None
@@ -95,7 +94,7 @@ class TweetAuthorshipPredictor(object):
                     'trust', 'avg_sentence_length', 'avg_word_length',
                     'commas', 'semicolons', 'exclamations', 'periods',
                     'questions', 'quotes', 'ellipses', 'mentions',
-                    'hashtags', 'urls', 'all_caps', 'hour', 'random_caps']
+                    'hashtags', 'urls', 'all_caps', 'random_caps']
 
         # Columns to train on prior to tf-idf
         self.feat = ['created_at', 'is_retweet', 'text', 'is_reply',
@@ -105,14 +104,25 @@ class TweetAuthorshipPredictor(object):
                      'avg_sentence_length', 'avg_word_length', 'commas',
                      'semicolons', 'exclamations', 'periods', 'questions',
                      'quotes', 'ellipses', 'mentions', 'hashtags', 'urls',
-                     'is_quoted_retweet', 'all_caps', 'hour', 'hour_20_02',
-                     'hour_14_20', 'hour_08_14', 'hour_02_08', 'day_of_week',
-                     'weekend', 'random_caps', 'start_mention', 'ner', 'pos']
+                     'is_quoted_retweet', 'all_caps', 'hour_20_02',
+                     'hour_14_20', 'hour_08_14', 'hour_02_08', 'weekend',
+                     'random_caps', 'start_mention', 'ner', 'pos']
 
         # tf-idf column names
         self.text_cols = None
         self.pos_cols = None
         self.ner_cols = None
+
+        # Set the number of features for each model
+        self.rf_feats = 200
+        self.ab_feats = 300
+        self.gb_feats = 300
+        self.knn_feats = 13
+        self.nb_feats = 5
+        self.gnb_feats = 13
+        self.svc_feats = 50
+        self.svm_feats = 300
+        self.lr_feats = 200
 
     def fit(self, X_train, y_train):
         ''' Train the ensemble with X and y data
@@ -168,15 +178,15 @@ class TweetAuthorshipPredictor(object):
         # self.knn_pca = load_pickle('twitterbot_pickles/knn_pca.pkl')
 
         # Train the individual models
-        data = self._first_stage_train(X_train, X_std_train,
-                                       np.array(y_train).ravel())
-        X_train_dt = pd.DataFrame(data)
+        data, probabilities = self._first_stage_train(X_train, X_std_train,
+                                                      np.array(y_train).
+                                                      ravel())
+        X_train_ridge = pd.DataFrame(probabilities)
 
-        X_train_dt['majority'] = X_train_dt.apply(self._majority, axis=1)
-        save_pickle(X_train_dt, 'ensemble/X_train_dt.pkl')
-        # X_train_dt = load_pickle('twitterbot_pickles/X_train_dt.pkl')
+        save_pickle(X_train_ridge, 'ensemble/X_train_ridge.pkl')
+        # X_train_ridge = load_pickle('twitterbot_pickles/X_train_ridge.pkl')
 
-        self.dt = self._decision_tree(X_train_dt, np.array(y_train).ravel())
+        self.ridge = self._ridge(X_train_ridge, np.array(y_train).ravel())
 
         return self
 
@@ -190,22 +200,21 @@ class TweetAuthorshipPredictor(object):
 
         Returns
         -------
-        y: 1 or 0
-            Predicted label
+        y: (1 or 0, probability)
+            Predicted label, probabilities
         '''
         X, X_std = self._prepare_data_for_predict(X)
         data, probabilities = self._first_stage_predict(X, X_std)
-        X_dt = pd.DataFrame(data)
-        X_dt['majority'] = X_dt.apply(self._majority, axis=1)
+        X_ridge = pd.DataFrame(probabilities)
 
-        prediction = self.dt.predict(X_dt)
+        prediction = self.ridge.predict(X_ridge)
         proba_list = []
         for key, value in probabilities.items():
             if data[key] == prediction:
-                proba_list.append(value[0][prediction])
+                proba_list.append(probabilities[key])
         proba = np.mean(proba_list)
 
-        return self.dt.predict(X_dt), proba
+        return prediction, proba
 
     def get_top_features(self):
         '''Returns a list of the features ordered by influence
@@ -235,7 +244,11 @@ class TweetAuthorshipPredictor(object):
         and standardizes.
         '''
         # Create new feature columns
-        X = feature_pipeline(X, verbose=True)
+        # X = feature_pipeline(X, verbose=True)
+        # save_pickle(X, 'ensemble/X.pkl')
+        X = load_pickle('X.pkl')
+        X = apply_date_mask(X, 'created_at', '2009-01-01', '2018-12-31')
+
         X = self._tfidf_fit_transform(X[self.feat])
         self._standard_scaler(X[self.std])
         X_std = self._standardize(X)
@@ -255,15 +268,15 @@ class TweetAuthorshipPredictor(object):
     def _first_stage_train(self, X_train, X_std_train, y_train):
         '''Train models in first stage of 9 models
         '''
-        rf_feat = self.top_feats[:200]
-        ab_feat = self.top_feats[:300]
-        gb_feat = self.top_feats[:300]
-        knn_feat = self.top_feats[:13]
-        nb_feat = self.top_feats[:5]
-        gnb_feat = self.top_feats[:13]
-        svc_feat = self.top_feats[:50]
-        svm_feat = self.top_feats[:300]
-        lr_feat = self.top_feats[:200]
+        rf_feat = self.top_feats[:self.rf_feats]
+        ab_feat = self.top_feats[:self.ab_feats]
+        gb_feat = self.top_feats[:self.gb_feats]
+        knn_feat = self.top_feats[:self.knn_feats]
+        nb_feat = self.top_feats[:self.nb_feats]
+        gnb_feat = self.top_feats[:self.gnb_feats]
+        svc_feat = self.top_feats[:self.svc_feats]
+        svm_feat = self.top_feats[:self.svm_feats]
+        lr_feat = self.top_feats[:self.lr_feats]
 
         rf_results = self._random_forest(X_train[rf_feat], y_train)
         ab_results = self._adaboost(X_std_train[ab_feat], y_train)
@@ -276,51 +289,72 @@ class TweetAuthorshipPredictor(object):
         svm_results = self._svm(X_std_train[svm_feat], y_train)
         lr_results = self._logistic_regression(X_std_train[lr_feat], y_train)
 
-        return {'rf': rf_results, 'ab': ab_results, 'gb': gb_results,
-                'knn': knn_results, 'nb': nb_results, 'gnb': gnb_results,
-                'svc': svc_results, 'svm': svm_results, 'lr': lr_results}
+        data = {'rf': rf_results[0], 'ab': ab_results[0],
+                'gb': gb_results[0], 'knn': knn_results[0],
+                'nb': nb_results[0], 'gnb': gnb_results[0],
+                'svc': svc_results[0], 'svm': svm_results[0],
+                'lr': lr_results[0]}
+
+        probabilities = {'rf': rf_results[1], 'ab': ab_results[1],
+                         'gb': gb_results[1], 'knn': knn_results[1],
+                         'nb': nb_results[1], 'gnb': gnb_results[1],
+                         'svc': svc_results[1], 'svm': svm_results[1],
+                         'lr': lr_results[1]}
+
+        for key, value in probabilities.items():
+            probabilities[key] = [item[1] for item in probabilities[key]]
+
+        return data, probabilities
 
     def _first_stage_predict(self, X, X_std):
         '''Calculate predictions for first stage of 9 models
         '''
-        rf_feat = self.top_feats[:200]
-        ab_feat = self.top_feats[:300]
-        gb_feat = self.top_feats[:300]
-        knn_feat = self.top_feats[:13]
-        nb_feat = self.top_feats[:5]
-        gnb_feat = self.top_feats[:13]
-        svc_feat = self.top_feats[:50]
-        svm_feat = self.top_feats[:300]
-        lr_feat = self.top_feats[:200]
+        rf_feat = self.top_feats[:self.rf_feats]
+        ab_feat = self.top_feats[:self.ab_feats]
+        gb_feat = self.top_feats[:self.gb_feats]
+        knn_feat = self.top_feats[:self.knn_feats]
+        nb_feat = self.top_feats[:self.nb_feats]
+        gnb_feat = self.top_feats[:self.gnb_feats]
+        svc_feat = self.top_feats[:self.svc_feats]
+        svm_feat = self.top_feats[:self.svm_feats]
+        lr_feat = self.top_feats[:self.lr_feats]
 
         X_knn = self.knn_pca.transform(X_std[knn_feat])
         X_gnb = self.gnb_pca.transform(X_std[gnb_feat])
 
-        rf_results = self.rf.predict(X[rf_feat])
-        ab_results = self.ab.predict(X_std[ab_feat])
-        gb_results = self.gb.predict(X_std[gb_feat])
-        knn_results = self.knn.predict(X_knn)
-        nb_results = self.nb.predict(X[nb_feat])
-        gnb_results = self.gnb.predict(X_gnb)
-        svc_results = self.svc.predict(X_std[svc_feat])
-        svm_results = self.svm.predict(X_std[svm_feat])
-        lr_results = self.lr.predict(X_std[lr_feat])
+        rf_results = (self.rf.predict(X[rf_feat]),
+                      self.rf.predict_proba(X[rf_feat]))
+        ab_results = (self.ab.predict(X_std[ab_feat]),
+                      self.ab.predict_proba(X_std[ab_feat]))
+        gb_results = (self.gb.predict(X_std[gb_feat]),
+                      self.gb.predict_proba(X_std[gb_feat]))
+        knn_results = (self.knn.predict(X_knn),
+                       self.knn.predict_proba(X_knn))
+        nb_results = (self.nb.predict(X[nb_feat]),
+                      self.nb.predict_proba(X[nb_feat]))
+        gnb_results = (self.gnb.predict(X_gnb),
+                       self.gnb.predict_proba(X_gnb))
+        svc_results = (self.svc.predict(X_std[svc_feat]),
+                       self.svc.predict_proba(X_std[svc_feat]))
+        svm_results = (self.svm.predict(X_std[svm_feat]),
+                       self.svm.predict_proba(X_std[svm_feat]))
+        lr_results = (self.lr.predict(X_std[lr_feat]),
+                      self.lr.predict_proba(X_std[lr_feat]))
 
-        data = {'rf': rf_results, 'ab': ab_results, 'gb': gb_results,
-                'knn': knn_results, 'nb': nb_results, 'gnb': gnb_results,
-                'svc': svc_results, 'svm': svm_results, 'lr': lr_results}
+        data = {'rf': rf_results[0], 'ab': ab_results[0],
+                'gb': gb_results[0], 'knn': knn_results[0],
+                'nb': nb_results[0], 'gnb': gnb_results[0],
+                'svc': svc_results[0], 'svm': svm_results[0],
+                'lr': lr_results[0]}
 
-        rf_predict = self.rf.predict_proba(X[rf_feat])
-        ab_predict = self.ab.predict_proba(X_std[ab_feat])
-        gb_predict = self.gb.predict_proba(X_std[gb_feat])
-        knn_predict = self.knn.predict_proba(X_knn)
-        nb_predict = self.nb.predict_proba(X[nb_feat])
-        gnb_predict = self.gnb.predict_proba(X_gnb)
-        lr_predict = self.lr.predict_proba(X_std[lr_feat])
+        probabilities = {'rf': rf_results[1], 'ab': ab_results[1],
+                         'gb': gb_results[1], 'knn': knn_results[1],
+                         'nb': nb_results[1], 'gnb': gnb_results[1],
+                         'svc': svc_results[1], 'svm': svm_results[1],
+                         'lr': lr_results[1]}
 
-        probabilities = {'rf': rf_predict, 'ab': ab_predict, 'gb': gb_predict,
-                         'knn': knn_predict, 'nb': nb_predict,
-                         'gnb': gnb_predict, 'lr': lr_predict}
+        for key, value in probabilities.items():
+            probabilities[key] = [item[1] for item in probabilities[key]]
 
         for key, value in probabilities.items():
             print(key, value)
@@ -339,21 +373,23 @@ class TweetAuthorshipPredictor(object):
                                     min_samples_split=2,
                                     n_estimators=1000,
                                     n_jobs=-1).fit(X_train, y_train)
+        save_pickle(rf, 'ensemble/rf.pkl')
+        # rf = load_pickle('twitterbot_pickles/rf.pkl')
         predicted = rf.predict(X_train)
+        proba = rf.predict_proba(X_train)
         self.rf = rf
-        save_pickle(self.rf, 'ensemble/rf.pkl')
-        # self.rf = load_pickle('twitterbot_pickles/rf.pkl')
-        return predicted
+        return predicted, proba
 
     def _adaboost(self, X_train, y_train):
         print('Running AdaBoost')
         ab = AdaBoostClassifier(learning_rate=1.25,
                                 n_estimators=40).fit(X_train, y_train)
+        save_pickle(ab, 'ensemble/ab.pkl')
+        # ab = load_pickle('twitterbot_pickles/ab.pkl')
         predicted = ab.predict(X_train)
+        proba = ab.predict_proba(X_train)
         self.ab = ab
-        save_pickle(self.ab, 'ensemble/ab.pkl')
-        # self.ab = load_pickle('twitterbot_pickles/ab.pkl')
-        return predicted
+        return predicted, proba
 
     def _gradient_boosting(self, X_train, y_train):
         print('Running Gradient Boosting')
@@ -365,21 +401,23 @@ class TweetAuthorshipPredictor(object):
                                         subsample=1,
                                         max_features=None
                                         ).fit(X_train, y_train)
+        save_pickle(gb, 'ensemble/gb.pkl')
+        # gb = load_pickle('twitterbot_pickles/gb.pkl')
         predicted = gb.predict(X_train)
+        proba = gb.predict_proba(X_train)
         self.gb = gb
-        save_pickle(self.gb, 'ensemble/gb.pkl')
-        # self.gb = load_pickle('twitterbot_pickles/gb.pkl')
-        return predicted
+        return predicted, proba
 
     def _knn(self, X_train, y_train):
         print('Running K Nearest Neighbors')
         X_train = self.knn_pca.transform(X_train)
         knn = KNeighborsClassifier(n_neighbors=7).fit(X_train, y_train)
+        save_pickle(knn, 'ensemble/knn.pkl')
+        # knn = load_pickle('twitterbot_pickles/knn.pkl')
         predicted = knn.predict(X_train)
+        proba = knn.predict_proba(X_train)
         self.knn = knn
-        save_pickle(self.knn, 'ensemble/knn.pkl')
-        # self.knn = load_pickle('twitterbot_pickles/knn.pkl')
-        return predicted
+        return predicted, proba
 
     def _knn_pca_calc(self, X_train):
         # Perform Principle Component Analysis
@@ -391,21 +429,23 @@ class TweetAuthorshipPredictor(object):
     def _naive_bayes(self, X_train, y_train):
         print('Running Multinomial Naive Bayes')
         nb = MultinomialNB(alpha=10).fit(X_train, y_train)
+        save_pickle(nb, 'ensemble/nb.pkl')
+        # nb = load_pickle('twitterbot_pickles/nb.pkl')
         predicted = nb.predict(X_train)
+        proba = nb.predict_proba(X_train)
         self.nb = nb
-        save_pickle(self.nb, 'ensemble/nb.pkl')
-        # self.nb = load_pickle('twitterbot_pickles/nb.pkl')
-        return predicted
+        return predicted, proba
 
     def _gaussian_naive_bayes(self, X_train, y_train):
         print('Running Gaussian Naive Bayes')
         X_train = self.gnb_pca.transform(X_train)
         gnb = GaussianNB().fit(X_train, y_train)
+        save_pickle(gnb, 'ensemble/gnb.pkl')
+        # gnb = load_pickle('twitterbot_pickles/gnb.pkl')
         predicted = gnb.predict(X_train)
+        proba = gnb.predict_proba(X_train)
         self.gnb = gnb
-        save_pickle(self.gnb, 'ensemble/gnb.pkl')
-        # self.gnb= load_pickle('twitterbot_pickles/gnb.pkl')
-        return predicted
+        return predicted, proba
 
     def _gnb_pca_calc(self, X_train):
         # Perform Principle Component Analysis
@@ -421,56 +461,51 @@ class TweetAuthorshipPredictor(object):
                   degree=2,
                   gamma='auto',
                   kernel='poly',
-                  shrinking=False).fit(X_train, y_train)
+                  shrinking=False,
+                  probability=True).fit(X_train, y_train)
+        save_pickle(svc, 'ensemble/svc.pkl')
+        # svc = load_pickle('twitterbot_pickles/svc.pkl')
         predicted = svc.predict(X_train)
+        proba = svc.predict_proba(X_train)
         self.svc = svc
-        save_pickle(self.svc, 'ensemble/svc.pkl')
-        # self.svc = load_pickle('twitterbot_pickles/svc.pkl')
-        return predicted
+        return predicted, proba
 
     def _svm(self, X_train, y_train):
         print('Running Support Vector Machine')
-        svm = SGDClassifier(loss='hinge', penalty='l2',
+        svm = SGDClassifier(loss='modified_huber', penalty='l2',
                             alpha=0.0001, max_iter=10).fit(X_train, y_train)
+        save_pickle(svm, 'ensemble/svm.pkl')
+        # svm = load_pickle('twitterbot_pickles/svm.pkl')
         predicted = svm.predict(X_train)
+        proba = svm.predict_proba(X_train)
         self.svm = svm
-        save_pickle(self.svm, 'ensemble/svm.pkl')
-        # self.svm = load_pickle('twitterbot_pickles/svm.pkl')
-        return predicted
+        return predicted, proba
 
     def _logistic_regression(self, X_train, y_train):
         print('Running Logistic Regression')
         lr = LogisticRegression(C=.05).fit(X_train, y_train)
+        save_pickle(lr, 'ensemble/lr.pkl')
+        # lr = load_pickle('twitterbot_pickles/lr.pkl')
         predicted = lr.predict(X_train)
+        proba = lr.predict_proba(X_train)
         self.lr = lr
-        save_pickle(self.lr, 'ensemble/lr.pkl')
-        # self.lr = load_pickle('twitterbot_pickles/lr.pkl')
-        return predicted
+        return predicted, proba
 
-    def _decision_tree(self, X_train, y_train):
-        print('Running Decision Tree')
-        dt = DecisionTreeClassifier(criterion='gini',
-                                    max_depth=None,
-                                    min_weight_fraction_leaf=0.001,
-                                    splitter='best')
-        dt.fit(X_train, y_train)
-        self.dt = dt
-        save_pickle(self.dt, 'ensemble/dt.pkl')
-        # self.dt = load_pickle('twitterbot_pickles/dt.pkl')
-        return dt
-
-    def _majority(self, row):
-        val = 1 if (row['rf'] + row['ab'] + row['gb'] + row['knn'] + row['nb']
-                    + row['gnb'] + row['svc'] + row['svm'] + row['lr']
-                    ) > 3 else 0
-        return val
+    def _ridge(self, X_train, y_train):
+        print('Running Ridge Regression')
+        ridge = LogisticRegression(penalty='l2', C=10000000)
+        save_pickle(ridge, 'ensemble/ridge.pkl')
+        # ridge = load_pickle('twitterbot_pickles/ridge.pkl')
+        ridge.fit(X_train, y_train)
+        self.ridge = ridge
+        return ridge
 
     def _tfidf_fit_transform(self, X):
         '''Fits and concatenates tf-idf columns to X for text, pos, and ner
         '''
         print('Calculating TF-IDF')
         # Perform TF-IDF on text column
-        print('   on text column')
+        print('  on text column')
         self.tfidf_text = TfidfVectorizer(ngram_range=(1, 2),
                                           lowercase=False,
                                           token_pattern='\w+|\@\w+',
@@ -487,7 +522,7 @@ class TweetAuthorshipPredictor(object):
         # self.tfidf_text = load_pickle('twitterbot_pickles/tfidf_text.pkl')
 
         # Perform TF-IDF on ner column
-        print('   on ner column')
+        print('  on ner column')
         self.tfidf_ner = TfidfVectorizer(ngram_range=(1, 2),
                                          lowercase=False,
                                          norm='l2',
@@ -502,7 +537,7 @@ class TweetAuthorshipPredictor(object):
         # self.tfidf_ner = load_pickle('twitterbot_pickles/tfidf_ner.pkl')
 
         # Perform TF-IDF on pos column
-        print('   on pos column')
+        print('  on pos column')
         self.tfidf_pos = TfidfVectorizer(ngram_range=(2, 3),
                                          lowercase=False,
                                          norm='l2',
@@ -561,14 +596,14 @@ class TweetAuthorshipPredictor(object):
 def save_pickle(item, filename):
     # Save pickle file
     output = open(filename, 'wb')
-    print('Pickle dump', filename)
+    print('     Pickle dump', filename)
     pickle.dump(item, output, protocol=4)
     output.close()
 
 
 def load_pickle(filename):
     # Open pickle filename
-    print('Pickle load', filename)
+    print('     Pickle load', filename)
     with open(filename, 'rb') as f:
         return pickle.load(f)
 
