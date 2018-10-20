@@ -25,7 +25,7 @@ def apply_vader(df, column):
     '''
 
     sentiment = pd.DataFrame(df[column].apply(get_vader_scores))
-    unpacked = pd.DataFrame([d for idx, d in sentiment['text'].iteritems()],
+    unpacked = pd.DataFrame([d for idx, d in sentiment[column].iteritems()],
                             index=sentiment.index)
     unpacked['compound'] += 1
     columns = {'neu': 'v_neutral', 'pos': 'v_positive', 'neg': 'v_negative'}
