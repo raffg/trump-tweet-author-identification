@@ -1,6 +1,6 @@
 matplotlib==2.1.0
 tweepy==3.5.0
-nltk==3.2.1
+nltk==3.4.5
 requests==2.18.4
 pandas==0.20.3
 numpy==1.13.3
