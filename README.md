@@ -2,6 +2,10 @@
 
 This project is an attempt to build a model which can identify if Trump is truly the author of any given tweet on his account, or if it was written and posted by an aide. It is widely reported in the news that many of his tweets are actually written by staff. With particularly controversial tweets, and especially given that he sometimes makes presidential decrees through his Twitter account, it can be enlightening to have greater certainty in the authorship of his tweets.
 
+I have written some Medium posts about this project going into greater detail about my procedure and results. Those posts can be accessed here:
+- [Who’s Tweeting from the Oval Office?](https://towardsdatascience.com/whos-tweeting-from-the-oval-office-96ea5b60c03)
+- [Who’s Tweeting from the Oval Office? - Building a Twitter bot](https://towardsdatascience.com/whos-tweeting-from-the-oval-office-building-a-twitter-bot-9c602edf91dd)
+
 ![Did Trump Tweet It?](images/trump_ticker.gif)
 
 Did Trump tweet it? Or just an aide in Trump clothing?
